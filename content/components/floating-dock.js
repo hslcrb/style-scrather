@@ -9,6 +9,7 @@ class FloatingDock {
     this.interactionDetector = options.interactionDetector || (typeof InteractionDetector !== 'undefined' ? new InteractionDetector() : null);
     this.pageController = options.pageController || (typeof PageController !== 'undefined' ? new PageController() : null);
     this.motionInspector = options.motionInspector || (typeof MotionInspector !== 'undefined' ? new MotionInspector() : null);
+    this.instantZoom = options.instantZoom || (typeof InstantZoom !== 'undefined' ? new InstantZoom() : null);
     this.onToggleInspector = options.onToggleInspector || (() => {});
     
     this.container = null;
@@ -36,7 +37,7 @@ class FloatingDock {
             </svg>
           </div>
           <span class="dock-title">Style Scratcher</span>
-          <span class="dock-badge">v2.0</span>
+          <span class="dock-badge">v2.1.0</span>
         </div>
         <div class="dock-controls">
           <button class="icon-btn" id="minimizeBtn" title="최소화/펼치기">
@@ -757,10 +758,24 @@ class FloatingDock {
     container.innerHTML = `
       <div class="section-title">접근성 및 편의 도구 (Power Tools)</div>
 
+      <!-- Instant Zoom In / Zoom Out (v2.1.0) -->
+      <div class="tool-banner" style="margin-bottom: 8px;">
+        <div style="flex: 1; padding-right: 10px;">
+          <div class="tool-meta-title">인스턴트 줌인 / 줌아웃 (Hold Z)</div>
+          <div class="tool-meta-desc">
+            꾹 누르면 부드럽게 줌인(520ms), 떼면 빠르게 줌아웃(200ms).<br>
+            <span style="color: #9CA3AF; font-size: 9px;">(Ctrl + +/- 노멀 줌과 별개의 피그마 순간 돋보기 줌)</span>
+          </div>
+        </div>
+        <button class="toggle-switch-btn" id="holdInstantZoomBtn" style="width: auto; min-width: 100px; text-align: center; user-select: none;">
+          꾹 눌러서 줌
+        </button>
+      </div>
+
       <!-- Copy & Right-Click Unblocker -->
       <div class="tool-banner">
         <div>
-          <div class="tool-meta-title">복사 & 우클릭 차단 해제</div>
+          <div class="tool-meta-title">복사 & 우클릭 차단 해제 (Alt + U)</div>
           <div class="tool-meta-desc">user-select 및 우클릭/드래그 방지 스크립트 무력화</div>
         </div>
         <button class="toggle-switch-btn ${isUnblocked ? 'active' : ''}" id="toggleUnblockBtn">
@@ -803,6 +818,28 @@ class FloatingDock {
         </button>
       </div>
     `;
+
+    // Instant Zoom hold/release events
+    const zoomBtn = container.querySelector('#holdInstantZoomBtn');
+    if (zoomBtn && this.instantZoom) {
+      const start = (e) => {
+        e.preventDefault();
+        zoomBtn.classList.add('active');
+        zoomBtn.textContent = '줌인 유지 중...';
+        this.instantZoom.startZoom();
+      };
+      const end = (e) => {
+        zoomBtn.classList.remove('active');
+        zoomBtn.textContent = '꾹 눌러서 줌';
+        this.instantZoom.endZoom();
+      };
+
+      zoomBtn.addEventListener('mousedown', start);
+      zoomBtn.addEventListener('mouseup', end);
+      zoomBtn.addEventListener('mouseleave', end);
+      zoomBtn.addEventListener('touchstart', start, { passive: false });
+      zoomBtn.addEventListener('touchend', end);
+    }
 
     container.querySelector('#toggleUnblockBtn').addEventListener('click', () => {
       if (this.pageController) {

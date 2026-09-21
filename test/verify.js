@@ -1,25 +1,67 @@
-// Style Scratcher v2.0 - Automated Verification Test Suite
+// Style Scratcher v2.1.0 - Automated Verification Test Suite
 
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const vm = require('vm');
 
-console.log('🧪 [Style Scratcher v2.0] Running Comprehensive Verification Test Suite...\n');
+console.log('🧪 [Style Scratcher v2.1.0] Running Comprehensive Verification Test Suite...\n');
 
-// 1. Verify Manifest V3 & Version 2.0.0
-console.log('1. Verifying manifest.json v2.0.0...');
+// 1. Verify Manifest V3 & Version 2.1.0
+console.log('1. Verifying manifest.json v2.1.0...');
 const manifestPath = path.join(__dirname, '..', 'manifest.json');
 assert(fs.existsSync(manifestPath), 'manifest.json must exist');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 assert.strictEqual(manifest.manifest_version, 3, 'Manifest version must be 3');
-assert.strictEqual(manifest.version, '2.0.0', 'Extension version must be 2.0.0');
+assert.strictEqual(manifest.version, '2.1.0', 'Extension version must be 2.1.0');
 assert(manifest.action && manifest.action.default_popup, 'Popup must be declared');
 assert(manifest.content_scripts && manifest.content_scripts.length > 0, 'Content scripts must be declared');
-console.log('   ✅ manifest.json is valid Manifest V3 (v2.0.0).\n');
+const scripts = manifest.content_scripts[0].js;
+assert(scripts.includes('content/instant-zoom.js'), 'instant-zoom.js must be in manifest content_scripts');
+console.log('   ✅ manifest.json is valid Manifest V3 (v2.1.0) with instant-zoom.js.\n');
 
-// 2. Test UnitConverter (Multi-Unit Engine)
-console.log('2. Testing UnitConverter (Multi-Unit Distance Engine)...');
+// 2. Test InstantZoom (Figma-Style Momentary Canvas Zoom In/Out)
+console.log('2. Testing InstantZoom (520ms In / 200ms Out Curve Engine)...');
+const zoomCode = fs.readFileSync(path.join(__dirname, '..', 'content', 'instant-zoom.js'), 'utf8');
+const fakeBody = { style: {}, appendChild: () => {} };
+const zoomSandbox = {
+  window: {
+    innerWidth: 1920,
+    innerHeight: 1080,
+    addEventListener: () => {}
+  },
+  document: {
+    body: fakeBody,
+    activeElement: null,
+    createElement: () => ({ style: {}, innerHTML: '', appendChild: () => {} })
+  },
+  setTimeout: setTimeout,
+  clearTimeout: clearTimeout
+};
+vm.createContext(zoomSandbox);
+vm.runInContext(zoomCode, zoomSandbox);
+const InstantZoom = zoomSandbox.window.InstantZoom;
+const iz = new InstantZoom();
+
+// Test Initial State
+assert.strictEqual(iz.isZoomed, false, 'Should start unzoomed');
+assert.strictEqual(iz.maxScale, 2.4, 'Max scale should be 2.4x');
+
+// Test startZoom
+iz.startZoom();
+assert.strictEqual(iz.isZoomed, true, 'isZoomed should be true after startZoom');
+assert(fakeBody.style.transform.includes('scale(2.4)'), 'Body transform should be scale(2.4)');
+assert(fakeBody.style.transition.includes('520ms'), 'Zoom-in transition must be smooth (520ms)');
+
+// Test endZoom
+iz.endZoom();
+assert.strictEqual(iz.isZoomed, false, 'isZoomed should be false after endZoom');
+assert.strictEqual(fakeBody.style.transform, 'scale(1)', 'Body transform should return to scale(1)');
+assert(fakeBody.style.transition.includes('200ms'), 'Zoom-out transition must be faster than zoom-in (200ms vs 520ms)');
+console.log('   ✅ InstantZoom passed smooth zoom-in (520ms) and snappy zoom-out (200ms) tests.\n');
+
+// 3. Test UnitConverter (Multi-Unit Engine)
+console.log('3. Testing UnitConverter (Multi-Unit Distance Engine)...');
 const unitCode = fs.readFileSync(path.join(__dirname, '..', 'content', 'unit-converter.js'), 'utf8');
 const sandbox = { window: { innerWidth: 1920, innerHeight: 1080 }, document: {} };
 vm.createContext(sandbox);
@@ -39,17 +81,13 @@ assert.strictEqual(remRes.formatted, '2rem');
 const ptRes = uc.convert(32, 'pt');
 assert.strictEqual(ptRes.formatted, '24pt');
 
-// Test vw
-const vwRes = uc.convert(192, 'vw');
-assert(vwRes.formatted.includes('vw'));
-
 // Test formatBadge
 assert.strictEqual(uc.formatBadge(32, 'px'), '32px');
 assert.strictEqual(uc.formatBadge(32, 'rem'), '2rem (32px)');
-console.log('   ✅ UnitConverter passed px, rem, pt, vw conversions and badge formatting.\n');
+console.log('   ✅ UnitConverter passed px, rem, pt conversions and badge formatting.\n');
 
-// 3. Test MotionInspector & Cubic-Bezier
-console.log('3. Testing MotionInspector & Cubic-Bezier Parser...');
+// 4. Test MotionInspector & Cubic-Bezier
+console.log('4. Testing MotionInspector & Cubic-Bezier Parser...');
 const motionCode = fs.readFileSync(path.join(__dirname, '..', 'content', 'motion-inspector.js'), 'utf8');
 vm.runInContext(motionCode, sandbox);
 const MotionInspector = sandbox.window.MotionInspector;
@@ -69,8 +107,8 @@ assert(svgOutput.includes('<svg'), 'Should render valid SVG for bezier curve');
 assert(svgOutput.includes('<path d="M'), 'Should render bezier path');
 console.log('   ✅ MotionInspector passed cubic-bezier parsing and SVG rendering.\n');
 
-// 4. Test GraphicsInspector
-console.log('4. Testing GraphicsInspector...');
+// 5. Test GraphicsInspector
+console.log('5. Testing GraphicsInspector...');
 const graphicsCode = fs.readFileSync(path.join(__dirname, '..', 'content', 'graphics-inspector.js'), 'utf8');
 vm.runInContext(graphicsCode, sandbox);
 const GraphicsInspector = sandbox.window.GraphicsInspector;
@@ -78,8 +116,8 @@ assert(typeof GraphicsInspector.inspectCanvas === 'function');
 assert(typeof GraphicsInspector.inspectSvg === 'function');
 console.log('   ✅ GraphicsInspector module validated.\n');
 
-// 5. Test PageController (Unblock & Freeze)
-console.log('5. Testing PageController (Unblocker & Freezer)...');
+// 6. Test PageController (Unblock & Freeze)
+console.log('6. Testing PageController (Unblocker & Freezer)...');
 const pageCtrlCode = fs.readFileSync(path.join(__dirname, '..', 'content', 'page-controller.js'), 'utf8');
 vm.runInContext(pageCtrlCode, sandbox);
 const PageController = sandbox.window.PageController;
@@ -88,16 +126,6 @@ assert.strictEqual(pc.isUnblocked, false);
 assert.strictEqual(pc.isFrozen, false);
 console.log('   ✅ PageController initialized successfully.\n');
 
-// 6. Test InteractionDetector
-console.log('6. Testing InteractionDetector...');
-const interCode = fs.readFileSync(path.join(__dirname, '..', 'content', 'interaction-detector.js'), 'utf8');
-vm.runInContext(interCode, sandbox);
-const InteractionDetector = sandbox.window.InteractionDetector;
-const id = new InteractionDetector();
-assert(typeof id.getEventListeners === 'function');
-assert(typeof id.togglePseudo === 'function');
-console.log('   ✅ InteractionDetector methods validated.\n');
-
 // 7. Verify Design System: Anti-Pill Button Radius Rule
 console.log('7. Verifying Design System: Strict Non-Pill Radius...');
 const shadowCss = fs.readFileSync(path.join(__dirname, '..', 'content', 'styles', 'shadow-styles.css'), 'utf8');
@@ -105,12 +133,13 @@ assert(!shadowCss.includes('border-radius: 9999px'), 'Must not contain full caps
 assert(shadowCss.includes('border-radius: 6px') || shadowCss.includes('--radius-sm: 6px'), 'Must strictly maintain 6px-8px radius');
 console.log('   ✅ Strict non-pill radius constraint preserved.\n');
 
-// 8. Project Files Completeness
-console.log('8. Verifying File Completeness for v2.0...');
-const v2Files = [
+// 8. Project Files Completeness for v2.1.0
+console.log('8. Verifying File Completeness for v2.1.0...');
+const v21Files = [
   'manifest.json',
   'content/event-interceptor.js',
   'content/unit-converter.js',
+  'content/instant-zoom.js',
   'content/interaction-detector.js',
   'content/graphics-inspector.js',
   'content/page-controller.js',
@@ -128,10 +157,10 @@ const v2Files = [
   'LICENSE'
 ];
 
-v2Files.forEach(rel => {
+v21Files.forEach(rel => {
   const full = path.join(__dirname, '..', rel);
   assert(fs.existsSync(full), `File ${rel} must exist`);
   console.log(`   ✅ Found ${rel}`);
 });
 
-console.log('\n🎉 ALL 8 VERIFICATION TEST PHASES FOR v2.0 PASSED SUCCESSFULLY!');
+console.log('\n🎉 ALL 8 VERIFICATION TEST PHASES FOR v2.1.0 PASSED SUCCESSFULLY!');

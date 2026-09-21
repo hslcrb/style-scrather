@@ -45,11 +45,12 @@
     }
     shadowRoot.appendChild(styleLink);
 
-    // 3. Initialize v2.0 Engines
+    // 3. Initialize v2.1.0 Engines
     unitConverter = new UnitConverter();
     interactionDetector = new InteractionDetector();
     pageController = new PageController();
     motionInspector = new MotionInspector();
+    instantZoom = typeof InstantZoom !== 'undefined' ? new InstantZoom() : null;
 
     overlayCanvas = new OverlayCanvas(shadowRoot, unitConverter);
 
@@ -66,6 +67,7 @@
       interactionDetector: interactionDetector,
       pageController: pageController,
       motionInspector: motionInspector,
+      instantZoom: instantZoom,
       onToggleInspector: () => toggleInspector()
     });
 
@@ -229,6 +231,7 @@
     getDock: () => floatingDock,
     getUnitConverter: () => unitConverter,
     getPageController: () => pageController,
-    getMotionInspector: () => motionInspector
+    getMotionInspector: () => motionInspector,
+    getInstantZoom: () => instantZoom
   };
 })();
