@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "Style Scratcher - 피그마 스타일 웹 인스펙터 & CSS 튜너",
+  "short_name": "StyleScratcher",
+  "version": "1.0.0",
+  "description": "디자이너와 개발자를 위한 화이트 미니멀 피그마 감성 웹 인스펙터. 실시간 스타일 튜닝, 스마트 거리 측정, CSS 난독화 해제, Tailwind 변환.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Style Scratcher 열기 (Alt+S)",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "content/css-beautifier.js",
+        "content/tailwind-converter.js",
+        "content/palette-extractor.js",
+        "content/overlay-canvas.js",
+        "content/style-tweaker.js",
+        "content/components/floating-dock.js",
+        "content/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "content/styles/shadow-styles.css",
+        "icons/*"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "commands": {
+    "toggle-scratcher": {
+      "suggested_key": {
+        "default": "Alt+S",
+        "mac": "Alt+S"
+      },
+      "description": "Style Scratcher 인스펙터 토글"
+    }
+  }
+}

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Style Scratcher Demo Studio - 차세대 웹 인스펙터 테스트베드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Demo Page Styles (Realistic Modern SaaS Web App) */
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --surface: #FFFFFF;
+      --surface-subtle: #F8FAFC;
+      --border: #E2E8F0;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --accent-purple: #7C3AED;
+      --accent-emerald: #059669;
+      --accent-amber: #D97706;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background-color: #F8FAFC;
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+
+    /* Top Banner */
+    .top-announcement {
+      background: linear-gradient(90deg, #1E293B, #0F172A);
+      color: #F8FAFC;
+      padding: 8px 16px;
+      font-size: 13px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .announcement-badge {
+      background: rgba(37, 99, 235, 0.4);
+      border: 1px solid rgba(147, 197, 253, 0.3);
+      padding: 1px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 18px;
+      color: #0F172A;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: #2563EB;
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .nav-link:hover {
+      color: var(--text-main);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px; /* Clean rectangular radius */
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-main);
+    }
+
+    .btn-ghost:hover {
+      background: #F1F5F9;
+    }
+
+    .btn-solid-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-solid-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 64px 0 48px;
+      text-align: center;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #EFF6FF;
+      border: 1px solid #DBEAFE;
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #0F172A;
+      margin-bottom: 16px;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    /* Feature Grid */
+    .features-section {
+      padding: 48px 0;
+    }
+
+    .section-heading {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .section-title-large {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .section-desc-large {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    .card-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .card-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      width: fit-content;
+      margin-top: auto;
+    }
+
+    /* Pricing Section */
+    .pricing-section {
+      padding: 48px 0;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .price-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .price-card.featured {
+      border: 2px solid var(--primary);
+      position: relative;
+      box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.12);
+    }
+
+    .popular-ribbon {
+      position: absolute;
+      top: -12px;
+      right: 24px;
+      background: var(--primary);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+
+    .price-amount {
+      font-size: 38px;
+      font-weight: 800;
+      color: #0F172A;
+    }
+
+    .price-period {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Minified CSS Simulation Block for Testing De-minifier */
+    .minified-css-sample {
+      display: none;
+    }
+  </style>
+
+  <!-- Simulated inline minified stylesheet for testing CSS Beautifier -->
+  <style>
+    .test-box{margin:12px;padding:16px 20px;border-radius:8px;background-color:#ffffff;color:#1e293b;border:1px solid #cbd5e1;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)}.test-box:hover{border-color:#3b82f6}.badge-purple{background-color:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe}.badge-emerald{background-color:#ecfdf5;color:#059669;border:1px solid #a7f3d0}.badge-amber{background-color:#fffbeb;color:#d97706;border:1px solid #fde68a}
+  </style>
+</head>
+<body>
+
+  <!-- Top Announcement -->
+  <div class="top-announcement" id="topAnnouncement">
+    <span class="announcement-badge">NEW</span>
+    <span><strong>Style Scratcher</strong>가 탑재되었습니다. 아무 요소를 클릭하여 실시간으로 스타일을 조작해 보세요!</span>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="mainNavbar">
+    <div class="nav-left">
+      <a href="#" class="nav-logo" id="siteLogo">
+        <div class="nav-logo-icon">S</div>
+        <span>Scratcher Studio</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features" class="nav-link">기능 둘러보기</a></li>
+        <li><a href="#pricing" class="nav-link">요금제</a></li>
+        <li><a href="#docs" class="nav-link">문서</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="btn btn-ghost" id="loginBtn">로그인</button>
+      <button class="btn btn-solid-primary" id="getStartedBtn">지금 무료 시작</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero container" id="heroSection">
+    <div class="hero-tag" id="heroTag">✨ Figma 감성의 화이트 미니멀 인스펙터</div>
+    <h1 class="hero-title" id="heroHeading">
+      개발자 도구 노가다는 끝났습니다.<br>
+      웹 화면 위에서 바로 피그마처럼.
+    </h1>
+    <p class="hero-subtitle" id="heroSub">
+      마우스 호버만으로 요소 간의 정밀 픽셀 거리(px)를 측정하고, 라디우스와 마진, 패딩, 색상을 실시간으로 튜닝하며 클린 CSS 및 Tailwind 클래스를 원클릭으로 추출하세요.
+    </p>
+    <div class="hero-actions" id="heroActionsGroup">
+      <button class="btn btn-solid-primary" id="ctaPrimaryBtn" style="padding: 0 24px; height: 44px; font-size: 15px;">
+        체험 시작하기
+      </button>
+      <button class="btn btn-ghost" id="ctaSecondaryBtn" style="border: 1px solid var(--border); padding: 0 20px; height: 44px; font-size: 15px;">
+        12컬럼 그리드 보기
+      </button>
+    </div>
+  </header>
+
+  <!-- Features Section -->
+  <section class="features-section container" id="features">
+    <div class="section-heading">
+      <h2 class="section-title-large">모든 디자이너와 개발자가 환호하는 기능</h2>
+      <p class="section-desc-large">복잡하고 난해했던 CSS 검사를 한눈에 직관적으로 변환합니다.</p>
+    </div>
+
+    <div class="cards-grid">
+      <!-- Card 1 -->
+      <div class="feature-card" id="cardRadius">
+        <div class="card-icon-box" style="background: #EFF6FF; color: #2563EB;">📐</div>
+        <h3 class="card-title">실시간 Border-Radius 제어</h3>
+        <p class="card-text">단정한 스퀘어클부터 섬세한 4모서리 개별 곡률까지 슬라이더를 움직이는 즉시 웹 화면에 실시간 렌더링됩니다.</p>
+        <span class="card-badge badge-purple">실시간 튜너</span>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="feature-card" id="cardRuler">
+        <div class="card-icon-box" style="background: #FEF2F2; color: #EF4444;">📏</div>
+        <h3 class="card-title">피그마 스마트 거리 룰러</h3>
+        <p class="card-text">요소를 클릭하여 고정한 뒤 다른 요소 위에 마우스를 올리면 상·하·좌·우 간격(px) 가이드라인이 빨간색 룰러로 펼쳐집니다.</p>
+        <span class="card-badge badge-emerald">Figma Rulers</span>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="feature-card" id="cardDecompile">
+        <div class="card-icon-box" style="background: #FFFBEB; color: #D97706;">⚡</div>
+        <h3 class="card-title">CSS 난독화 해제 & Tailwind</h3>
+        <p class="card-text">한 줄로 뭉쳐진 번들 CSS를 가독성 높은 코드로 미화하고, 복잡한 인라인 스타일을 Tailwind 유틸리티 클래스로 즉시 변환합니다.</p>
+        <span class="card-badge badge-amber">스마트 변환</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing-section container" id="pricing">
+    <div class="section-heading">
+      <h2 class="section-title-large">심플하고 투명한 플랜</h2>
+      <p class="section-desc-large">개인부터 디자인 시스템을 구축하는 대규모 팀까지 완벽 지원합니다.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Starter Card -->
+      <div class="price-card" id="planStarter">
+        <div style="font-weight: 700; font-size: 18px;">스타터 플랜</div>
+        <div style="color: var(--text-muted); font-size: 13px;">개인 개발자 및 주니어 디자이너를 위한 기본 도구</div>
+        <div class="price-amount">무료 <span class="price-period">/ 영구 무료</span></div>
+        <button class="btn btn-ghost" style="border: 1px solid var(--border); width: 100%;">기본 기능 사용</button>
+      </div>
+
+      <!-- Pro Card -->
+      <div class="price-card featured" id="planPro">
+        <div class="popular-ribbon">인기 플랜</div>
+        <div style="font-weight: 700; font-size: 18px;">프로 에디션</div>
+        <div style="color: var(--text-muted); font-size: 13px;">사이트 전체 컬러 추출, 12컬럼 그리드, Tailwind 원클릭 복사</div>
+        <div class="price-amount">₩12,000 <span class="price-period">/ 월</span></div>
+        <button class="btn btn-solid-primary" style="width: 100%;">프로 시작하기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Standalone Mode Loader for Style Scratcher (Allows direct testing in browser without extension load) -->
+  <script src="../content/css-beautifier.js"></script>
+  <script src="../content/tailwind-converter.js"></script>
+  <script src="../content/palette-extractor.js"></script>
+  <script src="../content/overlay-canvas.js"></script>
+  <script src="../content/style-tweaker.js"></script>
+  <script src="../content/components/floating-dock.js"></script>
+  <script src="../content/content.js"></script>
+
+  <script>
+    // Demo Page Interactions
+    document.getElementById('ctaSecondaryBtn')?.addEventListener('click', () => {
+      if (window.StyleScratcher && window.StyleScratcher.getCanvas()) {
+        window.StyleScratcher.getCanvas().toggleGrid();
+      }
+    });
+
+    document.getElementById('ctaPrimaryBtn')?.addEventListener('click', () => {
+      if (window.StyleScratcher && window.StyleScratcher.getDock()) {
+        window.StyleScratcher.getDock().switchTab('inspector');
+      }
+    });
+  </script>
+</body>
+</html>
