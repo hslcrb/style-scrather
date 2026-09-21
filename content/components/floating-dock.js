@@ -1,4 +1,4 @@
-// Style Scratcher v4.0.1 - Floating Dock Component (White Minimal Studio UI)
+// Style Scratcher v4.0.2. - Floating Dock Component (White Minimal Studio UI)
 
 class FloatingDock {
   constructor(shadowRoot, options = {}) {
@@ -19,6 +19,7 @@ class FloatingDock {
     this.tabOrderVisualizer = options.tabOrderVisualizer || (typeof TabOrderVisualizer !== 'undefined' ? new TabOrderVisualizer(this.shadowRoot) : null);
     this.shortcutManager = options.shortcutManager || (typeof ShortcutManager !== 'undefined' ? new ShortcutManager() : null);
     this.reactExporter = options.reactExporter || (typeof ReactExporter !== 'undefined' ? ReactExporter : null);
+    this.updateGuardian = options.updateGuardian || (typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion: '4.0.2' }) : null);
 
     this.isSafeMode = options.isSafeMode !== undefined ? options.isSafeMode : true;
     this.onToggleSafeMode = options.onToggleSafeMode || (() => {});
@@ -33,6 +34,7 @@ class FloatingDock {
 
     this.initDOM();
     this.initDrag();
+    this.initUpdateChecker();
   }
 
   initDOM() {
@@ -50,7 +52,7 @@ class FloatingDock {
             </svg>
           </div>
           <span class="dock-title">Style Scratcher</span>
-          <span class="dock-badge">v4.0.1</span>
+          <span class="dock-badge">v4.0.2.</span>
         </div>
 
         <!-- Mode Switcher (Inspect vs Edit Studio) -->
@@ -74,7 +76,10 @@ class FloatingDock {
         </div>
       </div>
 
-      <!-- Navigation Tabs (v4.0.0 Comprehensive Suite) -->
+      <!-- Auto Update Notification Banner (v4.0.2.) -->
+      <div class="dock-update-banner" id="dockUpdateBanner" style="display: none;"></div>
+
+      <!-- Navigation Tabs (v4.0.2. Comprehensive Suite) -->
       <div class="dock-tabs" id="dockTabs">
         <button class="tab-btn active" data-tab="inspector">인스펙터</button>
         <button class="tab-btn" data-tab="mockup">목업</button>
@@ -176,6 +181,54 @@ class FloatingDock {
       body.style.display = 'flex';
       this.container.classList.remove('minimized');
     }
+  }
+
+  
+  initUpdateChecker() {
+    if (!this.updateGuardian) return;
+    setTimeout(async () => {
+      try {
+        const update = await this.updateGuardian.checkForUpdate();
+        if (update && update.hasUpdate) {
+          this.showUpdateBanner(update);
+        }
+      } catch (err) {
+        // silent catch
+      }
+    }, 1500);
+  }
+
+  showUpdateBanner(update) {
+    const banner = this.container?.querySelector('#dockUpdateBanner');
+    if (!banner) return;
+
+    banner.innerHTML = `
+      <div class="update-banner-info">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>새 버전 발견: <strong>${update.latestDisplayVersion}</strong></span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <button class="update-banner-btn" id="btnBannerUpdate">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          원클릭 업데이트
+        </button>
+        <button class="update-banner-close" id="btnCloseUpdateBanner" title="닫기">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+    `;
+    banner.style.display = 'flex';
+
+    banner.querySelector('#btnBannerUpdate')?.addEventListener('click', () => {
+      this.updateGuardian.triggerDownload(update.zipUrl, `style-scrather-${update.latestDisplayVersion.replace(/\.+$/, '')}.zip`);
+      this.showToast(`${update.latestDisplayVersion} ZIP 다운로드가 시작되었습니다.`);
+    });
+
+    banner.querySelector('#btnCloseUpdateBanner')?.addEventListener('click', () => {
+      banner.style.display = 'none';
+    });
   }
 
   initDrag() {
@@ -1826,40 +1879,113 @@ class FloatingDock {
       toggleTabOrder: 'W3C 탭 순서 시각화 토글 (Alt + T)'
     };
 
+    const curVer = this.updateGuardian ? this.updateGuardian.currentVersion : '4.0.2';
+    const curDisplayVer = typeof UpdateGuardian !== 'undefined' ? UpdateGuardian.formatDisplayVersion(curVer) : 'v4.0.2.';
+
     container.innerHTML = `
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span class="section-title" style="margin: 0;">단축키 설정 & 관리</span>
-          <span style="font-size: 10px; color: #64748B;">키 입력 시 자동 저장</span>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        
+        <!-- 1. Brand Identity & Strict Dot Version Standard -->
+        <div class="brand-identity-card">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span class="section-title" style="margin: 0;">브랜드 아이덴티티 & 규격</span>
+            <span class="version-standard-badge">${curDisplayVer}</span>
+          </div>
+          
+          <div class="brand-color-row">
+            <div class="brand-color-swatch" title="공식 브랜드 컬러: #E11D48"></div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="brand-color-name">공식 브랜드 컬러</span>
+                <span class="brand-color-code">#E11D48 (Studio Crimson)</span>
+              </div>
+              <span style="font-size: 10px; color: #64748B;">UI 액센트, 선택 하이라이트 및 룰러에 일관되게 적용</span>
+            </div>
+          </div>
+
+          <div style="font-size: 10.5px; color: #475569; background: #FFFFFF; border: 1px solid #E2E8F0; padding: 6px 8px; border-radius: 4px; line-height: 1.5;">
+            <strong>버전 표기 표준 체계:</strong> 사용자 노출 인터페이스 및 문서에서는 반드시 <strong>'vX.Y.Z.'</strong>처럼 끝에 마침표(dot)를 포함하는 표준 규격을 엄격 준수합니다.
+          </div>
         </div>
 
-        <table class="shortcut-table">
-          <thead>
-            <tr>
-              <th>기능명</th>
-              <th style="text-align: right;">단축키</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${Object.entries(shortcuts).map(([action, key]) => `
-              <tr>
-                <td>
-                  <div style="font-weight: 600; color: #1E293B;">${actionLabels[action] || action}</div>
-                </td>
-                <td style="text-align: right;">
-                  <input type="text" class="shortcut-input" data-action="${action}" value="${key}" placeholder="단축키 입력">
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+        <!-- 2. GitHub Releases Auto-Detection & One-Click Update Guardian -->
+        <div class="update-guardian-card">
+          <div class="update-status-row">
+            <span class="section-title" style="margin: 0;">GitHub 릴리즈 자동 감지 & 업데이트</span>
+            <span class="update-status-badge up-to-date" id="settingsUpdateBadge">최신 버전 확인 완료</span>
+          </div>
 
-        <button class="shortcut-reset-btn" id="btnResetShortcuts">
-          모든 단축키를 기본값으로 되돌리기
-        </button>
+          <div id="settingsUpdateDetail" style="font-size: 11px; color: #475569; line-height: 1.5;">
+            GitHub 원격 릴리즈 저장소를 감지하여 새 버전 배포 시 1초 만에 알림을 제공하고 원클릭 다운로드를 지원합니다.
+          </div>
+
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-primary-action" id="btnCheckUpdateNow" style="flex: 1; height: 30px; font-size: 11px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right: 4px;">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              지금 업데이트 확인
+            </button>
+            <button class="btn-secondary-action" id="btnOpenReleasesPage" style="width: auto; padding: 0 10px; height: 30px; font-size: 11px;">
+              릴리즈 목록
+            </button>
+          </div>
+
+          <div id="settingsUpdateBox" style="display: none; background: #FFF1F2; border: 1px solid #FECDD3; border-radius: 6px; padding: 10px; flex-direction: column; gap: 6px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: 11px; font-weight: 700; color: #9F1239;" id="settingsNewVerTitle">새 버전 발견</span>
+              <span class="dock-badge" id="settingsNewVerBadge" style="background: #E11D48; color: #fff;">v4.0.2.</span>
+            </div>
+            <p style="font-size: 10.5px; color: #475569;" id="settingsNewVerNotes">새로운 기능과 안정성 개선이 포함되어 있습니다.</p>
+            <button class="btn-primary-action" id="btnOneClickUpdate" style="height: 32px; font-size: 11px; background: #E11D48;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right: 4px;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              원클릭 ZIP 다운로드 & 업데이트
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Shortcuts Settings Table -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span class="section-title" style="margin: 0;">단축키 커스텀 설정</span>
+            <span style="font-size: 10px; color: #64748B;">키 입력 시 자동 저장</span>
+          </div>
+
+          <table class="shortcut-table">
+            <thead>
+              <tr>
+                <th>기능명</th>
+                <th style="text-align: right;">단축키</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${Object.entries(shortcuts).map(([action, key]) => `
+                <tr>
+                  <td>
+                    <div style="font-weight: 600; color: #1E293B;">${actionLabels[action] || action}</div>
+                  </td>
+                  <td style="text-align: right;">
+                    <input type="text" class="shortcut-input" data-action="${action}" value="${key}" placeholder="단축키 입력">
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <button class="shortcut-reset-btn" id="btnResetShortcuts">
+            모든 단축키를 기본값으로 되돌리기
+          </button>
+        </div>
+
       </div>
     `;
 
+    // Shortcut events
     container.querySelectorAll('.shortcut-input').forEach(input => {
       input.addEventListener('change', (e) => {
         const act = input.dataset.action;
@@ -1876,6 +2002,52 @@ class FloatingDock {
         this.shortcutManager.resetToDefaults();
         this.showToast('모든 단축키가 기본값으로 복원되었습니다.');
         this.renderSettingsTab(container);
+      }
+    });
+
+    // Update Guardian Events in Settings Tab
+    const badge = container.querySelector('#settingsUpdateBadge');
+    const updateBox = container.querySelector('#settingsUpdateBox');
+    const btnCheck = container.querySelector('#btnCheckUpdateNow');
+    const btnOpenReleases = container.querySelector('#btnOpenReleasesPage');
+    const btnOneClick = container.querySelector('#btnOneClickUpdate');
+
+    btnOpenReleases?.addEventListener('click', () => {
+      window.open('https://github.com/hslcrb/style-scrather/releases', '_blank');
+    });
+
+    btnCheck?.addEventListener('click', async () => {
+      if (!this.updateGuardian) return;
+      btnCheck.disabled = true;
+      btnCheck.textContent = '업데이트 확인 중...';
+      try {
+        const res = await this.updateGuardian.checkForUpdate(true);
+        btnCheck.disabled = false;
+        btnCheck.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right: 4px;"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>지금 업데이트 확인`;
+
+        if (res.hasUpdate) {
+          badge.className = 'update-status-badge has-update';
+          badge.textContent = `새 버전 ${res.latestDisplayVersion} 출시`;
+          updateBox.style.display = 'flex';
+          container.querySelector('#settingsNewVerTitle').textContent = res.releaseTitle || `새 버전 ${res.latestDisplayVersion}`;
+          container.querySelector('#settingsNewVerBadge').textContent = res.latestDisplayVersion;
+          container.querySelector('#settingsNewVerNotes').textContent = res.releaseNotes ? res.releaseNotes.slice(0, 140) + '...' : '새로운 업데이트를 확인하세요.';
+          
+          btnOneClick.onclick = () => {
+            this.updateGuardian.triggerDownload(res.zipUrl, `style-scrather-${res.latestDisplayVersion.replace(/\\.+$/, '')}.zip`);
+            this.showToast(`${res.latestDisplayVersion} ZIP 다운로드가 시작되었습니다.`);
+          };
+          this.showToast(`신규 버전 ${res.latestDisplayVersion}이 발견되었습니다!`);
+        } else {
+          badge.className = 'update-status-badge up-to-date';
+          badge.textContent = '최신 버전 유지 중';
+          updateBox.style.display = 'none';
+          this.showToast(`현재 최신 버전(${curDisplayVer})을 사용 중입니다.`);
+        }
+      } catch (err) {
+        btnCheck.disabled = false;
+        btnCheck.textContent = '지금 업데이트 확인';
+        this.showToast('업데이트 확인 실패: 네트워크 상태를 확인하세요.');
       }
     });
   }

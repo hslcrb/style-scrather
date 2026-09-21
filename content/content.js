@@ -1,4 +1,4 @@
-// Style Scratcher v4.0.1 - Content Script Orchestrator
+// Style Scratcher v4.0.2. - Content Script Orchestrator
 
 (function () {
   // Prevent multiple injections
@@ -18,12 +18,13 @@
   let instantZoom = null;
   let precisionCursor = null;
 
-  // v4.0.0 Modules
+  // v4.0.0+ Modules
   let modeManager = null;
   let deviceMockup = null;
   let tabOrderVisualizer = null;
   let shortcutManager = null;
   let contextHud = null;
+  let updateGuardian = null;
 
   let isAltPressed = false;
   let isSafeMode = true;
@@ -97,6 +98,7 @@
       tabOrderVisualizer: tabOrderVisualizer,
       shortcutManager: shortcutManager,
       reactExporter: typeof ReactExporter !== 'undefined' ? ReactExporter : null,
+      updateGuardian: typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion: '4.0.2' }) : null,
       isSafeMode: isSafeMode,
       onToggleSafeMode: (state) => {
         isSafeMode = state;
@@ -115,7 +117,7 @@
     // 4. Attach Window/Document Listeners
     attachEventListeners();
 
-    console.log('[Style Scratcher v4.0.0] Initialized with Edit Studio, Device Mockups, Figma Font Studio, Glyph Harvester, Tab Order Visualizer, and Smart Context HUD.');
+    console.log('[Style Scratcher v4.0.2.] Initialized with Update Guardian, Brand Identity, and Full Edit Studio.');
   }
 
   function handleHudAction(action, targetEl) {

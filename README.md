@@ -1,14 +1,15 @@
-# Style Scratcher (스타일 스크래처) v3.0.2
+# Style Scratcher (스타일 스크래처) v4.0.2.
 
 <div align="center">
 
 ![Style Scratcher Logo](icons/icon128.png)
 
-### 🎨 디자이너와 프론트엔드 개발자의 애환을 종결짓는 차세대 웹 인스펙터 & 실시간 에셋 스튜디오
+### 디자이너와 프론트엔드 개발자의 애환을 종결짓는 차세대 웹 인스펙터 & 실시간 에셋 스튜디오
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-success.svg)](#)
-[![Version](https://img.shields.io/badge/Version-v3.0.2-blueviolet.svg)](#)
+[![Version](https://img.shields.io/badge/Version-v4.0.2.-E11D48.svg)](#)
+[![Brand Color](https://img.shields.io/badge/Brand%20Color-%23E11D48-E11D48.svg)](#)
 [![Design](https://img.shields.io/badge/Design-White%20Minimal%20Studio-black.svg)](#)
 [![Typography](https://img.shields.io/badge/Typography-Golden%20Ratio%201.618-gold.svg)](#)
 
@@ -18,15 +19,23 @@
 
 ## 📌 Style Scratcher 소개
 
-기존 브라우저 개발자 도구(DevTools)의 수많은 상속 스타일과 난해한 난독화 클래스(`.css-x98k1`), 그리고 인스펙팅 도중 링크를 잘못 눌러 다른 페이지로 튕겨 나가는 불편함에 지치셨나요?
-
 **Style Scratcher**는 웹 브라우저 화면을 **피그마(Figma) 캔버스 겸 라이브 에디터 스튜디오**처럼 자유롭게 다룰 수 있게 해주는 고성능 화이트 미니멀 Chrome 브라우저 확장 프로그램(Manifest V3)입니다.
 
-### 🏷️ 버전 관리 체계 (Semantic Versioning)
-Style Scratcher는 표준 3자리 버전 체계(`Major.Minor.Patch`)를 엄격히 준수합니다.
-- **Major (첫 번째 자리)**: 아키텍처 및 핵심 패러다임이 바뀌는 대규모 메이저 릴리즈 (v3.0.0)
-- **Minor (두 번째 자리)**: 핵심 신규 기능 및 주요 사용자 경험 확장
-- **Patch (세 번째 자리)**: 안정성 강화, 연결 가디언 및 타이포그래피 정밀 패치 (v3.0.2)
+### 🎨 공식 브랜드 컬러 (Brand Color Standard)
+Style Scratcher는 일관되고 세련된 고품격 디자이너 스튜디오 아이덴티티를 위해 **공식 브랜드 컬러**를 엄격히 규정합니다:
+- **Primary Brand Accent**: `#E11D48` (Studio Crimson / Rose 600)
+- **Hover Accent**: `#BE123C` (Rose 700)
+- **Active Accent**: `#9F1239` (Rose 800)
+- **Background Subtle Tint**: `#FFF1F2` (Rose 50)
+- **Subtle Border**: `#FFE4E6` / `#FECDD3`
+- **Focus Glow**: `rgba(225, 29, 72, 0.15)`
+
+### 🏷️ 버전 표기 표준 규격 (Strict Dot Versioning Standard)
+Style Scratcher의 모든 사용자 노출 인터페이스(플로팅 독 뱃지, 팝업, 릴리즈 노트, 대시보드 문서)는 **반드시 `vX.Y.Z.` 형식처럼 끝에 마침표(dot)를 포함**하는 규격을 준수합니다:
+- **형식**: `v` + `Major` + `.` + `Minor` + `.` + `Patch` + `.` (예: **`v4.0.2.`**, **`v1.1.1.`**)
+- **Major (4)**: 풀 스튜디오 메이저 아키텍처
+- **Minor (0)**: 안정화 및 핵심 모듈 패키지
+- **Patch (2)**: **GitHub 릴리즈 자동 감지 & 원클릭 업데이트(Update Guardian), 브랜드 컬러 규격화 및 끝 마침표 버전 체계 확립**
 
 ---
 

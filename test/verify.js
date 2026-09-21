@@ -1,19 +1,19 @@
-// Style Scratcher v4.0.1 - Automated Verification Test Suite
+// Style Scratcher v4.0.2. - Automated Verification Test Suite
 
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const vm = require('vm');
 
-console.log('🧪 [Style Scratcher v4.0.1] Running Comprehensive Verification Test Suite...\n');
+console.log('🧪 [Style Scratcher v4.0.2.] Running Comprehensive Verification Test Suite...\n');
 
-// 1. Verify Manifest V3 & Version 4.0.1
-console.log('1. Verifying manifest.json v4.0.1...');
+// 1. Verify Manifest V3 & Version 4.0.2
+console.log('1. Verifying manifest.json v4.0.2....');
 const manifestPath = path.join(__dirname, '..', 'manifest.json');
 assert(fs.existsSync(manifestPath), 'manifest.json must exist');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 assert.strictEqual(manifest.manifest_version, 3, 'Manifest version must be 3');
-assert.strictEqual(manifest.version, '4.0.1', 'Extension version must be 4.0.1');
+assert.strictEqual(manifest.version, '4.0.2', 'Extension version must be 4.0.2');
 assert(manifest.action && manifest.action.default_popup, 'Popup must be declared');
 assert(manifest.content_scripts && manifest.content_scripts.length > 0, 'Content scripts must be declared');
 
@@ -26,6 +26,7 @@ const expectedScripts = [
   'content/context-hud.js',
   'content/shortcut-manager.js',
   'content/react-exporter.js',
+  'content/update-guardian.js',
   'content/precision-cursor.js',
   'content/instant-zoom.js',
   'content/color-suite.js',
@@ -34,7 +35,7 @@ const expectedScripts = [
 expectedScripts.forEach(s => {
   assert(scripts.includes(s), `${s} must be in manifest.json content_scripts`);
 });
-console.log('   ✅ manifest.json is valid Manifest V3 (v4.0.0) with all required content scripts.\n');
+console.log('   ✅ manifest.json is valid Manifest V3 (v4.0.2) with all required content scripts.\n');
 
 // 2. Test ModeManager (Inspect Mode vs Edit Studio Mode, Multi-select, DOM Reordering)
 console.log('2. Testing ModeManager (Mode Switching, Multi-Select, DOM Operations)...');
@@ -398,8 +399,8 @@ assert.strictEqual(oc.gridConfig.gutter, 24);
 assert.strictEqual(oc.gridConfig.color, '#3B82F6');
 console.log('   ✅ OverlayCanvas passed custom grid configuration (16 cols, 24px gutter).\n');
 
-// 12. Project Files Completeness for v4.0.1
-console.log('12. Verifying File Completeness for v4.0.1...');
+// 12. Project Files Completeness for v4.0.2.
+console.log('12. Verifying File Completeness for v4.0.2....');
 const v4Files = [
   'manifest.json',
   'content/mode-manager.js',
@@ -409,6 +410,7 @@ const v4Files = [
   'content/context-hud.js',
   'content/shortcut-manager.js',
   'content/react-exporter.js',
+  'content/update-guardian.js',
   'content/color-suite.js',
   'content/asset-editor.js',
   'content/precision-cursor.js',
@@ -449,6 +451,7 @@ const dockJs = fs.readFileSync(path.join(__dirname, '..', 'content/components/fl
 const hudJs = fs.readFileSync(path.join(__dirname, '..', 'content/context-hud.js'), 'utf8');
 const mockupJs = fs.readFileSync(path.join(__dirname, '..', 'content/device-mockup.js'), 'utf8');
 const popupCss = fs.readFileSync(path.join(__dirname, '..', 'popup/popup.css'), 'utf8');
+const popupHtml = fs.readFileSync(path.join(__dirname, '..', 'popup/popup.html'), 'utf8');
 
 // Check 2-Row Grid layout
 assert(shadowCss.includes('grid-template-columns: repeat(5, 1fr)'), 'shadow-styles.css must have 5-column 2-row grid for dock tabs');
@@ -476,4 +479,25 @@ assert(shadowCss.includes('#E11D48'), 'shadow-styles.css must use #E11D48 red th
 assert(popupCss.includes('#E11D48'), 'popup.css must use #E11D48 red theme primary');
 console.log('   ✅ Red Studio Theme verified: Primary accent #E11D48 active across dock, canvas & popup.');
 
-console.log('\n🎉 ALL 13 VERIFICATION TEST PHASES FOR v4.0.1 PASSED 100% BRILLIANTLY!');
+// 14. Verify v4.0.2. Innovations: Strict Dot Version Standard & Update Guardian
+console.log('\n14. Verifying v4.0.2. Innovations (Strict Dot Version Standard & Update Guardian)...');
+const UpdateGuardian = require('../content/update-guardian.js');
+
+// Test UpdateGuardian version parsing & comparison
+assert.deepStrictEqual(UpdateGuardian.parseVersion('v4.0.2.'), [4, 0, 2]);
+assert.deepStrictEqual(UpdateGuardian.parseVersion('4.0.2'), [4, 0, 2]);
+assert.strictEqual(UpdateGuardian.isNewer('v4.0.3.', '4.0.2'), true);
+assert.strictEqual(UpdateGuardian.isNewer('v4.0.2.', '4.0.2'), false);
+assert.strictEqual(UpdateGuardian.isNewer('v4.0.1.', '4.0.2'), false);
+assert.strictEqual(UpdateGuardian.formatDisplayVersion('4.0.2'), 'v4.0.2.');
+assert.strictEqual(UpdateGuardian.formatDisplayVersion('v1.1.1.'), 'v1.1.1.');
+console.log('   ✅ UpdateGuardian module verified: Semantic version parser and comparison accurate.');
+
+// Test strict dot version standard in UI (vX.Y.Z.)
+assert(dockJs.includes('<span class="dock-badge">v4.0.2.</span>'), 'floating-dock.js must have dock badge with trailing dot (v4.0.2.)');
+assert(popupHtml.includes('v4.0.2.'), 'popup.html must have footer version with trailing dot (v4.0.2.)');
+assert(dockJs.includes('#E11D48 (Studio Crimson)'), 'floating-dock.js must explicitly specify brand color in settings');
+assert(dockJs.includes('버전 표기 표준 체계'), 'floating-dock.js must explicitly specify dot version standard in settings');
+console.log('   ✅ Strict Dot Version Standard (v4.0.2.) & Brand Color (#E11D48) verified across UI.');
+
+console.log('\n🎉 ALL 14 VERIFICATION TEST PHASES FOR v4.0.2. PASSED 100% BRILLIANTLY!');
