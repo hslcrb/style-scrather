@@ -343,6 +343,88 @@
       font-weight: 500;
     }
 
+    /* v2.0 Showcase Styles */
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 36px;
+    }
+
+    .demo-canvas-box {
+      width: 100%;
+      height: 200px;
+      border-radius: 8px;
+      background: #0F172A;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #webglDemoCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Copy protected test box */
+    .copy-protected-box {
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      background: #FEF2F2;
+      border: 1px dashed #EF4444;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: not-allowed;
+    }
+
+    /* Animated element */
+    .pulse-animation-box {
+      animation: modernPulse 2s infinite ease-in-out;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      color: white;
+      padding: 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    @keyframes modernPulse {
+      0% { transform: scale(1); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
+      50% { transform: scale(1.03); box-shadow: 0 12px 28px rgba(139, 92, 246, 0.4); }
+      100% { transform: scale(1); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
+    }
+
+    /* Transient Tooltip on Hover */
+    .tooltip-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip-content {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1E293B;
+      color: #FFFFFF;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      white-space: nowrap;
+      transition: opacity 0.2s, visibility 0.2s;
+      z-index: 50;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .tooltip-wrapper:hover .tooltip-content {
+      visibility: visible;
+      opacity: 1;
+    }
+
     /* Minified CSS Simulation Block for Testing De-minifier */
     .minified-css-sample {
       display: none;
@@ -462,7 +544,56 @@
     </div>
   </section>
 
-  <!-- Standalone Mode Loader for Style Scratcher (Allows direct testing in browser without extension load) -->
+  <!-- v2.0 Lab Showcase Section -->
+  <section class="container" style="padding: 40px 0;">
+    <div class="section-heading">
+      <h2 class="section-title-large">✨ Style Scratcher v2.0 Lab 테스트베드</h2>
+      <p class="section-desc-large">WebGL 하드웨어 텔레메트리, 복사 차단 무력화, 애니메이션 슬로우모션을 시험해 보세요.</p>
+    </div>
+
+    <div class="showcase-grid">
+      <!-- 1. Real WebGL Canvas -->
+      <div class="feature-card" id="webglCard">
+        <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">WebGL 3D 캔버스</div>
+        <p class="card-text" style="font-size: 12px;">캔버스를 클릭하고 '그래픽/WebGL' 탭을 열면 GPU 렌더러와 VRAM 점유율이 표시됩니다.</p>
+        <div class="demo-canvas-box">
+          <canvas id="webglDemoCanvas" width="320" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- 2. Copy-Protected Box -->
+      <div class="feature-card" id="copyShieldCard">
+        <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">복사/우클릭 차단 요소</div>
+        <p class="card-text" style="font-size: 12px;">아래 텍스트는 복사 및 우클릭이 차단되어 있습니다. '도구' 탭의 해제 스위치를 누르면 즉시 복사됩니다.</p>
+        <div class="copy-protected-box" oncontextmenu="return false;" oncopy="return false;" onselectstart="return false;">
+          <div style="font-weight: 700; font-size: 13px; color: #DC2626;">⛔ 보안 텍스트 (복사 및 우클릭 금지)</div>
+          <div style="font-size: 12px; color: #7F1D1D; margin-top: 4px;">
+            "이 텍스트는 평소에는 드래그도 안 되고 우클릭도 막혀있지만, Style Scratcher v2.0의 원클릭 해제기를 켜면 자유롭게 선택하고 복사할 수 있습니다."
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Keyframe Animation & Tooltip Box -->
+      <div class="feature-card" id="motionCard">
+        <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">모션 & 툴팁 프리징</div>
+        <p class="card-text" style="font-size: 12px;">0.1x 슬로우모션을 누르면 펄스 애니메이션이 극저속으로 변하며, Alt+F로 호버 툴팁을 화면에 고정할 수 있습니다.</p>
+        <div class="pulse-animation-box" id="pulseBox">
+          <div class="tooltip-wrapper">
+            <span>여기에 마우스를 올리면 툴팁 출현</span>
+            <div class="tooltip-content" id="hoverTooltip">✨ Alt+F를 누르면 마우스를 떼도 이 툴팁이 닫히지 않습니다!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Standalone Mode Loader for Style Scratcher v2.0 -->
+  <script src="../content/event-interceptor.js"></script>
+  <script src="../content/unit-converter.js"></script>
+  <script src="../content/interaction-detector.js"></script>
+  <script src="../content/graphics-inspector.js"></script>
+  <script src="../content/page-controller.js"></script>
+  <script src="../content/motion-inspector.js"></script>
   <script src="../content/css-beautifier.js"></script>
   <script src="../content/tailwind-converter.js"></script>
   <script src="../content/palette-extractor.js"></script>
@@ -484,6 +615,110 @@
         window.StyleScratcher.getDock().switchTab('inspector');
       }
     });
+
+    // Real WebGL 3D Rotating Colored Cube
+    (function initWebGL() {
+      const canvas = document.getElementById('webglDemoCanvas');
+      if (!canvas) return;
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) return;
+
+      const vsSource = `
+        attribute vec3 position;
+        attribute vec3 color;
+        uniform mat4 uMatrix;
+        varying vec3 vColor;
+        void main() {
+          vColor = color;
+          gl_Position = uMatrix * vec4(position, 1.0);
+        }
+      `;
+      const fsSource = `
+        precision mediump float;
+        varying vec3 vColor;
+        void main() {
+          gl_FragColor = vec4(vColor, 1.0);
+        }
+      `;
+
+      function createShader(type, src) {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        return s;
+      }
+      const program = gl.createProgram();
+      gl.attachShader(program, createShader(gl.VERTEX_SHADER, vsSource));
+      gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fsSource));
+      gl.linkProgram(program);
+      gl.useProgram(program);
+
+      // Cube Vertices: X, Y, Z, R, G, B
+      const vertices = new Float32Array([
+        // Front
+        -0.5, -0.5,  0.5,  0.15, 0.39, 0.92,
+         0.5, -0.5,  0.5,  0.15, 0.39, 0.92,
+         0.5,  0.5,  0.5,  0.37, 0.65, 0.98,
+        -0.5,  0.5,  0.5,  0.37, 0.65, 0.98,
+        // Back
+        -0.5, -0.5, -0.5,  0.93, 0.27, 0.27,
+         0.5, -0.5, -0.5,  0.93, 0.27, 0.27,
+         0.5,  0.5, -0.5,  0.99, 0.55, 0.55,
+        -0.5,  0.5, -0.5,  0.99, 0.55, 0.55,
+      ]);
+
+      const indices = new Uint16Array([
+        0, 1, 2, 0, 2, 3, // front
+        1, 5, 6, 1, 6, 2, // right
+        5, 4, 7, 5, 7, 6, // back
+        4, 0, 3, 4, 3, 7, // left
+        3, 2, 6, 3, 6, 7, // top
+        4, 5, 1, 4, 1, 0  // bottom
+      ]);
+
+      const vbo = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+      const ibo = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
+      const posLoc = gl.getAttribLocation(program, 'position');
+      const colLoc = gl.getAttribLocation(program, 'color');
+      gl.enableVertexAttribArray(posLoc);
+      gl.enableVertexAttribArray(colLoc);
+      gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 24, 0);
+      gl.vertexAttribPointer(colLoc, 3, gl.FLOAT, false, 24, 12);
+
+      gl.enable(gl.DEPTH_TEST);
+
+      const uMatrix = gl.getUniformLocation(program, 'uMatrix');
+      let angle = 0;
+
+      function render() {
+        angle += 0.015;
+        const aspect = canvas.width / canvas.height;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+
+        // Simple combined rot & projection matrix
+        const mat = new Float32Array([
+          c * 0.7,  s * c * 0.7,  s * s * 0.7, 0,
+          0,        c * 0.7 / aspect, -s * 0.7 / aspect, 0,
+         -s * 0.7,  c * s * 0.7,  c * c * 0.7, 0,
+          0,        0,            0.5,         1
+        ]);
+
+        gl.uniformMatrix4fv(uMatrix, false, mat);
+        gl.clearColor(0.06, 0.09, 0.16, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+
+        requestAnimationFrame(render);
+      }
+      render();
+    })();
   </script>
 </body>
 </html>

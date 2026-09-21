@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Style Scratcher - 피그마 스타일 웹 인스펙터 & CSS 튜너",
   "short_name": "StyleScratcher",
-  "version": "1.0.0",
-  "description": "디자이너와 개발자를 위한 화이트 미니멀 피그마 감성 웹 인스펙터. 실시간 스타일 튜닝, 스마트 거리 측정, CSS 난독화 해제, Tailwind 변환.",
+  "version": "2.0.0",
+  "description": "디자이너와 개발자를 위한 화이트 미니멀 피그마 감성 웹 인스펙터 v2.0. 다중 단위 측정, 인터랙션 및 이벤트 탐지, WebGL 분석, 복사 차단 해제, 애니메이션 슬로우모션.",
   "permissions": [
     "activeTab",
     "storage",
@@ -28,6 +28,12 @@
     {
       "matches": ["<all_urls>"],
       "js": [
+        "content/event-interceptor.js",
+        "content/unit-converter.js",
+        "content/interaction-detector.js",
+        "content/graphics-inspector.js",
+        "content/page-controller.js",
+        "content/motion-inspector.js",
         "content/css-beautifier.js",
         "content/tailwind-converter.js",
         "content/palette-extractor.js",

@@ -1,16 +1,20 @@
-// Style Scratcher - Content Script Orchestrator
+// Style Scratcher v2.0 - Content Script Orchestrator
 
 (function () {
   // Prevent multiple injections
   if (window.__STYLE_SCRATCHER_INITIALIZED__) return;
   window.__STYLE_SCRATCHER_INITIALIZED__ = true;
 
-  let isActive = true; // start active or controllable via Alt+S / Popup
+  let isActive = true;
   let shadowRoot = null;
   let hostContainer = null;
   let overlayCanvas = null;
   let styleTweaker = null;
   let floatingDock = null;
+  let unitConverter = null;
+  let interactionDetector = null;
+  let pageController = null;
+  let motionInspector = null;
   let isAltPressed = false;
 
   function initStyleScratcher() {
@@ -37,13 +41,17 @@
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
       styleLink.href = chrome.runtime.getURL('content/styles/shadow-styles.css');
     } else {
-      // Fallback for standalone demo mode
       styleLink.href = '../content/styles/shadow-styles.css';
     }
     shadowRoot.appendChild(styleLink);
 
-    // 3. Initialize Engines
-    overlayCanvas = new OverlayCanvas(shadowRoot);
+    // 3. Initialize v2.0 Engines
+    unitConverter = new UnitConverter();
+    interactionDetector = new InteractionDetector();
+    pageController = new PageController();
+    motionInspector = new MotionInspector();
+
+    overlayCanvas = new OverlayCanvas(shadowRoot, unitConverter);
 
     styleTweaker = new StyleTweaker((element) => {
       if (floatingDock) {
@@ -54,13 +62,17 @@
     floatingDock = new FloatingDock(shadowRoot, {
       tweaker: styleTweaker,
       overlayCanvas: overlayCanvas,
+      unitConverter: unitConverter,
+      interactionDetector: interactionDetector,
+      pageController: pageController,
+      motionInspector: motionInspector,
       onToggleInspector: () => toggleInspector()
     });
 
     // 4. Attach Window/Document Listeners
     attachEventListeners();
 
-    console.log('[Style Scratcher] Initialized successfully. Press Alt+S to toggle.');
+    console.log('[Style Scratcher v2.0] Initialized with Multi-Unit, WebGL, Motion, and Unblocker.');
   }
 
   function toggleInspector(state) {
@@ -86,13 +98,11 @@
     window.addEventListener('mousemove', (e) => {
       if (!isActive) return;
 
-      // Don't inspect our own elements or when dragging dock
       if (hostContainer && hostContainer.contains(e.target)) return;
 
       const target = document.elementFromPoint(e.clientX, e.clientY);
       if (!target || target === hostContainer || hostContainer.contains(target)) return;
 
-      // Ignore html, body root elements
       if (target === document.documentElement || target === document.body) return;
 
       overlayCanvas.setHoverElement(target);
@@ -102,12 +112,10 @@
     window.addEventListener('click', (e) => {
       if (!isActive) return;
 
-      // Ignore clicks inside Style Scratcher Host
       if (hostContainer && (e.target === hostContainer || hostContainer.contains(e.target))) {
         return;
       }
 
-      // If clicking inside Shadow DOM
       if (e.composedPath && e.composedPath().some(el => el === hostContainer)) {
         return;
       }
@@ -115,11 +123,9 @@
       const target = document.elementFromPoint(e.clientX, e.clientY);
       if (!target || target === document.body || target === document.documentElement) return;
 
-      // Prevent link clicks / form submit while inspecting
       e.preventDefault();
       e.stopPropagation();
 
-      // Lock element in tweaker & canvas
       styleTweaker.setElement(target);
       overlayCanvas.setSelectedElement(target);
       floatingDock.updateElement();
@@ -131,6 +137,26 @@
       if (e.altKey && (e.key === 's' || e.key === 'S' || e.code === 'KeyS')) {
         e.preventDefault();
         toggleInspector();
+        return;
+      }
+
+      // Alt + F to Toggle Freeze
+      if (e.altKey && (e.key === 'f' || e.key === 'F' || e.code === 'KeyF')) {
+        e.preventDefault();
+        if (pageController) {
+          const frozen = pageController.toggleFreeze();
+          floatingDock?.showToast(frozen ? '화면 인터랙션이 프리징되었습니다.' : '프리징이 해제되었습니다.');
+        }
+        return;
+      }
+
+      // Alt + U to Toggle Copy Unblocker
+      if (e.altKey && (e.key === 'u' || e.key === 'U' || e.code === 'KeyU')) {
+        e.preventDefault();
+        if (pageController) {
+          const unblocked = pageController.toggleUnblock();
+          floatingDock?.showToast(unblocked ? '복사 및 우클릭 제한이 해제되었습니다.' : '복사 제한이 복구되었습니다.');
+        }
         return;
       }
 
@@ -156,7 +182,7 @@
       }
     });
 
-    // Window Resize / Scroll: Redraw SVG overlays
+    // Window Resize / Scroll
     window.addEventListener('scroll', () => {
       if (isActive) overlayCanvas.render();
     }, { passive: true });
@@ -196,11 +222,13 @@
     initStyleScratcher();
   }
 
-  // Export to window for debugging or standalone embedding
   window.StyleScratcher = {
     toggle: toggleInspector,
     getCanvas: () => overlayCanvas,
     getTweaker: () => styleTweaker,
-    getDock: () => floatingDock
+    getDock: () => floatingDock,
+    getUnitConverter: () => unitConverter,
+    getPageController: () => pageController,
+    getMotionInspector: () => motionInspector
   };
 })();

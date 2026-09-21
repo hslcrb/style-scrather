@@ -1,14 +1,22 @@
 // Style Scratcher - Figma-like Canvas Overlay Engine (Guides, Rulers, Dimensions, 12-Col Grid)
 
 class OverlayCanvas {
-  constructor(shadowRoot) {
+  constructor(shadowRoot, unitConverter = null) {
     this.shadowRoot = shadowRoot;
+    this.unitConverter = unitConverter || (typeof UnitConverter !== 'undefined' ? new UnitConverter() : null);
     this.svg = null;
     this.hoverElement = null;
     this.selectedElement = null;
     this.isGridVisible = false;
     this.isBaselineVisible = false;
     this.initSvgOverlay();
+  }
+
+  setUnit(unit) {
+    if (this.unitConverter) {
+      this.unitConverter.setUnit(unit);
+      this.render();
+    }
   }
 
   initSvgOverlay() {
@@ -170,17 +178,24 @@ class OverlayCanvas {
     const isLeft = r2.right <= r1.left;
     const isRight = r2.left >= r1.right;
 
+    const formatDist = (pxVal) => {
+      if (this.unitConverter) {
+        return this.unitConverter.formatBadge(pxVal);
+      }
+      return `${pxVal}px`;
+    };
+
     // 1. Vertical Gap (One strictly above/below the other)
     if (isAbove) {
       const gap = Math.round(r1.top - r2.bottom);
       const x = Math.max(r1.left, r2.left) + Math.min(r1.width, r2.width) / 2;
       this.drawLine(g, x, r2.bottom, x, r1.top, color);
-      this.renderDistanceBadge(g, x, r2.bottom + gap / 2, `${gap}px`, color);
+      this.renderDistanceBadge(g, x, r2.bottom + gap / 2, formatDist(gap), color);
     } else if (isBelow) {
       const gap = Math.round(r2.top - r1.bottom);
       const x = Math.max(r1.left, r2.left) + Math.min(r1.width, r2.width) / 2;
       this.drawLine(g, x, r1.bottom, x, r2.top, color);
-      this.renderDistanceBadge(g, x, r1.bottom + gap / 2, `${gap}px`, color);
+      this.renderDistanceBadge(g, x, r1.bottom + gap / 2, formatDist(gap), color);
     }
 
     // 2. Horizontal Gap (One strictly left/right of the other)
@@ -188,12 +203,12 @@ class OverlayCanvas {
       const gap = Math.round(r1.left - r2.right);
       const y = Math.max(r1.top, r2.top) + Math.min(r1.height, r2.height) / 2;
       this.drawLine(g, r2.right, y, r1.left, y, color);
-      this.renderDistanceBadge(g, r2.right + gap / 2, y, `${gap}px`, color);
+      this.renderDistanceBadge(g, r2.right + gap / 2, y, formatDist(gap), color);
     } else if (isRight) {
       const gap = Math.round(r2.left - r1.right);
       const y = Math.max(r1.top, r2.top) + Math.min(r1.height, r2.height) / 2;
       this.drawLine(g, r1.right, y, r2.left, y, color);
-      this.renderDistanceBadge(g, r1.right + gap / 2, y, `${gap}px`, color);
+      this.renderDistanceBadge(g, r1.right + gap / 2, y, formatDist(gap), color);
     }
 
     // 3. Overlapping or Nested: Distance to 4 edges (Figma Alt-inside measure)
@@ -203,14 +218,14 @@ class OverlayCanvas {
       const midX = (Math.max(r1.left, r2.left) + Math.min(r1.right, r2.right)) / 2;
       if (topDiff > 0) {
         this.drawLine(g, midX, Math.min(r1.top, r2.top), midX, Math.max(r1.top, r2.top), color);
-        this.renderDistanceBadge(g, midX, Math.min(r1.top, r2.top) + topDiff / 2, `${topDiff}px`, color);
+        this.renderDistanceBadge(g, midX, Math.min(r1.top, r2.top) + topDiff / 2, formatDist(topDiff), color);
       }
 
       // Bottom distance
       const botDiff = Math.round(Math.abs(r1.bottom - r2.bottom));
       if (botDiff > 0) {
         this.drawLine(g, midX, Math.min(r1.bottom, r2.bottom), midX, Math.max(r1.bottom, r2.bottom), color);
-        this.renderDistanceBadge(g, midX, Math.min(r1.bottom, r2.bottom) + botDiff / 2, `${botDiff}px`, color);
+        this.renderDistanceBadge(g, midX, Math.min(r1.bottom, r2.bottom) + botDiff / 2, formatDist(botDiff), color);
       }
 
       // Left distance
@@ -218,14 +233,14 @@ class OverlayCanvas {
       const midY = (Math.max(r1.top, r2.top) + Math.min(r1.bottom, r2.bottom)) / 2;
       if (leftDiff > 0) {
         this.drawLine(g, Math.min(r1.left, r2.left), midY, Math.max(r1.left, r2.left), midY, color);
-        this.renderDistanceBadge(g, Math.min(r1.left, r2.left) + leftDiff / 2, midY, `${leftDiff}px`, color);
+        this.renderDistanceBadge(g, Math.min(r1.left, r2.left) + leftDiff / 2, midY, formatDist(leftDiff), color);
       }
 
       // Right distance
       const rightDiff = Math.round(Math.abs(r1.right - r2.right));
       if (rightDiff > 0) {
         this.drawLine(g, Math.min(r1.right, r2.right), midY, Math.max(r1.right, r2.right), midY, color);
-        this.renderDistanceBadge(g, Math.min(r1.right, r2.right) + rightDiff / 2, midY, `${rightDiff}px`, color);
+        this.renderDistanceBadge(g, Math.min(r1.right, r2.right) + rightDiff / 2, midY, formatDist(rightDiff), color);
       }
     }
 
