@@ -1,4 +1,4 @@
-# Style Scratcher (스타일 스크래처) v4.0.2.
+# Style Scratcher (스타일 스크래처) v4.0.3.
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-success.svg)](#)
-[![Version](https://img.shields.io/badge/Version-v4.0.2.-E11D48.svg)](#)
+[![Version](https://img.shields.io/badge/Version-v4.0.3.-E11D48.svg)](#)
 [![Brand Color](https://img.shields.io/badge/Brand%20Color-%23E11D48-E11D48.svg)](#)
 [![Design](https://img.shields.io/badge/Design-White%20Minimal%20Studio-black.svg)](#)
 [![Typography](https://img.shields.io/badge/Typography-Golden%20Ratio%201.618-gold.svg)](#)
@@ -32,10 +32,10 @@ Style Scratcher는 일관되고 세련된 고품격 디자이너 스튜디오 �
 
 ### 🏷️ 버전 표기 표준 규격 (Strict Dot Versioning Standard)
 Style Scratcher의 모든 사용자 노출 인터페이스(플로팅 독 뱃지, 팝업, 릴리즈 노트, 대시보드 문서)는 **반드시 `vX.Y.Z.` 형식처럼 끝에 마침표(dot)를 포함**하는 규격을 준수합니다:
-- **형식**: `v` + `Major` + `.` + `Minor` + `.` + `Patch` + `.` (예: **`v4.0.2.`**, **`v1.1.1.`**)
+- **형식**: `v` + `Major` + `.` + `Minor` + `.` + `Patch` + `.` (예: **`v4.0.3.`**, **`v1.1.1.`**)
 - **Major (4)**: 풀 스튜디오 메이저 아키텍처
 - **Minor (0)**: 안정화 및 핵심 모듈 패키지
-- **Patch (2)**: **GitHub 릴리즈 자동 감지 & 원클릭 업데이트(Update Guardian), 브랜드 컬러 규격화 및 끝 마침표 버전 체계 확립**
+- **Patch (3)**: **서브픽셀 마칭 스퀘어 트루 벡터 글리프 아웃라이너, 웹폰트 바이너리 다운로더, W3C SVG 폰트 빌더, 병렬 글리프 실측 수확기**
 
 ---
 
@@ -125,7 +125,7 @@ Chrome 확장 프로그램을 재로드하거나 새로 설치했을 때, 기존
 ## 🚀 Chrome 브라우저 설치 및 사용법 (Installation Guide)
 
 ### 방법 1. 릴리즈 ZIP 파일로 설치 (가장 추천)
-1. 본 리포지토리의 [Releases](https://github.com/hslcrb/style-scrather/releases) 페이지에서 최신 `style-scrather-v3.0.2.zip` 파일을 다운로드합니다.
+1. 본 리포지토리의 [Releases](https://github.com/hslcrb/style-scrather/releases) 페이지에서 최신 `style-scrather-v4.0.3.zip` 파일을 다운로드합니다.
 2. 다운로드한 ZIP 파일의 압축을 해제합니다.
 3. Chrome 브라우저 주소창에 `chrome://extensions` 를 입력하고 이동합니다.
 4. 우측 상단의 **'개발자 모드(Developer mode)'** 토글 스위치를 켭니다.

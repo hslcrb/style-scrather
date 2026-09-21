@@ -1,19 +1,19 @@
-// Style Scratcher v4.0.2. - Automated Verification Test Suite
+// Style Scratcher v4.0.3. - Automated Verification Test Suite
 
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const vm = require('vm');
 
-console.log('🧪 [Style Scratcher v4.0.2.] Running Comprehensive Verification Test Suite...\n');
+console.log('🧪 [Style Scratcher v4.0.3.] Running Comprehensive Verification Test Suite...\n');
 
-// 1. Verify Manifest V3 & Version 4.0.2
-console.log('1. Verifying manifest.json v4.0.2....');
+// 1. Verify Manifest V3 & Version 4.0.3
+console.log('1. Verifying manifest.json v4.0.3....');
 const manifestPath = path.join(__dirname, '..', 'manifest.json');
 assert(fs.existsSync(manifestPath), 'manifest.json must exist');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 assert.strictEqual(manifest.manifest_version, 3, 'Manifest version must be 3');
-assert.strictEqual(manifest.version, '4.0.2', 'Extension version must be 4.0.2');
+assert.strictEqual(manifest.version, '4.0.3', 'Extension version must be 4.0.3');
 assert(manifest.action && manifest.action.default_popup, 'Popup must be declared');
 assert(manifest.content_scripts && manifest.content_scripts.length > 0, 'Content scripts must be declared');
 
@@ -35,7 +35,7 @@ const expectedScripts = [
 expectedScripts.forEach(s => {
   assert(scripts.includes(s), `${s} must be in manifest.json content_scripts`);
 });
-console.log('   ✅ manifest.json is valid Manifest V3 (v4.0.2) with all required content scripts.\n');
+console.log('   ✅ manifest.json is valid Manifest V3 (v4.0.3) with all required content scripts.\n');
 
 // 2. Test ModeManager (Inspect Mode vs Edit Studio Mode, Multi-select, DOM Reordering)
 console.log('2. Testing ModeManager (Mode Switching, Multi-Select, DOM Operations)...');
@@ -256,14 +256,25 @@ assert.strictEqual(sizingFixed.heightFixed || sizingFixed.heightSizing, 'Fixed',
   console.log(`   ✅ Glyph Harvester successfully batch-scanned ${harvestResult.totalGlyphs} glyphs non-blocking.`);
 })();
 
-// Test SVG Text Outlining
+// Test SVG Text Outlining (True Vector Outlines & Curves)
 const textEl = new MockDomNode('p');
 textEl.innerText = 'Style Scratcher Studio';
 const outlines = FontStudio.createTextOutlines(textEl);
 assert(outlines && outlines.svg, 'Outlines must return SVG vector string');
 assert(outlines.svg.includes('<svg'), 'Output must be valid SVG');
 assert(outlines.svg.includes('Style Scratcher Studio'), 'SVG must contain vectorized text');
-console.log('   ✅ FontStudio AutoLayout (Hug/Fill/Fixed) and SVG Outliner verified.\n');
+assert(outlines.pathData && outlines.pathData.startsWith('M'), 'Outlines must contain vector pathData');
+
+// Test W3C SVG Font Builder
+const testGlyphs = [
+  { char: 'A', code: '0041', width: 14, pathData: 'M 10 10 L 40 10 L 40 90 L 10 90 Z' },
+  { char: '가', code: 'AC00', width: 20, pathData: 'M 20 20 L 80 20 L 80 80 L 20 80 Z' }
+];
+const svgFont = FontStudio.buildSvgFont('StudioFont', testGlyphs);
+assert(svgFont.includes('<font id="StudioFont"'), 'SVG Font must include font tag with id');
+assert(svgFont.includes('<glyph unicode="&#x0041;"'), 'SVG Font must include Latin glyph');
+assert(svgFont.includes('<glyph unicode="&#xAC00;"'), 'SVG Font must include Hangul glyph');
+console.log('   ✅ FontStudio AutoLayout (Hug/Fill/Fixed), True SVG Outliner & W3C SVG Font Builder verified.\n');
 
 // 6. Test ContextHud (Smart Alternating Right-Click State Machine)
 console.log('6. Testing ContextHud (Smart Alternating Right-Click HUD)...');
@@ -399,8 +410,8 @@ assert.strictEqual(oc.gridConfig.gutter, 24);
 assert.strictEqual(oc.gridConfig.color, '#3B82F6');
 console.log('   ✅ OverlayCanvas passed custom grid configuration (16 cols, 24px gutter).\n');
 
-// 12. Project Files Completeness for v4.0.2.
-console.log('12. Verifying File Completeness for v4.0.2....');
+// 12. Project Files Completeness for v4.0.3.
+console.log('12. Verifying File Completeness for v4.0.3....');
 const v4Files = [
   'manifest.json',
   'content/mode-manager.js',
@@ -434,6 +445,7 @@ const v4Files = [
   'popup/popup.html',
   'popup/popup.css',
   'demo/index.html',
+  'release-notes-v4.0.3.md',
   'README.md',
   'LICENSE'
 ];
@@ -479,25 +491,25 @@ assert(shadowCss.includes('#E11D48'), 'shadow-styles.css must use #E11D48 red th
 assert(popupCss.includes('#E11D48'), 'popup.css must use #E11D48 red theme primary');
 console.log('   ✅ Red Studio Theme verified: Primary accent #E11D48 active across dock, canvas & popup.');
 
-// 14. Verify v4.0.2. Innovations: Strict Dot Version Standard & Update Guardian
-console.log('\n14. Verifying v4.0.2. Innovations (Strict Dot Version Standard & Update Guardian)...');
+// 14. Verify v4.0.3. Innovations: Strict Dot Version Standard & Update Guardian
+console.log('\n14. Verifying v4.0.3. Innovations (Strict Dot Version Standard & Update Guardian)...');
 const UpdateGuardian = require('../content/update-guardian.js');
 
 // Test UpdateGuardian version parsing & comparison
-assert.deepStrictEqual(UpdateGuardian.parseVersion('v4.0.2.'), [4, 0, 2]);
-assert.deepStrictEqual(UpdateGuardian.parseVersion('4.0.2'), [4, 0, 2]);
-assert.strictEqual(UpdateGuardian.isNewer('v4.0.3.', '4.0.2'), true);
-assert.strictEqual(UpdateGuardian.isNewer('v4.0.2.', '4.0.2'), false);
-assert.strictEqual(UpdateGuardian.isNewer('v4.0.1.', '4.0.2'), false);
-assert.strictEqual(UpdateGuardian.formatDisplayVersion('4.0.2'), 'v4.0.2.');
+assert.deepStrictEqual(UpdateGuardian.parseVersion('v4.0.3.'), [4, 0, 3]);
+assert.deepStrictEqual(UpdateGuardian.parseVersion('4.0.3'), [4, 0, 3]);
+assert.strictEqual(UpdateGuardian.isNewer('v4.0.4.', '4.0.3'), true);
+assert.strictEqual(UpdateGuardian.isNewer('v4.0.3.', '4.0.3'), false);
+assert.strictEqual(UpdateGuardian.isNewer('v4.0.2.', '4.0.3'), false);
+assert.strictEqual(UpdateGuardian.formatDisplayVersion('4.0.3'), 'v4.0.3.');
 assert.strictEqual(UpdateGuardian.formatDisplayVersion('v1.1.1.'), 'v1.1.1.');
 console.log('   ✅ UpdateGuardian module verified: Semantic version parser and comparison accurate.');
 
 // Test strict dot version standard in UI (vX.Y.Z.)
-assert(dockJs.includes('<span class="dock-badge">v4.0.2.</span>'), 'floating-dock.js must have dock badge with trailing dot (v4.0.2.)');
-assert(popupHtml.includes('v4.0.2.'), 'popup.html must have footer version with trailing dot (v4.0.2.)');
+assert(dockJs.includes('<span class="dock-badge">v4.0.3.</span>'), 'floating-dock.js must have dock badge with trailing dot (v4.0.3.)');
+assert(popupHtml.includes('v4.0.3.'), 'popup.html must have footer version with trailing dot (v4.0.3.)');
 assert(dockJs.includes('#E11D48 (Studio Crimson)'), 'floating-dock.js must explicitly specify brand color in settings');
 assert(dockJs.includes('버전 표기 표준 체계'), 'floating-dock.js must explicitly specify dot version standard in settings');
-console.log('   ✅ Strict Dot Version Standard (v4.0.2.) & Brand Color (#E11D48) verified across UI.');
+console.log('   ✅ Strict Dot Version Standard (v4.0.3.) & Brand Color (#E11D48) verified across UI.');
 
-console.log('\n🎉 ALL 14 VERIFICATION TEST PHASES FOR v4.0.2. PASSED 100% BRILLIANTLY!');
+console.log('\n🎉 ALL 14 VERIFICATION TEST PHASES FOR v4.0.3. PASSED 100% BRILLIANTLY!');

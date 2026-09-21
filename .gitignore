@@ -27,3 +27,6 @@ Thumbs.db
 # Build and archive outputs
 *.zip
 *.tar.gz
+*.crx
+style-scrather-*.zip
+

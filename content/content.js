@@ -1,4 +1,4 @@
-// Style Scratcher v4.0.2. - Content Script Orchestrator
+// Style Scratcher v4.0.3. - Content Script Orchestrator
 
 (function () {
   // Prevent multiple injections
@@ -98,7 +98,7 @@
       tabOrderVisualizer: tabOrderVisualizer,
       shortcutManager: shortcutManager,
       reactExporter: typeof ReactExporter !== 'undefined' ? ReactExporter : null,
-      updateGuardian: typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion: '4.0.2' }) : null,
+      updateGuardian: typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion: '4.0.3' }) : null,
       isSafeMode: isSafeMode,
       onToggleSafeMode: (state) => {
         isSafeMode = state;
@@ -117,7 +117,7 @@
     // 4. Attach Window/Document Listeners
     attachEventListeners();
 
-    console.log('[Style Scratcher v4.0.2.] Initialized with Update Guardian, Brand Identity, and Full Edit Studio.');
+    console.log('[Style Scratcher v4.0.3.] Initialized with True Vector Outliner, WebFont Downloader & SVG Font Builder.');
   }
 
   function handleHudAction(action, targetEl) {
