@@ -1,4 +1,4 @@
-// Style Scratcher v4.0.0 - Floating Dock Component (White Minimal Studio UI)
+// Style Scratcher v4.0.1 - Floating Dock Component (White Minimal Studio UI)
 
 class FloatingDock {
   constructor(shadowRoot, options = {}) {
@@ -50,7 +50,7 @@ class FloatingDock {
             </svg>
           </div>
           <span class="dock-title">Style Scratcher</span>
-          <span class="dock-badge">v4.0.0</span>
+          <span class="dock-badge">v4.0.1</span>
         </div>
 
         <!-- Mode Switcher (Inspect vs Edit Studio) -->
@@ -75,7 +75,7 @@ class FloatingDock {
       </div>
 
       <!-- Navigation Tabs (v4.0.0 Comprehensive Suite) -->
-      <div class="dock-tabs" id="dockTabs" style="overflow-x: auto; scrollbar-width: none;">
+      <div class="dock-tabs" id="dockTabs">
         <button class="tab-btn active" data-tab="inspector">인스펙터</button>
         <button class="tab-btn" data-tab="mockup">목업</button>
         <button class="tab-btn" data-tab="fonts">폰트</button>
@@ -172,7 +172,7 @@ class FloatingDock {
       body.style.display = 'none';
       this.container.classList.add('minimized');
     } else {
-      tabs.style.display = 'flex';
+      tabs.style.display = 'grid';
       body.style.display = 'flex';
       this.container.classList.remove('minimized');
     }
@@ -357,7 +357,7 @@ class FloatingDock {
         ${isEditMode ? `
         <!-- Edit Studio Action Bar (v4.0.0) -->
         <div class="edit-studio-bar" style="margin-top: 8px;">
-          <span style="font-size: 10px; font-weight: 700; color: #2563EB;">편집 모드 (${selectedCount}개 선택)</span>
+          <span style="font-size: 10px; font-weight: 700; color: #E11D48;">편집 모드 (${selectedCount}개 선택)</span>
           <div class="edit-action-btn-group">
             <button class="edit-action-btn" id="btnDomMoveUp" title="DOM 상위로 이동">▲ 위로</button>
             <button class="edit-action-btn" id="btnDomMoveDown" title="DOM 하위로 이동">▼ 아래로</button>
@@ -453,7 +453,9 @@ class FloatingDock {
             <span class="contrast-pill ${contrast.passesAA ? 'pass' : 'fail'}" title="명도 대비율">
               대비 ${contrast.ratio}:1 [${contrast.score}]
             </span>
-            <button class="eyedropper-btn" id="eyeDropperBtn">🎨 스포이트</button>
+            <button class="eyedropper-btn" id="eyeDropperBtn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><path d="M2 22s5-1 8-4l9-9a2.828 2.828 0 0 0-4-4l-9 9c-3 3-4 8-4 8z"></path><path d="M14.5 5.5l4 4"></path></svg>스포이트
+            </button>
           </div>
         </div>
 
@@ -668,30 +670,30 @@ class FloatingDock {
         <span class="section-title" style="margin-top: 6px;">디바이스 프리셋 (Presets)</span>
         <div class="preset-grid">
           <button class="preset-btn ${currentPreset === 'tv' ? 'active' : ''}" data-preset="tv">
-            <span class="preset-name">📺 Smart TV</span>
+            <span class="preset-name">Smart TV</span>
             <span class="preset-dim">1920 × 1080 (16:9)</span>
           </button>
           <button class="preset-btn ${currentPreset === 'desktop' ? 'active' : ''}" data-preset="desktop">
-            <span class="preset-name">💻 Desktop Studio</span>
+            <span class="preset-name">Desktop Studio</span>
             <span class="preset-dim">1440 × 900 (16:10)</span>
           </button>
           <button class="preset-btn ${currentPreset === 'ipad' ? 'active' : ''}" data-preset="ipad">
-            <span class="preset-name">📱 iPad Pro</span>
+            <span class="preset-name">iPad Pro</span>
             <span class="preset-dim">820 × 1180 (4:3)</span>
           </button>
           <button class="preset-btn ${currentPreset === 'iphone' ? 'active' : ''}" data-preset="iphone">
-            <span class="preset-name">📱 iPhone 16 Pro</span>
+            <span class="preset-name">iPhone 16 Pro</span>
             <span class="preset-dim">393 × 852 (19.5:9)</span>
           </button>
           <button class="preset-btn ${currentPreset === 'galaxy' ? 'active' : ''}" data-preset="galaxy">
-            <span class="preset-name">📱 Galaxy S25 Ultra</span>
+            <span class="preset-name">Galaxy S25 Ultra</span>
             <span class="preset-dim">412 × 915 (20:9)</span>
           </button>
         </div>
 
         <div class="mockup-controls-bar">
           <button class="btn-secondary" id="btnMockupRotate" style="padding: 4px 8px; font-size: 11px;">
-            ${isLandscape ? '가로 모드 🔄' : '세로 모드 🔄'}
+            ${isLandscape ? '가로 모드' : '세로 모드'}
           </button>
           <span style="font-size: 10.5px; font-weight: 600; color: #475569;">배율:</span>
           <input type="range" class="mockup-scale-slider" id="mockupScaleInput" min="0.25" max="1.2" step="0.05" value="${currentScale / 100}">
@@ -753,7 +755,7 @@ class FloatingDock {
       <div class="font-studio-section">
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <span class="section-title" style="margin: 0;">피그마 폰트 스튜디오</span>
-          <span style="font-size: 10px; color: #2563EB; font-weight: 600;">Google Fonts 실시간 주입</span>
+          <span style="font-size: 10px; color: #E11D48; font-weight: 600;">Google Fonts 실시간 주입</span>
         </div>
 
         ${el ? `
@@ -835,7 +837,10 @@ class FloatingDock {
             <div class="glyph-progress-bar-fill" id="glyphProgressBar"></div>
           </div>
           <button class="btn-primary-action" id="btnStartHarvest">
-            ⚡ 병렬 글리프 수확 시작 (Non-blocking)
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            병렬 글리프 수확 시작 (Non-blocking)
           </button>
         </div>
       </div>
@@ -881,7 +886,7 @@ class FloatingDock {
 
     container.querySelector('#btnExtractWebFonts')?.addEventListener('click', async () => {
       const list = container.querySelector('#webFontsList');
-      list.innerHTML = `<div style="text-align: center; color: #2563EB; font-size: 10px; padding: 6px;">웹폰트 스캔 중...</div>`;
+      list.innerHTML = `<div style="text-align: center; color: #E11D48; font-size: 10px; padding: 6px;">웹폰트 스캔 중...</div>`;
       if (typeof FontStudio !== 'undefined') {
         const fonts = await FontStudio.extractWebFonts();
         if (!fonts || fonts.length === 0) {
@@ -920,7 +925,7 @@ class FloatingDock {
         });
         statusBadge.textContent = '수확 완료';
         btnHarvest.disabled = false;
-        btnHarvest.textContent = '⚡ 병렬 글리프 수확 완료 (재실행 가능)';
+        btnHarvest.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 병렬 글리프 수확 완료 (재실행 가능)';
         this.showToast('모든 글리프 음절 병렬 조사가 완료되었습니다.');
       }
     });
@@ -934,7 +939,7 @@ class FloatingDock {
     if (!el) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">✏️</div>
+          <div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div>
           <div class="empty-title">선택된 요소가 없습니다</div>
           <div class="empty-desc">웹 페이지의 요소(텍스트, 이미지, SVG 아이콘 등)를 클릭하여 실시간으로 내용을 교체하고 편집하세요.</div>
         </div>
@@ -958,7 +963,7 @@ class FloatingDock {
       <!-- 1. Text Content Editor -->
       <div class="asset-editor-card" style="margin-bottom: 10px;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: 11px; font-weight: 700; color: #1E293B;">🔤 텍스트 내용 실시간 수정</span>
+          <span style="font-size: 11px; font-weight: 700; color: #1E293B; display: inline-flex; align-items: center; gap: 5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg> 텍스트 내용 실시간 수정</span>
           <button class="btn-secondary" id="toggleContentEditableBtn" style="padding: 2px 8px; font-size: 10px;">
             ${isEditable ? '직접 타이핑 끄기' : '요소 직접 타이핑 (contentEditable)'}
           </button>
@@ -975,7 +980,7 @@ class FloatingDock {
       <!-- 2. Image & Media Swapper -->
       <div class="asset-editor-card" style="margin-bottom: 10px;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: 11px; font-weight: 700; color: #1E293B;">🖼️ 이미지 소스 교체 (Image Swapper)</span>
+          <span style="font-size: 11px; font-weight: 700; color: #1E293B; display: inline-flex; align-items: center; gap: 5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> 이미지 소스 교체 (Image Swapper)</span>
         </div>
         <div style="display: flex; gap: 6px;">
           <input type="text" class="asset-input-field" id="imgUrlInput" placeholder="새 이미지 URL 입력 (https://...)" value="${imgSrc}">
@@ -983,10 +988,10 @@ class FloatingDock {
         </div>
         <div style="display: flex; gap: 6px;">
           <button class="btn-secondary" id="randomUnsplashBtn" style="flex: 1; font-size: 10px; justify-content: center;">
-            🎲 고화질 Unsplash 랜덤
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>고화질 Unsplash 랜덤
           </button>
           <button class="btn-secondary" id="uploadImageBtn" style="flex: 1; font-size: 10px; justify-content: center;">
-            📁 로컬 이미지 업로드
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>로컬 이미지 업로드
           </button>
           <input type="file" id="localFileInput" accept="image/*" style="display: none;">
         </div>
@@ -995,16 +1000,16 @@ class FloatingDock {
       <!-- 3. SVG & Vector Editor -->
       <div class="asset-editor-card">
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: 11px; font-weight: 700; color: #1E293B;">📐 SVG 벡터 속성 & XML 코드 조작</span>
-          ${svgInfo ? '<span class="prop-tag" style="background:#EFF6FF;color:#2563EB;">SVG 감지됨</span>' : ''}
+          <span style="font-size: 11px; font-weight: 700; color: #1E293B; display: inline-flex; align-items: center; gap: 5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg> SVG 벡터 속성 & XML 코드 조작</span>
+          ${svgInfo ? '<span class="prop-tag" style="background:#FFF1F2;color:#E11D48;">SVG 감지됨</span>' : ''}
         </div>
         ${svgInfo ? `
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <div class="tweak-row">
               <span class="tweak-label">채우기 (Fill)</span>
               <div class="color-picker-group">
-                <div class="color-swatch-wrapper" style="background-color: ${svgInfo.fill.startsWith('#') ? svgInfo.fill : '#3B82F6'};">
-                  <input type="color" class="native-color-picker" id="svgFillPicker" value="${svgInfo.fill.startsWith('#') && svgInfo.fill.length === 7 ? svgInfo.fill : '#3b82f6'}">
+                <div class="color-swatch-wrapper" style="background-color: ${svgInfo.fill.startsWith('#') ? svgInfo.fill : '#F43F5E'};">
+                  <input type="color" class="native-color-picker" id="svgFillPicker" value="${svgInfo.fill.startsWith('#') && svgInfo.fill.length === 7 ? svgInfo.fill : '#f43f5e'}">
                 </div>
                 <input type="text" class="color-hex-input" id="svgFillInput" value="${svgInfo.fill}">
               </div>
@@ -1173,7 +1178,7 @@ class FloatingDock {
     if (!el) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">⚡</div>
+          <div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></div>
           <div class="empty-title">선택된 요소가 없습니다</div>
           <div class="empty-desc">요소를 클릭하면 걸려있는 자바스크립트 이벤트와 :hover, :focus 가상 상태를 제어할 수 있습니다.</div>
         </div>
@@ -1257,7 +1262,7 @@ class FloatingDock {
       motion.animations.forEach(a => {
         animListHtml += `
           <div style="padding: 6px 10px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 11px;">
-            <div style="font-weight: 600; color: #2563EB;">@keyframes ${a.name}</div>
+            <div style="font-weight: 600; color: #E11D48;">@keyframes ${a.name}</div>
             <div style="color: #6B7280; font-size: 10px; margin-top: 2px;">
               지속 시간: <strong>${a.duration}</strong> • 타이밍: <strong>${a.timing}</strong> • 반복: <strong>${a.iteration}</strong>
             </div>
@@ -1347,7 +1352,7 @@ class FloatingDock {
 
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">🎨</div>
+          <div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 10 10 0 0 0 0-20"></path></svg></div>
           <div class="empty-title">그래픽 요소를 선택하세요</div>
           <div class="empty-desc">
             현재 페이지에 <strong>&lt;canvas&gt; ${canvases.length}개</strong>, <strong>&lt;svg&gt; ${svgs.length}개</strong>가 있습니다.<br>
@@ -1365,7 +1370,7 @@ class FloatingDock {
         <div class="telemetry-grid">
           <div class="telemetry-item">
             <span class="telemetry-label">컨텍스트 타입</span>
-            <span class="telemetry-val" style="color: #2563EB;">${graphics.contextType}</span>
+            <span class="telemetry-val" style="color: #E11D48;">${graphics.contextType}</span>
           </div>
           <div class="telemetry-item">
             <span class="telemetry-label">버퍼 해상도</span>
@@ -1732,7 +1737,7 @@ class FloatingDock {
 
     container.querySelector('#loadSiteCssBtn').addEventListener('click', async () => {
       const listContainer = container.querySelector('#cssSheetsList');
-      listContainer.innerHTML = `<div style="text-align: center; padding: 12px; color: #2563EB;">스타일시트 파싱 및 난독화 해제 중...</div>`;
+      listContainer.innerHTML = `<div style="text-align: center; padding: 12px; color: #E11D48;">스타일시트 파싱 및 난독화 해제 중...</div>`;
       this.siteStylesheets = await CssBeautifier.extractSiteStylesheets();
       this.displayFilteredCss(listContainer, '');
     });

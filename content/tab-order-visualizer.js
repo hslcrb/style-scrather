@@ -114,7 +114,7 @@ class TabOrderVisualizer {
       line.setAttribute('y1', y1);
       line.setAttribute('x2', x2);
       line.setAttribute('y2', y2);
-      line.setAttribute('stroke', '#3B82F6');
+      line.setAttribute('stroke', '#F43F5E');
       line.setAttribute('stroke-width', '2');
       line.setAttribute('stroke-dasharray', '4 3');
       line.setAttribute('opacity', '0.6');
@@ -136,7 +136,7 @@ class TabOrderVisualizer {
       box.setAttribute('width', rect.width);
       box.setAttribute('height', rect.height);
       box.setAttribute('fill', 'rgba(59, 130, 246, 0.08)');
-      box.setAttribute('stroke', '#2563EB');
+      box.setAttribute('stroke', '#E11D48');
       box.setAttribute('stroke-width', '1.5');
       box.setAttribute('rx', '4');
       g.appendChild(box);
@@ -149,7 +149,7 @@ class TabOrderVisualizer {
       circle.setAttribute('cx', cx);
       circle.setAttribute('cy', cy);
       circle.setAttribute('r', '11');
-      circle.setAttribute('fill', '#2563EB');
+      circle.setAttribute('fill', '#E11D48');
       circle.setAttribute('stroke', '#FFFFFF');
       circle.setAttribute('stroke-width', '2');
       circle.setAttribute('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))');

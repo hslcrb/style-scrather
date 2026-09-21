@@ -173,8 +173,8 @@ class MotionInspector {
         <line x1="${startX}" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#E5E7EB" stroke-dasharray="2 2" />
 
         <!-- Control Handle 1 -->
-        <line x1="${startX}" y1="${startY}" x2="${cp1X}" y2="${cp1Y}" stroke="#93C5FD" stroke-width="1.5" />
-        <circle cx="${cp1X}" cy="${cp1Y}" r="3.5" fill="#2563EB" />
+        <line x1="${startX}" y1="${startY}" x2="${cp1X}" y2="${cp1Y}" stroke="#FDA4AF" stroke-width="1.5" />
+        <circle cx="${cp1X}" cy="${cp1Y}" r="3.5" fill="#E11D48" />
 
         <!-- Control Handle 2 -->
         <line x1="${endX}" y1="${endY}" x2="${cp2X}" y2="${cp2Y}" stroke="#FCA5A5" stroke-width="1.5" />

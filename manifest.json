@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Style Scratcher - 피그마 스타일 웹 인스펙터 & CSS 튜너",
   "short_name": "StyleScratcher",
-  "version": "4.0.0",
-  "description": "디자이너와 개발자를 위한 화이트 미니멀 피그마 감성 웹 인스펙터 & 에디트 스튜디오 v4.0.0. 검사/편집 모드 분리, 디바이스 뷰포트 목업(TV/Desktop/iPad/iPhone/Galaxy), 피그마 폰트 스튜디오 및 Hug/Fill/Fixed 오토레이아웃 감지, 웹폰트 추출 및 백그라운드 병렬 글리프 수확기, W3C 탭 순서 시각화, 스마트 우클릭 HUD, React JSX 추출.",
+  "version": "4.0.1",
+  "description": "디자이너와 개발자를 위한 화이트 미니멀 피그마 감성 웹 인스펙터 & 에디트 스튜디오 v4.0.1. 2줄 탭 네비게이션(설정 및 10개 탭 직관 노출), 벡터 SVG 아이콘, 레드 스튜디오 테마, 검사/편집 모드 분리, 디바이스 뷰포트 목업, 피그마 폰트 스튜디오 및 Hug/Fill/Fixed 감지, 병렬 글리프 수확기, W3C 탭 순서 시각화, 스마트 HUD, React JSX 추출.",
   "permissions": [
     "activeTab",
     "storage",

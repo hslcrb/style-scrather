@@ -9,9 +9,9 @@
   --text-primary: #111827;
   --text-secondary: #4B5563;
   --text-muted: #9CA3AF;
-  --accent-color: #2563EB;
-  --accent-hover: #1D4ED8;
-  --accent-light: #EFF6FF;
+  --accent-color: #E11D48;
+  --accent-hover: #BE123C;
+  --accent-light: #FFF1F2;
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 10px;
@@ -101,7 +101,7 @@ body {
   font-weight: 700;
   color: var(--accent-color);
   background-color: var(--accent-light);
-  border: 1px solid #DBEAFE;
+  border: 1px solid #FFE4E6;
   padding: 1px 5px;
   border-radius: 4px;
   letter-spacing: 0.04em;
@@ -183,7 +183,7 @@ body {
 .btn-primary {
   background-color: var(--accent-color);
   color: #FFFFFF;
-  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 1px 3px rgba(225, 29, 72, 0.2);
 }
 
 .btn-primary:hover {

@@ -1,4 +1,4 @@
-// Style Scratcher v4.0.0 - Content Script Orchestrator
+// Style Scratcher v4.0.1 - Content Script Orchestrator
 
 (function () {
   // Prevent multiple injections

@@ -3,7 +3,7 @@
    Rules:
    - Primary: #FFFFFF, Neutral: #F9FAFB, #F3F4F6, Border: #E5E7EB
    - Text: #111827 (Primary), #4B5563 (Secondary), #9CA3AF (Muted)
-   - Accent: #2563EB (Studio Blue), Figma Guide: #EF4444 (Ruler Red)
+   - Accent: #E11D48 (Studio Red / Crimson), Guide: #EF4444 (Ruler Red)
    - Button Radius: 6px - 8px strictly (NO PILL / NO FULL CAPSULE)
 */
 
@@ -101,10 +101,10 @@
 .dock-logo {
   width: 22px;
   height: 22px;
-  background: #EFF6FF;
-  border: 1px solid #DBEAFE;
+  background: #FFF1F2;
+  border: 1px solid #FFE4E6;
   border-radius: 6px; /* strict 6px */
-  color: #2563EB;
+  color: #E11D48;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -120,8 +120,8 @@
 .dock-badge {
   font-size: 10px;
   font-weight: 600;
-  color: #2563EB;
-  background: #EFF6FF;
+  color: #E11D48;
+  background: #FFF1F2;
   padding: 1px 6px;
   border-radius: 4px;
 }
@@ -152,20 +152,20 @@
 }
 
 .icon-btn.active {
-  background: #EFF6FF;
-  color: #2563EB;
-  border-color: #DBEAFE;
+  background: #FFF1F2;
+  color: #E11D48;
+  border-color: #FFE4E6;
 }
 
-/* Navigation Tabs */
+/* Navigation Tabs (2-Row 5-Column Grid: all 10 tabs cleanly visible) */
 .dock-tabs {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   background: #F9FAFB;
   border-bottom: 1px solid #E5E7EB;
-  padding: 4px 6px;
+  padding: 6px 8px;
   gap: 4px;
   flex-shrink: 0;
-  overflow-x: auto;
 }
 
 .dock-tabs::-webkit-scrollbar {
@@ -173,23 +173,23 @@
 }
 
 .tab-btn {
-  flex: 1;
-  min-width: 60px;
-  padding: 6px 8px;
+  min-width: 0;
+  padding: 6px 2px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 6px; /* strictly 6px */
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 500;
   color: #6B7280;
   cursor: pointer;
   text-align: center;
   white-space: nowrap;
-  transition: all 0.15s ease;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 3px;
+  user-select: none;
 }
 
 .tab-btn:hover {
@@ -199,10 +199,10 @@
 
 .tab-btn.active {
   background: #FFFFFF;
-  color: #2563EB;
+  color: #E11D48;
   font-weight: 600;
-  border-color: #E5E7EB;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  border-color: #FECDD3;
+  box-shadow: 0 1px 3px rgba(225, 29, 72, 0.08);
 }
 
 /* Body / Tab Content */
@@ -250,11 +250,11 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 11px;
   font-weight: 600;
-  color: #2563EB;
-  background: #EFF6FF;
+  color: #E11D48;
+  background: #FFF1F2;
   padding: 2px 7px;
   border-radius: 4px;
-  border: 1px solid #DBEAFE;
+  border: 1px solid #FFE4E6;
 }
 
 .element-dim-badge {
@@ -308,9 +308,9 @@
 }
 
 .btn-secondary.active {
-  background: #EFF6FF;
-  border-color: #93C5FD;
-  color: #2563EB;
+  background: #FFF1F2;
+  border-color: #FDA4AF;
+  color: #E11D48;
 }
 
 .btn-primary-action {
@@ -321,8 +321,8 @@
   gap: 6px;
   height: 30px;
   padding: 0 12px;
-  background: #2563EB;
-  border: 1px solid #1D4ED8;
+  background: #E11D48;
+  border: 1px solid #BE123C;
   border-radius: 6px; /* strictly 6px */
   color: #FFFFFF;
   font-size: 11px;
@@ -332,7 +332,7 @@
 }
 
 .btn-primary-action:hover {
-  background: #1D4ED8;
+  background: #BE123C;
 }
 
 /* Section Title */
@@ -351,7 +351,7 @@
 .section-reset-btn {
   font-size: 10px;
   font-weight: 500;
-  color: #2563EB;
+  color: #E11D48;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -413,7 +413,7 @@
   height: 14px;
   border-radius: 50%;
   background: #FFFFFF;
-  border: 2px solid #2563EB;
+  border: 2px solid #E11D48;
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
   cursor: pointer;
 }
@@ -436,8 +436,8 @@
 
 .num-input:focus {
   background: #FFFFFF;
-  border-color: #2563EB;
-  box-shadow: 0 0 0 2px #DBEAFE;
+  border-color: #E11D48;
+  box-shadow: 0 0 0 2px #FFE4E6;
 }
 
 /* 4-Corner Radius Controls */
@@ -513,8 +513,8 @@
 }
 
 .bm-content {
-  background: #EFF6FF;
-  border: 1px solid #3B82F6;
+  background: #FFF1F2;
+  border: 1px solid #F43F5E;
   border-radius: 4px;
   height: 32px;
   display: flex;
@@ -522,7 +522,7 @@
   justify-content: center;
   font-size: 10px;
   font-weight: 600;
-  color: #1D4ED8;
+  color: #BE123C;
   margin: 12px 14px;
 }
 
@@ -585,7 +585,7 @@
 
 .color-hex-input:focus {
   background: #FFFFFF;
-  border-color: #2563EB;
+  border-color: #E11D48;
 }
 
 /* Code Snippet Box */
@@ -628,8 +628,8 @@
 
 .copy-mini-btn:hover {
   background: #F9FAFB;
-  color: #2563EB;
-  border-color: #BFDBFE;
+  color: #E11D48;
+  border-color: #FECDD3;
 }
 
 .code-content {
@@ -670,7 +670,7 @@
 }
 
 .palette-item:hover {
-  border-color: #2563EB;
+  border-color: #E11D48;
   box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
@@ -714,8 +714,8 @@
 
 .site-search-input:focus {
   background: #FFFFFF;
-  border-color: #2563EB;
-  box-shadow: 0 0 0 2px #DBEAFE;
+  border-color: #E11D48;
+  box-shadow: 0 0 0 2px #FFE4E6;
 }
 
 /* Empty State / Hints */
@@ -816,7 +816,7 @@
 
 .unit-chip.active {
   background: #FFFFFF;
-  color: #2563EB;
+  color: #E11D48;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -849,9 +849,9 @@
 }
 
 .pseudo-btn.active {
-  background: #EFF6FF;
-  border-color: #2563EB;
-  color: #2563EB;
+  background: #FFF1F2;
+  border-color: #E11D48;
+  color: #E11D48;
 }
 
 /* Event Listeners List */
@@ -933,9 +933,9 @@
 }
 
 .speed-chip.active {
-  background: #2563EB;
+  background: #E11D48;
   color: #FFFFFF;
-  border-color: #1D4ED8;
+  border-color: #BE123C;
 }
 
 .bezier-box {
@@ -1023,8 +1023,8 @@
 }
 
 .toggle-switch-btn.active.freeze {
-  background: #3B82F6;
-  border-color: #2563EB;
+  background: #F43F5E;
+  border-color: #E11D48;
 }
 
 /* =======================================================
@@ -1102,8 +1102,8 @@
 
 .eyedropper-btn:hover {
   background: #F1F5F9;
-  border-color: #2563EB;
-  color: #2563EB;
+  border-color: #E11D48;
+  color: #E11D48;
 }
 
 .contrast-pill {
@@ -1180,14 +1180,14 @@
 
 .live-text-area:focus {
   background: #FFFFFF;
-  border-color: #2563EB;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  border-color: #E11D48;
+  box-shadow: 0 0 0 2px rgba(225, 29, 72,  0.15);
 }
 
 .editable-active-badge {
-  background: #EFF6FF;
-  border: 1px solid #BFDBFE;
-  color: #2563EB;
+  background: #FFF1F2;
+  border: 1px solid #FECDD3;
+  color: #E11D48;
   font-size: 11px;
   font-weight: 600;
   padding: 3px 8px;
@@ -1211,7 +1211,7 @@
 
 .asset-input-field:focus {
   background: #FFFFFF;
-  border-color: #2563EB;
+  border-color: #E11D48;
 }
 
 /* =======================================================
@@ -1311,7 +1311,7 @@
 
 .mode-switch-btn.active {
   background: #FFFFFF;
-  color: #2563EB;
+  color: #E11D48;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   font-weight: 700;
 }
@@ -1425,8 +1425,8 @@
 }
 
 .preset-btn.active {
-  background: #EFF6FF;
-  border-color: #3B82F6;
+  background: #FFF1F2;
+  border-color: #F43F5E;
 }
 
 .preset-name {
@@ -1454,7 +1454,7 @@
 
 .mockup-scale-slider {
   flex: 1;
-  accent-color: #2563EB;
+  accent-color: #E11D48;
 }
 
 /* =======================================================
@@ -1480,8 +1480,8 @@
 }
 
 .font-select-field:focus {
-  border-color: #2563EB;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  border-color: #E11D48;
+  box-shadow: 0 0 0 2px rgba(225, 29, 72,  0.15);
 }
 
 .font-props-grid {
@@ -1517,14 +1517,14 @@
 .glyph-progress-bar-fill {
   height: 100%;
   width: 0%;
-  background: #2563EB;
+  background: #E11D48;
   transition: width 0.1s linear;
 }
 
 .btn-primary-action {
   width: 100%;
   height: 32px;
-  background: #2563EB;
+  background: #E11D48;
   color: #FFFFFF;
   border: none;
   border-radius: 6px;
@@ -1539,7 +1539,7 @@
 }
 
 .btn-primary-action:hover {
-  background: #1D4ED8;
+  background: #BE123C;
 }
 
 .btn-secondary-action {
@@ -1605,7 +1605,7 @@
 
 .shortcut-input:focus {
   background: #FFFFFF;
-  border-color: #2563EB;
+  border-color: #E11D48;
 }
 
 .shortcut-reset-btn {
@@ -1664,8 +1664,8 @@
 }
 
 .hud-item:hover {
-  background: #EFF6FF;
-  color: #2563EB;
+  background: #FFF1F2;
+  color: #E11D48;
 }
 
 .hud-item.danger:hover {

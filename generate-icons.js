@@ -123,7 +123,7 @@ function iconDrawer(x, y, w, h) {
   const inCenterDot = distCenter <= Math.max(1.5, w / 16);
 
   if (inBoxBorder || inCenterDot) {
-    return [37, 99, 235, 255]; // #2563EB
+    return [225, 29, 72, 255]; // #E11D48 (Studio Red)
   }
 
   // Distance ruler guides extending from center

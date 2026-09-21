@@ -80,22 +80,24 @@ class DeviceMockup {
         </div>
 
         <div class="mockup-preset-chips" id="mockupPresetChips">
-          <button class="mockup-chip" data-preset="tv">📺 TV (16:9)</button>
-          <button class="mockup-chip" data-preset="desktop">💻 Desktop</button>
-          <button class="mockup-chip" data-preset="ipad">📱 iPad</button>
-          <button class="mockup-chip active" data-preset="iphone">📱 iPhone 16</button>
-          <button class="mockup-chip" data-preset="galaxy">📱 Galaxy S25</button>
+          <button class="mockup-chip" data-preset="tv">TV (16:9)</button>
+          <button class="mockup-chip" data-preset="desktop">Desktop</button>
+          <button class="mockup-chip" data-preset="ipad">iPad</button>
+          <button class="mockup-chip active" data-preset="iphone">iPhone 16</button>
+          <button class="mockup-chip" data-preset="galaxy">Galaxy S25</button>
         </div>
 
         <div class="mockup-scale-group">
-          <button class="btn-icon-subtle" id="mockupRotateBtn" title="가로/세로 회전">🔄</button>
+          <button class="btn-icon-subtle" id="mockupRotateBtn" title="가로/세로 회전">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          </button>
           <span style="font-size: 11px; color: #64748B;">배율:</span>
           <input type="range" class="range-slider" id="mockupScaleSlider" min="0.25" max="1.3" step="0.05" value="0.85" style="width: 80px;">
           <span id="mockupScaleText" style="font-size: 11px; font-weight: 700; min-width: 38px;">85%</span>
         </div>
 
-        <button class="btn-secondary" id="closeMockupBtn" style="padding: 4px 10px; font-size: 11px;">
-          ✕ 시뮬레이터 닫기
+        <button class="btn-secondary" id="closeMockupBtn" style="padding: 4px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> 시뮬레이터 닫기
         </button>
       </div>
 

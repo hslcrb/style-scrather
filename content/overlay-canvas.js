@@ -151,7 +151,7 @@ class OverlayCanvas {
     outline.setAttribute('width', Math.max(1, rect.width));
     outline.setAttribute('height', Math.max(1, rect.height));
     outline.setAttribute('fill', 'rgba(37, 99, 235, 0.04)');
-    outline.setAttribute('stroke', '#2563EB');
+    outline.setAttribute('stroke', '#E11D48');
     outline.setAttribute('stroke-width', '1.5');
     g.appendChild(outline);
 
@@ -171,7 +171,7 @@ class OverlayCanvas {
       handle.setAttribute('width', handleSize);
       handle.setAttribute('height', handleSize);
       handle.setAttribute('fill', '#FFFFFF');
-      handle.setAttribute('stroke', '#2563EB');
+      handle.setAttribute('stroke', '#E11D48');
       handle.setAttribute('stroke-width', '1.5');
       g.appendChild(handle);
     });
@@ -181,7 +181,7 @@ class OverlayCanvas {
     const w = Math.round(rect.width);
     const h = Math.round(rect.height);
     const badgeText = `<${tag}> • ${w} × ${h}px`;
-    this.renderBadge(g, rect.left, rect.top - 28, badgeText, '#2563EB', '#FFFFFF');
+    this.renderBadge(g, rect.left, rect.top - 28, badgeText, '#E11D48', '#FFFFFF');
 
     this.svg.appendChild(g);
   }
@@ -196,7 +196,7 @@ class OverlayCanvas {
     outline.setAttribute('width', Math.max(1, rect.width));
     outline.setAttribute('height', Math.max(1, rect.height));
     outline.setAttribute('fill', 'rgba(59, 130, 246, 0.08)');
-    outline.setAttribute('stroke', '#3B82F6');
+    outline.setAttribute('stroke', '#F43F5E');
     outline.setAttribute('stroke-width', '1.5');
     outline.setAttribute('stroke-dasharray', '4 2');
     g.appendChild(outline);

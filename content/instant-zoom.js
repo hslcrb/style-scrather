@@ -57,7 +57,7 @@ class InstantZoom {
       gap: 6px;
     `;
     this.indicator.innerHTML = `
-      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #3B82F6;"></span>
+      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #F43F5E;"></span>
       <span class="zoom-label">줌 배율: 100%</span>
     `;
     const target = document.body || document.documentElement;

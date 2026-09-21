@@ -73,7 +73,7 @@ class ColorSuite {
     return [
       '#FFFFFF', '#F8FAFC', '#E2E8F0', '#94A3B8',
       '#475569', '#1E293B', '#0F172A', '#000000',
-      '#2563EB', '#3B82F6', '#60A5FA', '#EFF6FF',
+      '#E11D48', '#F43F5E', '#FB7185', '#FFF1F2',
       '#7C3AED', '#8B5CF6', '#10B981', '#EF4444'
     ];
   }

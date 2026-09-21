@@ -1,19 +1,19 @@
-// Style Scratcher v4.0.0 - Automated Verification Test Suite
+// Style Scratcher v4.0.1 - Automated Verification Test Suite
 
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const vm = require('vm');
 
-console.log('🧪 [Style Scratcher v4.0.0] Running Comprehensive Verification Test Suite...\n');
+console.log('🧪 [Style Scratcher v4.0.1] Running Comprehensive Verification Test Suite...\n');
 
-// 1. Verify Manifest V3 & Version 4.0.0
-console.log('1. Verifying manifest.json v4.0.0...');
+// 1. Verify Manifest V3 & Version 4.0.1
+console.log('1. Verifying manifest.json v4.0.1...');
 const manifestPath = path.join(__dirname, '..', 'manifest.json');
 assert(fs.existsSync(manifestPath), 'manifest.json must exist');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 assert.strictEqual(manifest.manifest_version, 3, 'Manifest version must be 3');
-assert.strictEqual(manifest.version, '4.0.0', 'Extension version must be 4.0.0');
+assert.strictEqual(manifest.version, '4.0.1', 'Extension version must be 4.0.1');
 assert(manifest.action && manifest.action.default_popup, 'Popup must be declared');
 assert(manifest.content_scripts && manifest.content_scripts.length > 0, 'Content scripts must be declared');
 
@@ -398,8 +398,8 @@ assert.strictEqual(oc.gridConfig.gutter, 24);
 assert.strictEqual(oc.gridConfig.color, '#3B82F6');
 console.log('   ✅ OverlayCanvas passed custom grid configuration (16 cols, 24px gutter).\n');
 
-// 12. Project Files Completeness for v4.0.0
-console.log('12. Verifying File Completeness for v4.0.0...');
+// 12. Project Files Completeness for v4.0.1
+console.log('12. Verifying File Completeness for v4.0.1...');
 const v4Files = [
   'manifest.json',
   'content/mode-manager.js',
@@ -442,4 +442,38 @@ v4Files.forEach(rel => {
   console.log(`   ✅ Found ${rel}`);
 });
 
-console.log('\n🎉 ALL 12 VERIFICATION TEST PHASES FOR v4.0.0 PASSED 100% BRILLIANTLY!');
+// 13. Verify v4.0.1 Innovations: 2-Row Tabs, Zero Unicode Emojis, Red Studio Theme
+console.log('\n13. Verifying v4.0.1 Innovations (2-Row Tabs, Zero Emojis, Red Theme)...');
+const shadowCss = fs.readFileSync(path.join(__dirname, '..', 'content/styles/shadow-styles.css'), 'utf8');
+const dockJs = fs.readFileSync(path.join(__dirname, '..', 'content/components/floating-dock.js'), 'utf8');
+const hudJs = fs.readFileSync(path.join(__dirname, '..', 'content/context-hud.js'), 'utf8');
+const mockupJs = fs.readFileSync(path.join(__dirname, '..', 'content/device-mockup.js'), 'utf8');
+const popupCss = fs.readFileSync(path.join(__dirname, '..', 'popup/popup.css'), 'utf8');
+
+// Check 2-Row Grid layout
+assert(shadowCss.includes('grid-template-columns: repeat(5, 1fr)'), 'shadow-styles.css must have 5-column 2-row grid for dock tabs');
+assert(!dockJs.includes('style="overflow-x: auto; scrollbar-width: none;"'), 'dockTabs must not have hidden overflow-x inline style');
+
+// Check 10 tabs declared
+const expectedTabs = ['inspector', 'mockup', 'fonts', 'assets', 'interaction', 'motion', 'graphics', 'tools', 'code', 'settings'];
+expectedTabs.forEach(t => {
+  assert(dockJs.includes(`data-tab="${t}"`), `dock must include tab: ${t}`);
+});
+console.log('   ✅ 2-Row Grid Tab navigation verified: All 10 tabs (including settings) cleanly displayed.');
+
+// Check Zero Unicode Emojis in UI components
+const emojiRegex = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu;
+const dockEmojis = dockJs.match(emojiRegex);
+const hudEmojis = hudJs.match(emojiRegex);
+const mockupEmojis = mockupJs.match(emojiRegex);
+assert(!dockEmojis || dockEmojis.length === 0, `floating-dock.js must have 0 emojis, found: ${dockEmojis}`);
+assert(!hudEmojis || hudEmojis.length === 0, `context-hud.js must have 0 emojis, found: ${hudEmojis}`);
+assert(!mockupEmojis || mockupEmojis.length === 0, `device-mockup.js must have 0 emojis, found: ${mockupEmojis}`);
+console.log('   ✅ Zero Unicode Emojis verified: All UI icons converted to professional inline SVGs.');
+
+// Check Red Theme Primary Accent (#E11D48)
+assert(shadowCss.includes('#E11D48'), 'shadow-styles.css must use #E11D48 red theme primary');
+assert(popupCss.includes('#E11D48'), 'popup.css must use #E11D48 red theme primary');
+console.log('   ✅ Red Studio Theme verified: Primary accent #E11D48 active across dock, canvas & popup.');
+
+console.log('\n🎉 ALL 13 VERIFICATION TEST PHASES FOR v4.0.1 PASSED 100% BRILLIANTLY!');

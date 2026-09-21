@@ -101,7 +101,7 @@ class PrecisionCursor {
         tagStr = ` • <${t}${c}>`;
       }
 
-      this.badge.innerHTML = `<span style="color: #60A5FA;">X: ${Math.round(x)}</span> <span style="color: #F87171;">Y: ${Math.round(y)}</span>${tagStr}`;
+      this.badge.innerHTML = `<span style="color: #FB7185;">X: ${Math.round(x)}</span> <span style="color: #F87171;">Y: ${Math.round(y)}</span>${tagStr}`;
     }, { passive: true });
   }
 
