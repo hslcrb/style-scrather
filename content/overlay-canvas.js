@@ -131,12 +131,12 @@ class OverlayCanvas {
       g.appendChild(handle);
     });
 
-    // Badge: Tag Name + Dimensions
+    // Badge: Tag Name + Dimensions (High Visibility)
     const tag = el.tagName.toLowerCase();
     const w = Math.round(rect.width);
     const h = Math.round(rect.height);
-    const badgeText = `${tag} • ${w} × ${h}px`;
-    this.renderBadge(g, rect.left, rect.top - 24, badgeText, '#2563EB', '#FFFFFF');
+    const badgeText = `<${tag}> • ${w} × ${h}px`;
+    this.renderBadge(g, rect.left, rect.top - 28, badgeText, '#2563EB', '#FFFFFF');
 
     this.svg.appendChild(g);
   }
@@ -150,17 +150,17 @@ class OverlayCanvas {
     outline.setAttribute('y', rect.top);
     outline.setAttribute('width', Math.max(1, rect.width));
     outline.setAttribute('height', Math.max(1, rect.height));
-    outline.setAttribute('fill', 'rgba(59, 130, 246, 0.06)');
+    outline.setAttribute('fill', 'rgba(59, 130, 246, 0.08)');
     outline.setAttribute('stroke', '#3B82F6');
-    outline.setAttribute('stroke-width', '1');
+    outline.setAttribute('stroke-width', '1.5');
     outline.setAttribute('stroke-dasharray', '4 2');
     g.appendChild(outline);
 
     // Badge
     const tag = el.tagName.toLowerCase();
     const cls = el.className && typeof el.className === 'string' ? `.${el.className.trim().split(/\s+/)[0]}` : '';
-    const badgeText = `${tag}${cls} (${Math.round(rect.width)} × ${Math.round(rect.height)})`;
-    this.renderBadge(g, rect.left, Math.max(4, rect.top - 20), badgeText, '#1E293B', '#F8FAFC');
+    const badgeText = `<${tag}${cls}> (${Math.round(rect.width)} × ${Math.round(rect.height)})`;
+    this.renderBadge(g, rect.left, Math.max(6, rect.top - 28), badgeText, '#0F172A', '#FFFFFF');
 
     this.svg.appendChild(g);
   }
@@ -275,53 +275,59 @@ class OverlayCanvas {
   }
 
   renderDistanceBadge(g, x, y, text, bg) {
-    const textWidth = text.length * 6.5 + 8;
-    const height = 16;
+    const textWidth = text.length * 7.8 + 14;
+    const height = 22;
 
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('x', x - textWidth / 2);
     rect.setAttribute('y', y - height / 2);
     rect.setAttribute('width', textWidth);
     rect.setAttribute('height', height);
-    rect.setAttribute('rx', '4');
-    rect.setAttribute('ry', '4');
+    rect.setAttribute('rx', '6');
+    rect.setAttribute('ry', '6');
     rect.setAttribute('fill', bg);
+    rect.setAttribute('stroke', '#FFFFFF');
+    rect.setAttribute('stroke-width', '1.2');
+    rect.setAttribute('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))');
     g.appendChild(rect);
 
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.setAttribute('x', x);
-    label.setAttribute('y', y + 3.5);
+    label.setAttribute('y', y + 4.5);
     label.setAttribute('fill', '#FFFFFF');
     label.setAttribute('font-family', 'ui-monospace, SFMono-Regular, Menlo, monospace');
-    label.setAttribute('font-size', '10px');
-    label.setAttribute('font-weight', '600');
+    label.setAttribute('font-size', '12px');
+    label.setAttribute('font-weight', '700');
     label.setAttribute('text-anchor', 'middle');
     label.textContent = text;
     g.appendChild(label);
   }
 
   renderBadge(g, x, y, text, bg, color) {
-    const safeY = Math.max(4, y);
-    const textWidth = text.length * 6.5 + 12;
-    const height = 18;
+    const safeY = Math.max(6, y);
+    const textWidth = text.length * 7.8 + 18;
+    const height = 24;
 
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('x', x);
     rect.setAttribute('y', safeY);
     rect.setAttribute('width', textWidth);
     rect.setAttribute('height', height);
-    rect.setAttribute('rx', '4');
-    rect.setAttribute('ry', '4');
+    rect.setAttribute('rx', '6');
+    rect.setAttribute('ry', '6');
     rect.setAttribute('fill', bg);
+    rect.setAttribute('stroke', '#FFFFFF');
+    rect.setAttribute('stroke-width', '1.2');
+    rect.setAttribute('filter', 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))');
     g.appendChild(rect);
 
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.setAttribute('x', x + textWidth / 2);
-    label.setAttribute('y', safeY + 12.5);
+    label.setAttribute('y', safeY + 16.5);
     label.setAttribute('fill', color);
     label.setAttribute('font-family', 'ui-monospace, SFMono-Regular, Menlo, monospace');
-    label.setAttribute('font-size', '10px');
-    label.setAttribute('font-weight', '600');
+    label.setAttribute('font-size', '12px');
+    label.setAttribute('font-weight', '700');
     label.setAttribute('text-anchor', 'middle');
     label.textContent = text;
     g.appendChild(label);

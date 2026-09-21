@@ -10,10 +10,13 @@ class FloatingDock {
     this.pageController = options.pageController || (typeof PageController !== 'undefined' ? new PageController() : null);
     this.motionInspector = options.motionInspector || (typeof MotionInspector !== 'undefined' ? new MotionInspector() : null);
     this.instantZoom = options.instantZoom || (typeof InstantZoom !== 'undefined' ? new InstantZoom() : null);
+    this.precisionCursor = options.precisionCursor || (typeof PrecisionCursor !== 'undefined' ? new PrecisionCursor(this.shadowRoot) : null);
+    this.isSafeMode = options.isSafeMode !== undefined ? options.isSafeMode : true;
+    this.onToggleSafeMode = options.onToggleSafeMode || (() => {});
     this.onToggleInspector = options.onToggleInspector || (() => {});
     
     this.container = null;
-    this.currentTab = 'inspector'; // 'inspector' | 'interaction' | 'motion' | 'graphics' | 'tools' | 'code'
+    this.currentTab = 'inspector'; // 'inspector' | 'assets' | 'interaction' | 'motion' | 'graphics' | 'tools' | 'code'
     this.isMinimized = false;
     this.siteStylesheets = [];
     this.extractedPalette = null;
@@ -37,7 +40,7 @@ class FloatingDock {
             </svg>
           </div>
           <span class="dock-title">Style Scratcher</span>
-          <span class="dock-badge">v2.1.0</span>
+          <span class="dock-badge">v3.0.0</span>
         </div>
         <div class="dock-controls">
           <button class="icon-btn" id="minimizeBtn" title="최소화/펼치기">
@@ -54,9 +57,10 @@ class FloatingDock {
         </div>
       </div>
 
-      <!-- Navigation Tabs (v2.0 Expanded) -->
+      <!-- Navigation Tabs (v3.0.0 Expanded) -->
       <div class="dock-tabs" id="dockTabs">
         <button class="tab-btn active" data-tab="inspector">인스펙터</button>
+        <button class="tab-btn" data-tab="assets">에셋 편집</button>
         <button class="tab-btn" data-tab="interaction">인터랙션</button>
         <button class="tab-btn" data-tab="motion">모션/속도</button>
         <button class="tab-btn" data-tab="graphics">그래픽/WebGL</button>
@@ -182,6 +186,8 @@ class FloatingDock {
 
     if (this.currentTab === 'inspector') {
       this.renderInspectorTab(body);
+    } else if (this.currentTab === 'assets') {
+      this.renderAssetsTab(body);
     } else if (this.currentTab === 'interaction') {
       this.renderInteractionTab(body);
     } else if (this.currentTab === 'motion') {
@@ -248,7 +254,23 @@ class FloatingDock {
       dimStr = `${wConv.formatted} × ${hConv.formatted}`;
     }
 
+    // Calculate WCAG contrast
+    const contrast = typeof ColorSuite !== 'undefined' ? ColorSuite.getContrastRatio(colorHex, bgHex) : { ratio: 4.5, score: 'AA', passesAA: true };
+    const presets = typeof ColorSuite !== 'undefined' ? ColorSuite.getPresets() : [];
+
     container.innerHTML = `
+      <!-- Safe Mode (Click Invalidation) Toggle Banner -->
+      <div class="safe-mode-banner ${this.isSafeMode ? '' : 'disabled'}">
+        <div>
+          <div class="safe-mode-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            안전 검사 모드 (클릭 무효화)
+          </div>
+          <div class="safe-mode-desc">링크/버튼 클릭 시 페이지 이동을 차단하고 요소만 선택합니다.</div>
+        </div>
+        <input type="checkbox" id="safeModeCheckbox" ${this.isSafeMode ? 'checked' : ''} style="cursor: pointer; width: 16px; height: 16px;">
+      </div>
+
       <!-- Unit Selector Bar -->
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
         <span class="section-title" style="margin: 0;">측정 단위 (Unit)</span>
@@ -349,13 +371,25 @@ class FloatingDock {
         </div>
       </div>
 
-      <!-- 3. Colors Tweaker -->
-      <div class="tweak-section">
-        <div class="section-title">
-          <span>색상 (Colors)</span>
+      <!-- 3. Sensory Colors Tweaker -->
+      <div class="color-suite-box">
+        <div class="color-action-bar">
+          <span class="section-title" style="margin: 0;">감각적 컬러 스위트</span>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="contrast-pill ${contrast.passesAA ? 'pass' : 'fail'}" title="명도 대비율">
+              대비 ${contrast.ratio}:1 [${contrast.score}]
+            </span>
+            <button class="eyedropper-btn" id="eyeDropperBtn">🎨 스포이트</button>
+          </div>
         </div>
+
+        <!-- Presets Row -->
+        <div class="color-presets-row" id="colorPresetsRow">
+          ${presets.map(p => `<div class="preset-color-dot" style="background-color: ${p};" data-color="${p}" title="${p}"></div>`).join('')}
+        </div>
+
         <div class="tweak-row">
-          <span class="tweak-label">배경색</span>
+          <span class="tweak-label">배경색 (Background)</span>
           <div class="color-picker-group">
             <div class="color-swatch-wrapper" style="background-color: ${bgHex};">
               <input type="color" class="native-color-picker" id="bgColorPicker" value="${bgHex.startsWith('#') && bgHex.length === 7 ? bgHex : '#ffffff'}">
@@ -363,8 +397,9 @@ class FloatingDock {
             <input type="text" class="color-hex-input" id="bgHexInput" value="${bgHex}">
           </div>
         </div>
+
         <div class="tweak-row">
-          <span class="tweak-label">텍스트 색상</span>
+          <span class="tweak-label">텍스트색 (Text Color)</span>
           <div class="color-picker-group">
             <div class="color-swatch-wrapper" style="background-color: ${colorHex};">
               <input type="color" class="native-color-picker" id="textColorPicker" value="${colorHex.startsWith('#') && colorHex.length === 7 ? colorHex : '#000000'}">
@@ -374,6 +409,37 @@ class FloatingDock {
         </div>
       </div>
     `;
+
+    // Safe Mode Checkbox Event
+    const safeModeCheckbox = container.querySelector('#safeModeCheckbox');
+    safeModeCheckbox.addEventListener('change', (e) => {
+      this.isSafeMode = e.target.checked;
+      this.onToggleSafeMode(this.isSafeMode);
+      this.showToast(this.isSafeMode ? '안전 검사 모드 활성화 (링크 이동 차단)' : '안전 검사 모드 해제');
+      this.renderInspectorTab(container);
+    });
+
+    // EyeDropper API Event
+    const eyeBtn = container.querySelector('#eyeDropperBtn');
+    eyeBtn.addEventListener('click', async () => {
+      if (typeof ColorSuite !== 'undefined') {
+        const hex = await ColorSuite.pickColorWithEyeDropper();
+        if (hex) {
+          this.tweaker.setColor('background', hex);
+          this.showToast(`추출된 색상 ${hex} 적용 완료`);
+          this.renderInspectorTab(container);
+        }
+      }
+    });
+
+    // Preset Color Dots Event
+    container.querySelectorAll('.preset-color-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        const c = dot.dataset.color;
+        this.tweaker.setColor('background', c);
+        this.renderInspectorTab(container);
+      });
+    });
 
     // Bind Unit Selector Chips
     container.querySelectorAll('.unit-chip').forEach(chip => {
@@ -463,6 +529,245 @@ class FloatingDock {
     };
     bindColor('bgColorPicker', 'bgHexInput', 'background');
     bindColor('textColorPicker', 'textHexInput', 'text');
+  }
+
+  // ==========================================
+  // TAB: Live Asset & Content Editor (v3.0.0)
+  // ==========================================
+  renderAssetsTab(container) {
+    const el = this.tweaker.getElement();
+    if (!el) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">✏️</div>
+          <div class="empty-title">선택된 요소가 없습니다</div>
+          <div class="empty-desc">웹 페이지의 요소(텍스트, 이미지, SVG 아이콘 등)를 클릭하여 실시간으로 내용을 교체하고 편집하세요.</div>
+        </div>
+      `;
+      return;
+    }
+
+    const assetType = typeof AssetEditor !== 'undefined' ? AssetEditor.identifyType(el) : 'container';
+    const tag = el.tagName.toLowerCase();
+    const textVal = typeof AssetEditor !== 'undefined' ? AssetEditor.getText(el) : (el.innerText || el.textContent || '');
+    const imgSrc = typeof AssetEditor !== 'undefined' ? AssetEditor.getImageSrc(el) : '';
+    const svgInfo = typeof AssetEditor !== 'undefined' ? AssetEditor.getSvgInfo(el) : null;
+    const isEditable = el.isContentEditable;
+
+    container.innerHTML = `
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span class="section-title" style="margin: 0;">실시간 에셋 & 콘텐츠 편집</span>
+        <span class="prop-tag">&lt;${tag}&gt; [${assetType.toUpperCase()}]</span>
+      </div>
+
+      <!-- 1. Text Content Editor -->
+      <div class="asset-editor-card" style="margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 11px; font-weight: 700; color: #1E293B;">🔤 텍스트 내용 실시간 수정</span>
+          <button class="btn-secondary" id="toggleContentEditableBtn" style="padding: 2px 8px; font-size: 10px;">
+            ${isEditable ? '직접 타이핑 끄기' : '요소 직접 타이핑 (contentEditable)'}
+          </button>
+        </div>
+        <textarea class="live-text-area" id="liveTextarea" placeholder="텍스트 내용을 입력하면 즉시 DOM에 반영됩니다...">${textVal}</textarea>
+        ${isEditable ? `
+          <div class="editable-active-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            페이지 본문에서 커서를 두고 직접 타이핑할 수 있습니다.
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- 2. Image & Media Swapper -->
+      <div class="asset-editor-card" style="margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 11px; font-weight: 700; color: #1E293B;">🖼️ 이미지 소스 교체 (Image Swapper)</span>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" class="asset-input-field" id="imgUrlInput" placeholder="새 이미지 URL 입력 (https://...)" value="${imgSrc}">
+          <button class="btn-primary" id="applyImgUrlBtn" style="white-space: nowrap; padding: 0 10px; font-size: 11px;">적용</button>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn-secondary" id="randomUnsplashBtn" style="flex: 1; font-size: 10px; justify-content: center;">
+            🎲 고화질 Unsplash 랜덤
+          </button>
+          <button class="btn-secondary" id="uploadImageBtn" style="flex: 1; font-size: 10px; justify-content: center;">
+            📁 로컬 이미지 업로드
+          </button>
+          <input type="file" id="localFileInput" accept="image/*" style="display: none;">
+        </div>
+      </div>
+
+      <!-- 3. SVG & Vector Editor -->
+      <div class="asset-editor-card">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 11px; font-weight: 700; color: #1E293B;">📐 SVG 벡터 속성 & XML 코드 조작</span>
+          ${svgInfo ? '<span class="prop-tag" style="background:#EFF6FF;color:#2563EB;">SVG 감지됨</span>' : ''}
+        </div>
+        ${svgInfo ? `
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="tweak-row">
+              <span class="tweak-label">채우기 (Fill)</span>
+              <div class="color-picker-group">
+                <div class="color-swatch-wrapper" style="background-color: ${svgInfo.fill.startsWith('#') ? svgInfo.fill : '#3B82F6'};">
+                  <input type="color" class="native-color-picker" id="svgFillPicker" value="${svgInfo.fill.startsWith('#') && svgInfo.fill.length === 7 ? svgInfo.fill : '#3b82f6'}">
+                </div>
+                <input type="text" class="color-hex-input" id="svgFillInput" value="${svgInfo.fill}">
+              </div>
+            </div>
+
+            <div class="tweak-row">
+              <span class="tweak-label">윤곽선 (Stroke)</span>
+              <div class="color-picker-group">
+                <div class="color-swatch-wrapper" style="background-color: ${svgInfo.stroke.startsWith('#') ? svgInfo.stroke : '#1E293B'};">
+                  <input type="color" class="native-color-picker" id="svgStrokePicker" value="${svgInfo.stroke.startsWith('#') && svgInfo.stroke.length === 7 ? svgInfo.stroke : '#1e293b'}">
+                </div>
+                <input type="text" class="color-hex-input" id="svgStrokeInput" value="${svgInfo.stroke}">
+              </div>
+            </div>
+
+            <div class="tweak-row">
+              <span class="tweak-label">선 두께 (Stroke Width)</span>
+              <div class="tweak-control-group">
+                <input type="range" class="range-slider" id="svgStrokeWidthSlider" min="0" max="24" step="0.5" value="${svgInfo.strokeWidth}">
+                <input type="number" class="num-input" id="svgStrokeWidthInput" min="0" max="24" step="0.5" value="${svgInfo.strokeWidth}">
+                <span style="font-size: 10px; color: #6B7280;">px</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 4px;">
+              <span class="tweak-label" style="display: block; margin-bottom: 4px;">SVG XML 원본 코드 직접 수정</span>
+              <textarea class="live-text-area" id="svgXmlTextarea" style="font-family: ui-monospace, monospace; font-size: 10px; min-height: 80px;">${svgInfo.xml}</textarea>
+              <button class="btn-primary" id="applySvgXmlBtn" style="width: 100%; margin-top: 6px; justify-content: center; font-size: 11px;">
+                SVG XML 코드 업데이트 반영
+              </button>
+            </div>
+          </div>
+        ` : `
+          <div style="font-size: 11px; color: #94A3B8; text-align: center; padding: 10px 6px;">
+            선택된 요소에 SVG 벡터가 포함되어 있지 않습니다.<br>
+            아이콘 또는 SVG 그래픽을 선택하면 fill, stroke, 및 원본 XML을 실시간으로 조작할 수 있습니다.
+          </div>
+        `}
+      </div>
+    `;
+
+    // Bind Live Text Input
+    const textarea = container.querySelector('#liveTextarea');
+    textarea?.addEventListener('input', (e) => {
+      if (typeof AssetEditor !== 'undefined') {
+        AssetEditor.setText(el, e.target.value);
+        this.overlayCanvas?.render();
+      }
+    });
+
+    // Toggle contentEditable
+    container.querySelector('#toggleContentEditableBtn')?.addEventListener('click', () => {
+      if (typeof AssetEditor !== 'undefined') {
+        const active = AssetEditor.toggleContentEditable(el);
+        this.showToast(active ? '요소 직접 타이핑 모드가 활성화되었습니다.' : '직접 타이핑 모드가 비활성화되었습니다.');
+        this.renderAssetsTab(container);
+      }
+    });
+
+    // Image URL Apply
+    const applyImg = () => {
+      const url = container.querySelector('#imgUrlInput')?.value.trim();
+      if (url && typeof AssetEditor !== 'undefined') {
+        AssetEditor.setImageSrc(el, url);
+        this.showToast('새 이미지가 적용되었습니다.');
+        this.overlayCanvas?.render();
+      }
+    };
+    container.querySelector('#applyImgUrlBtn')?.addEventListener('click', applyImg);
+    container.querySelector('#imgUrlInput')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') applyImg();
+    });
+
+    // Random Unsplash
+    container.querySelector('#randomUnsplashBtn')?.addEventListener('click', () => {
+      if (typeof AssetEditor !== 'undefined') {
+        const url = AssetEditor.setRandomUnsplash(el, 'design');
+        const input = container.querySelector('#imgUrlInput');
+        if (input) input.value = url;
+        this.showToast('고화질 Unsplash 이미지가 적용되었습니다.');
+        this.overlayCanvas?.render();
+      }
+    });
+
+    // File Upload
+    const fileInput = container.querySelector('#localFileInput');
+    container.querySelector('#uploadImageBtn')?.addEventListener('click', () => {
+      fileInput?.click();
+    });
+    fileInput?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file && typeof AssetEditor !== 'undefined') {
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          AssetEditor.setImageSrc(el, re.target.result);
+          this.showToast('로컬 이미지가 업로드되어 적용되었습니다.');
+          this.overlayCanvas?.render();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // SVG Bindings
+    if (svgInfo && typeof AssetEditor !== 'undefined') {
+      const fillPicker = container.querySelector('#svgFillPicker');
+      const fillInput = container.querySelector('#svgFillInput');
+      const strokePicker = container.querySelector('#svgStrokePicker');
+      const strokeInput = container.querySelector('#svgStrokeInput');
+      const strokeWidthSlider = container.querySelector('#svgStrokeWidthSlider');
+      const strokeWidthInput = container.querySelector('#svgStrokeWidthInput');
+      const applyXmlBtn = container.querySelector('#applySvgXmlBtn');
+      const xmlArea = container.querySelector('#svgXmlTextarea');
+
+      fillPicker?.addEventListener('input', (e) => {
+        fillInput.value = e.target.value;
+        fillPicker.parentElement.style.backgroundColor = e.target.value;
+        AssetEditor.setSvgProperty(svgInfo.targetElement, 'fill', e.target.value);
+      });
+      fillInput?.addEventListener('change', (e) => {
+        fillPicker.value = e.target.value;
+        fillPicker.parentElement.style.backgroundColor = e.target.value;
+        AssetEditor.setSvgProperty(svgInfo.targetElement, 'fill', e.target.value);
+      });
+
+      strokePicker?.addEventListener('input', (e) => {
+        strokeInput.value = e.target.value;
+        strokePicker.parentElement.style.backgroundColor = e.target.value;
+        AssetEditor.setSvgProperty(svgInfo.targetElement, 'stroke', e.target.value);
+      });
+      strokeInput?.addEventListener('change', (e) => {
+        strokePicker.value = e.target.value;
+        strokePicker.parentElement.style.backgroundColor = e.target.value;
+        AssetEditor.setSvgProperty(svgInfo.targetElement, 'stroke', e.target.value);
+      });
+
+      strokeWidthSlider?.addEventListener('input', (e) => {
+        strokeWidthInput.value = e.target.value;
+        AssetEditor.setSvgProperty(svgInfo.targetElement, 'strokeWidth', e.target.value);
+      });
+      strokeWidthInput?.addEventListener('change', (e) => {
+        strokeWidthSlider.value = e.target.value;
+        AssetEditor.setSvgProperty(svgInfo.targetElement, 'strokeWidth', e.target.value);
+      });
+
+      applyXmlBtn?.addEventListener('click', () => {
+        const newXml = xmlArea?.value;
+        if (newXml) {
+          const replaced = AssetEditor.setSvgXml(svgInfo.svgElement, newXml);
+          if (replaced) {
+            this.showToast('SVG XML이 성공적으로 업데이트되었습니다.');
+            this.tweaker.setElement(replaced);
+            this.renderAssetsTab(container);
+          } else {
+            this.showToast('SVG XML 파싱에 실패했습니다. 올바른 XML 문법인지 확인하세요.');
+          }
+        }
+      });
+    }
   }
 
   // ==========================================
@@ -754,9 +1059,21 @@ class FloatingDock {
     const isFrozen = this.pageController ? this.pageController.isFrozen : false;
     const isGridOn = this.overlayCanvas ? this.overlayCanvas.isGridVisible : false;
     const isBaseOn = this.overlayCanvas ? this.overlayCanvas.isBaselineVisible : false;
+    const isCursorOn = this.precisionCursor ? this.precisionCursor.isActive : false;
 
     container.innerHTML = `
       <div class="section-title">접근성 및 편의 도구 (Power Tools)</div>
+
+      <!-- Precision Crosshair Cursor & Live Coordinates (v3.0.0) -->
+      <div class="tool-banner" style="margin-bottom: 8px;">
+        <div>
+          <div class="tool-meta-title">정밀 십자선 커서 & 좌표 (Alt + C)</div>
+          <div class="tool-meta-desc">실시간 (X, Y) 픽셀 좌표 및 커서 타겟 태그 가이드 헤어라인</div>
+        </div>
+        <button class="toggle-switch-btn ${isCursorOn ? 'active' : ''}" id="toggleCursorBtn">
+          ${isCursorOn ? 'ON' : 'OFF'}
+        </button>
+      </div>
 
       <!-- Instant Zoom In / Zoom Out (v2.1.0) -->
       <div class="tool-banner" style="margin-bottom: 8px;">
@@ -818,6 +1135,15 @@ class FloatingDock {
         </button>
       </div>
     `;
+
+    // Precision Cursor Toggle
+    container.querySelector('#toggleCursorBtn')?.addEventListener('click', () => {
+      if (this.precisionCursor) {
+        const active = this.precisionCursor.toggle();
+        this.showToast(active ? '정밀 십자선 커서가 활성화되었습니다.' : '십자선 커서가 비활성화되었습니다.');
+        this.renderToolsTab(container);
+      }
+    });
 
     // Instant Zoom hold/release events
     const zoomBtn = container.querySelector('#holdInstantZoomBtn');

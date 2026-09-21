@@ -1,4 +1,4 @@
-// Style Scratcher v2.0 - Content Script Orchestrator
+// Style Scratcher v3.0.0 - Content Script Orchestrator
 
 (function () {
   // Prevent multiple injections
@@ -16,6 +16,9 @@
   let pageController = null;
   let motionInspector = null;
   let isAltPressed = false;
+
+  let isSafeMode = true; // Safe Inspect Mode (Click Invalidation) Default: ON
+  let precisionCursor = null;
 
   function initStyleScratcher() {
     // 1. Create Shadow DOM Host
@@ -45,12 +48,13 @@
     }
     shadowRoot.appendChild(styleLink);
 
-    // 3. Initialize v2.1.0 Engines
+    // 3. Initialize v3.0.0 Engines
     unitConverter = new UnitConverter();
     interactionDetector = new InteractionDetector();
     pageController = new PageController();
     motionInspector = new MotionInspector();
     instantZoom = typeof InstantZoom !== 'undefined' ? new InstantZoom() : null;
+    precisionCursor = typeof PrecisionCursor !== 'undefined' ? new PrecisionCursor(shadowRoot) : null;
 
     overlayCanvas = new OverlayCanvas(shadowRoot, unitConverter);
 
@@ -68,13 +72,19 @@
       pageController: pageController,
       motionInspector: motionInspector,
       instantZoom: instantZoom,
+      precisionCursor: precisionCursor,
+      isSafeMode: isSafeMode,
+      onToggleSafeMode: (state) => {
+        isSafeMode = state;
+        return isSafeMode;
+      },
       onToggleInspector: () => toggleInspector()
     });
 
     // 4. Attach Window/Document Listeners
     attachEventListeners();
 
-    console.log('[Style Scratcher v2.0] Initialized with Multi-Unit, WebGL, Motion, and Unblocker.');
+    console.log('[Style Scratcher v3.0.0] Initialized with Live Asset Editor, Sensory Color Suite, Precision Cursor, Safe Mode, and Studio UI.');
   }
 
   function toggleInspector(state) {
@@ -162,6 +172,17 @@
         return;
       }
 
+      // Alt + C to Toggle Precision Cursor (v3.0.0)
+      if (e.altKey && (e.key === 'c' || e.key === 'C' || e.code === 'KeyC')) {
+        e.preventDefault();
+        if (precisionCursor) {
+          const active = precisionCursor.toggle();
+          floatingDock?.showToast(active ? '정밀 십자선 커서가 활성화되었습니다.' : '십자선 커서가 비활성화되었습니다.');
+          floatingDock?.renderCurrentTab();
+        }
+        return;
+      }
+
       // Escape to Deselect / Unlock
       if (e.key === 'Escape') {
         overlayCanvas.setSelectedElement(null);
@@ -232,6 +253,9 @@
     getUnitConverter: () => unitConverter,
     getPageController: () => pageController,
     getMotionInspector: () => motionInspector,
-    getInstantZoom: () => instantZoom
+    getInstantZoom: () => instantZoom,
+    getPrecisionCursor: () => precisionCursor,
+    isSafeMode: () => isSafeMode,
+    setSafeMode: (val) => { isSafeMode = !!val; return isSafeMode; }
   };
 })();

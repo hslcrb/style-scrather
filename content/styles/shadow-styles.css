@@ -1003,3 +1003,211 @@
   border-color: #2563EB;
 }
 
+/* =======================================================
+   v3.0.0 Typography & Studio Component Additions
+======================================================= */
+
+/* Safe Mode (Click Invalidation) Banner */
+.safe-mode-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.safe-mode-banner.disabled {
+  background: #FEF2F2;
+  border-color: #FECACA;
+}
+
+.safe-mode-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.safe-mode-banner.disabled .safe-mode-title {
+  color: #991B1B;
+}
+
+.safe-mode-desc {
+  font-size: 10px;
+  color: #6B7280;
+}
+
+/* Color Suite: Eyedropper & Contrast */
+.color-suite-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.color-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.eyedropper-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px; /* strictly 6px */
+  font-size: 11px;
+  font-weight: 600;
+  color: #1E293B;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.eyedropper-btn:hover {
+  background: #F1F5F9;
+  border-color: #2563EB;
+  color: #2563EB;
+}
+
+.contrast-pill {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.contrast-pill.pass {
+  background: #DCFCE7;
+  color: #166534;
+  border: 1px solid #86EFAC;
+}
+
+.contrast-pill.fail {
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
+}
+
+.color-presets-row {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.preset-color-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px; /* strictly 4px */
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s ease;
+}
+
+.preset-color-dot:hover {
+  transform: scale(1.18);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+/* Asset Editor (Text, Image, SVG) */
+.asset-editor-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.live-text-area {
+  width: 100%;
+  min-height: 64px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  color: #0F172A;
+  line-height: 1.4;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.12s ease;
+}
+
+.live-text-area:focus {
+  background: #FFFFFF;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.editable-active-badge {
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #2563EB;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.asset-input-field {
+  width: 100%;
+  height: 30px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 0 10px;
+  font-size: 11px;
+  color: #0F172A;
+  outline: none;
+}
+
+.asset-input-field:focus {
+  background: #FFFFFF;
+  border-color: #2563EB;
+}
+
+/* Enhanced Typography Overrides */
+.section-title {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #475569 !important;
+  letter-spacing: 0.05em !important;
+}
+
+.tweak-label {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+}
+
+.num-input, .color-hex-input {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #0F172A !important;
+}
+
+
