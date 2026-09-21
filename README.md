@@ -1,4 +1,4 @@
-# Style Scratcher (스타일 스크래처) v3.0.0
+# Style Scratcher (스타일 스크래처) v3.0.1
 
 <div align="center">
 
@@ -8,30 +8,53 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-success.svg)](#)
-[![Version](https://img.shields.io/badge/Version-v3.0.0-blueviolet.svg)](#)
+[![Version](https://img.shields.io/badge/Version-v3.0.1-blueviolet.svg)](#)
 [![Design](https://img.shields.io/badge/Design-White%20Minimal%20Studio-black.svg)](#)
+[![Typography](https://img.shields.io/badge/Typography-Golden%20Ratio%201.618-gold.svg)](#)
 
 </div>
 
 ---
 
-## 📌 Style Scratcher v3.0.0 소개
+## 📌 Style Scratcher 소개
 
 기존 브라우저 개발자 도구(DevTools)의 수많은 상속 스타일과 난해한 난독화 클래스(`.css-x98k1`), 그리고 인스펙팅 도중 링크를 잘못 눌러 다른 페이지로 튕겨 나가는 불편함에 지치셨나요?
 
 **Style Scratcher**는 웹 브라우저 화면을 **피그마(Figma) 캔버스 겸 라이브 에디터 스튜디오**처럼 자유롭게 다룰 수 있게 해주는 고성능 화이트 미니멀 Chrome 브라우저 확장 프로그램(Manifest V3)입니다.
 
-v3.0.0에서는 **실시간 에셋(텍스트/이미지/SVG) 편집기**, **스포이트 & 감각적 컬러 스위트**, **안전 검사 모드(클릭 무효화)**, **정밀 십자선 커서**, **가독성을 극대화한 오버레이 타이포그래피**가 대대적으로 추가되었습니다.
-
 ### 🏷️ 버전 관리 체계 (Semantic Versioning)
 Style Scratcher는 표준 3자리 버전 체계(`Major.Minor.Patch`)를 엄격히 준수합니다.
-- **Major (첫 번째 자리)**: 아키텍처 및 핵심 패러다임이 바뀌는 대규모 릴리즈 (v3.0.0)
+- **Major (첫 번째 자리)**: 아키텍처 및 핵심 패러다임이 바뀌는 대규모 메이저 릴리즈 (v3.0.0)
 - **Minor (두 번째 자리)**: 핵심 신규 기능 및 주요 사용자 경험 확장
-- **Patch (세 번째 자리)**: 세부 버그 픽스 및 미세 성능 최적화
+- **Patch (세 번째 자리)**: 디자인 정밀 튜닝, 미세 최적화 및 패치 (v3.0.1)
 
 ---
 
-## ✨ v3.0.0 신규 및 핵심 기능 (Features)
+## 📐 v3.0.1 패치: 황금비율 (Golden Ratio φ = 1.618) 모듈러 타이포그래피 위계
+
+v3.0.1 패치에서는 르네상스 고전 건축과 애플/피그마 디자인 시스템의 근간인 **황금비율($\phi \approx 1.618034$) 모듈러 스케일**을 플로팅 독과 팝업 전체 UI에 전격 도입하여 시각적 위계의 균형감과 가독성을 극대화했습니다.
+
+### 1. 기하학적 모듈러 스케일 구조 (Geometric Progression)
+기본 단위 $f_0 = 11\text{px}$을 중심으로, 한 단계 격차로 인한 급격한 폰트 점프를 방지하고자 황금비율의 기하평균 제곱근 $\sqrt{\phi} \approx 1.27202$ ($1.27202 \times 1.27202 = 1.61803$)를 하프스텝 승수로 활용한 정밀 스케일을 구축했습니다:
+
+| 스케일 레벨 | 수식 단계 | 계산 크기 | 실제 적용 UI 구성 요소 |
+| :--- | :--- | :--- | :--- |
+| **Micro (Level -1)** | $11 / 1.272$ | **`8.65px`** | 독 버전 뱃지, 미세 메타데이터 라벨 |
+| **Caption (Level -0.5)** | $11 / 1.100$ | **`10px`** | 안내 설명문, 안전 모드 설명, 빈 상태 설명 |
+| **Base (Level 0)** | $11\text{px}$ 기준 | **`11px`** | 탭 네비게이션 버튼, 단위 칩, 기본 본문 |
+| **Body (Level +0.5)** | $11 \times 1.136$ | **`12.5px`** | 설정 컨트롤 라벨, 텍스트 에어리어 본문 |
+| **Label (Level +1)** | $11 \times 1.272$ | **`14px`** | 독 메인 타이틀, 섹션 타이틀, 수치/컬러 인풋 필드 |
+| **Subhead (Level +1.5)** | $11 \times 1.455$ | **`16px`** | 모달 및 카드 서브헤딩 |
+| **Title (Level +2)** | $11 \times 1.618$ | **`17.8px`** | 대형 섹션 헤더 및 황금비 분할 타이틀 |
+| **Brand (Level +3)** | $11 \times 1.618 \times 1.272$ | **`22.6px`** | 팝업 헤더 브랜드 타이틀 |
+
+### 2. 황금 행간 (Golden Line-Height)
+- **Golden Paragraph Leading (`1.618`)**: 설명문, 안내 텍스트, 라이브 텍스트 에어리어에 1.618 황금 비율 행간을 적용하여 장시간 인스펙팅 시 눈의 피로를 최소화.
+- **Snug Header Leading (`1.382 = 2 - 1/φ`)**: 제목과 레이블에 1.382의 정갈한 헤더 행간을 부여하여 컴팩트하면서도 단단한 그리드 정렬 달성.
+
+---
+
+## ✨ Style Scratcher 핵심 기능 (Features)
 
 ### 1. ✏️ 실시간 에셋 & 콘텐츠 라이브 편집기 (Live Asset & Content Editor)
 웹 페이지의 요소를 선택하여 DOM을 새로고침 없이 즉시 인터랙티브하게 조작합니다:
@@ -52,9 +75,9 @@ Style Scratcher는 표준 3자리 버전 체계(`Major.Minor.Patch`)를 엄격�
 - <kbd>Alt</kbd> + <kbd>C</kbd> 단축키 또는 도구 탭에서 원클릭으로 활성화.
 - Figma 감성의 섬세한 십자선 헤어라인이 마우스 커서를 따라다니며, 커서 옆 뱃지에 실시간 `X: 420 Y: 680 <button>` 픽셀 좌표와 현재 호버 중인 DOM 태그 및 클래스명을 표시.
 
-### 5. 🔤 가독성 극대화 오버레이 뱃지 & 타이포그래피 위계 정립
-- **확대된 안내 텍스트**: 기존에 너무 작아 잘 보이지 않던 인스펙팅 안내 텍스트를 `12px` / `700 Bold`로 대폭 키우고, 화이트 보더와 짙은 드롭섀도우를 부여하여 밝은 배경과 어두운 배경 어디서든 압도적인 가독성 보장.
-- **스튜디오 폰트 위계**: 플로팅 독 전반의 섹션 타이틀, 레이블, 수치 입력 필드에 통일된 폰트 위계와 스퀘어클(`6px` ~ `8px`, 캡슐 반원 배제) 디자인 적용.
+### 5. 🔤 가독성 극대화 오버레이 뱃지 & 타이포그래피 위계
+- **확대된 안내 텍스트**: 인스펙팅 안내 텍스트를 `12px` / `700 Bold`로 대폭 키우고 화이트 보더와 짙은 드롭섀도우를 부여하여 밝은 배경과 어두운 배경 어디서든 선명한 가독성 보장.
+- **스튜디오 폰트 위계**: 플로팅 독 전반의 버튼 라디우스는 캡슐 반원(`9999px`)을 배제하고 단정한 모던 스퀘어클(`6px` ~ `8px`) 디자인 엄격 적용.
 
 ### 6. 🔍 피그마 감성 인스턴트 줌인 / 줌아웃 (Instant Zoom)
 - **비대칭 가속도 곡선 줌**: <kbd>Z</kbd> 키를 꾹 누르고 있으면 마우스 커서 위치를 중심으로 부드럽고 실키하게 깊은 줌인(2.4x 배율, 520ms 감속 곡선)이 진행됩니다.
@@ -80,7 +103,7 @@ Style Scratcher는 표준 3자리 버전 체계(`Major.Minor.Patch`)를 엄격�
 ## 🚀 Chrome 브라우저 설치 및 사용법 (Installation Guide)
 
 ### 방법 1. 릴리즈 ZIP 파일로 설치 (가장 추천)
-1. 본 리포지토리의 [Releases](https://github.com/hslcrb/style-scrather/releases) 페이지에서 최신 `style-scrather-v3.0.0.zip` 파일을 다운로드합니다.
+1. 본 리포지토리의 [Releases](https://github.com/hslcrb/style-scrather/releases) 페이지에서 최신 `style-scrather-v3.0.1.zip` 파일을 다운로드합니다.
 2. 다운로드한 ZIP 파일의 압축을 해제합니다.
 3. Chrome 브라우저 주소창에 `chrome://extensions` 를 입력하고 이동합니다.
 4. 우측 상단의 **'개발자 모드(Developer mode)'** 토글 스위치를 켭니다.
@@ -105,7 +128,7 @@ cd style-scrather
 | 단축키 / 동작 | 기능 설명 |
 | :--- | :--- |
 | <kbd>Alt</kbd> + <kbd>S</kbd> | **Style Scratcher 인스펙터 켜기 / 끄기 토글** |
-| <kbd>Alt</kbd> + <kbd>C</kbd> | **정밀 십자선 커서 & (X, Y) 실시간 좌표 가이드 토글 (v3.0.0)** |
+| <kbd>Alt</kbd> + <kbd>C</kbd> | **정밀 십자선 커서 & (X, Y) 실시간 좌표 가이드 토글** |
 | <kbd>Z</kbd> **(꾹 누름)** | **인스턴트 줌인** (마우스 커서 중심 520ms 줌인, 손 떼면 200ms 쾌속 줌아웃) |
 | <kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd> | **브라우저 노멀 줌** (표준 브라우저 레이아웃 확대/축소) |
 | <kbd>Alt</kbd> + <kbd>F</kbd> | **화면 & 툴팁 프리징 (Freeze)** (사라지는 호버 팝업 고정) |
@@ -119,8 +142,6 @@ cd style-scrather
 ---
 
 ## 🧪 로컬 데모 테스트베드 구동
-
-WebGL 3D 큐브, 실시간 에셋 편집, 스포이트 컬러 스위트, 인스턴트 줌, 애니메이션 슬로우모션, 복사 차단 무력화 기능을 웹 애플리케이션 형태로 즉시 시연할 수 있습니다.
 
 ```bash
 # 로컬 정적 서버 구동

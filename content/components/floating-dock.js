@@ -40,7 +40,7 @@ class FloatingDock {
             </svg>
           </div>
           <span class="dock-title">Style Scratcher</span>
-          <span class="dock-badge">v3.0.0</span>
+          <span class="dock-badge">v3.0.1</span>
         </div>
         <div class="dock-controls">
           <button class="icon-btn" id="minimizeBtn" title="최소화/펼치기">

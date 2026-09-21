@@ -10,11 +10,35 @@
 :host {
   all: initial;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", Inter, sans-serif;
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: var(--gr-font-base, 11px);
+  line-height: var(--gr-leading-golden, 1.618);
   color: #111827;
   -webkit-font-smoothing: antialiased;
   z-index: 2147483640;
+
+  /* ========================================================
+     Mathematical Golden Ratio (φ = 1.618) Modular Hierarchy
+     Base: B = 11px, Half-Step: √φ ≈ 1.272, Golden Step: φ ≈ 1.618
+  ======================================================== */
+  --golden-ratio: 1.618;
+  --phi: 1.6180339887;
+  --phi-step: 1.2720196495; /* √φ = 1.27202 (Half-step geometric multiplier) */
+
+  /* Golden Modular Scale Levels */
+  --gr-font-micro: 8.65px;      /* Level -1.0: 11px / 1.272 (Micro metadata, tiny badges) */
+  --gr-font-caption: 10px;      /* Level -0.5: 11px / 1.100 (Helper hints, secondary descriptions) */
+  --gr-font-base: 11px;         /* Level  0.0: Base unit (Tabs, chips, regular studio text) */
+  --gr-font-body: 12.5px;       /* Level +0.5: 11px * 1.136 (Component body, buttons, text areas) */
+  --gr-font-label: 14px;        /* Level +1.0: 11px * 1.272 (Section titles, labels, input values) */
+  --gr-font-subhead: 16px;      /* Level +1.5: 11px * 1.455 (Card headings, prominent indicators) */
+  --gr-font-title: 17.8px;      /* Level +2.0: 11px * 1.618 (Golden Section Titles) */
+  --gr-font-brand: 22.6px;      /* Level +3.0: 11px * 1.618 * 1.272 (Dock brand, modal titles) */
+  --gr-font-display: 28.8px;    /* Level +4.0: 11px * 1.618^2 (Display hero / high emphasis) */
+
+  /* Golden Line Heights & Spacing */
+  --gr-leading-golden: 1.618;   /* Pure Golden Ratio line-height (Descriptions, body) */
+  --gr-leading-snug: 1.382;     /* 2 - 1/φ ≈ 1.382 (Section titles, labels) */
+  --gr-leading-tight: 1.236;    /* Strict tight for badges & buttons */
 }
 
 *, *::before, *::after {
@@ -1190,24 +1214,68 @@
   border-color: #2563EB;
 }
 
-/* Enhanced Typography Overrides */
-.section-title {
-  font-size: 11px !important;
+/* =======================================================
+   v3.0.1 Golden Ratio (φ = 1.618) Typography Hierarchy Overrides
+======================================================= */
+.dock-brand .dock-title {
+  font-size: var(--gr-font-label, 14px) !important;
   font-weight: 700 !important;
-  color: #475569 !important;
-  letter-spacing: 0.05em !important;
+  line-height: var(--gr-leading-tight, 1.236) !important;
+  letter-spacing: -0.015em !important;
+  color: #0F172A !important;
+}
+
+.dock-badge {
+  font-size: var(--gr-font-micro, 8.65px) !important;
+  font-weight: 700 !important;
+  line-height: var(--gr-leading-tight, 1.236) !important;
+  letter-spacing: 0.04em !important;
+}
+
+.tab-btn {
+  font-size: var(--gr-font-base, 11px) !important;
+  font-weight: 600 !important;
+  line-height: var(--gr-leading-tight, 1.236) !important;
+}
+
+.section-title {
+  font-size: var(--gr-font-label, 14px) !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  line-height: var(--gr-leading-snug, 1.382) !important;
+  letter-spacing: -0.01em !important;
+  margin-bottom: 8px !important;
 }
 
 .tweak-label {
-  font-size: 12px !important;
+  font-size: var(--gr-font-body, 12.5px) !important;
   font-weight: 600 !important;
-  color: #334155 !important;
+  color: #475569 !important;
+  line-height: var(--gr-leading-golden, 1.618) !important;
 }
 
 .num-input, .color-hex-input {
-  font-size: 13px !important;
+  font-size: var(--gr-font-label, 14px) !important;
   font-weight: 700 !important;
+  line-height: var(--gr-leading-tight, 1.236) !important;
   color: #0F172A !important;
+}
+
+.tool-meta-title, .safe-mode-title {
+  font-size: var(--gr-font-label, 14px) !important;
+  font-weight: 700 !important;
+  line-height: var(--gr-leading-snug, 1.382) !important;
+}
+
+.tool-meta-desc, .safe-mode-desc, .empty-desc {
+  font-size: var(--gr-font-caption, 10px) !important;
+  line-height: var(--gr-leading-golden, 1.618) !important;
+  color: #64748B !important;
+}
+
+.live-text-area {
+  font-size: var(--gr-font-body, 12.5px) !important;
+  line-height: var(--gr-leading-golden, 1.618) !important;
 }
 
 

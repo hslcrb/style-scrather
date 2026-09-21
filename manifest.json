@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Style Scratcher - 피그마 스타일 웹 인스펙터 & CSS 튜너",
   "short_name": "StyleScratcher",
-  "version": "3.0.0",
-  "description": "디자이너와 개발자를 위한 화이트 미니멀 피그마 감성 웹 인스펙터 v3.0.0. 실시간 에셋(텍스트/이미지/SVG) 라이브 편집, 스포이트 & 감각적 컬러 스위트, 정밀 십자선 커서, 안전 검사 모드, 인스턴트 줌인/줌아웃, WebGL 분석.",
+  "version": "3.0.1",
+  "description": "디자이너와 개발자를 위한 화이트 미니멀 피그마 감성 웹 인스펙터 v3.0.1. 황금비율(1.618) 타이포그래피 위계, 실시간 에셋(텍스트/이미지/SVG) 라이브 편집, 스포이트 & 감각적 컬러 스위트, 정밀 십자선 커서, 안전 검사 모드, 인스턴트 줌인/줌아웃, WebGL 분석.",
   "permissions": [
     "activeTab",
     "storage",

@@ -1,19 +1,19 @@
-// Style Scratcher v3.0.0 - Automated Verification Test Suite
+// Style Scratcher v3.0.1 - Automated Verification Test Suite
 
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const vm = require('vm');
 
-console.log('🧪 [Style Scratcher v3.0.0] Running Comprehensive Verification Test Suite...\n');
+console.log('🧪 [Style Scratcher v3.0.1] Running Comprehensive Verification Test Suite...\n');
 
-// 1. Verify Manifest V3 & Version 3.0.0
-console.log('1. Verifying manifest.json v3.0.0...');
+// 1. Verify Manifest V3 & Version 3.0.1
+console.log('1. Verifying manifest.json v3.0.1...');
 const manifestPath = path.join(__dirname, '..', 'manifest.json');
 assert(fs.existsSync(manifestPath), 'manifest.json must exist');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 assert.strictEqual(manifest.manifest_version, 3, 'Manifest version must be 3');
-assert.strictEqual(manifest.version, '3.0.0', 'Extension version must be 3.0.0');
+assert.strictEqual(manifest.version, '3.0.1', 'Extension version must be 3.0.1');
 assert(manifest.action && manifest.action.default_popup, 'Popup must be declared');
 assert(manifest.content_scripts && manifest.content_scripts.length > 0, 'Content scripts must be declared');
 const scripts = manifest.content_scripts[0].js;
@@ -21,7 +21,7 @@ assert(scripts.includes('content/color-suite.js'), 'color-suite.js must be in ma
 assert(scripts.includes('content/asset-editor.js'), 'asset-editor.js must be in manifest');
 assert(scripts.includes('content/precision-cursor.js'), 'precision-cursor.js must be in manifest');
 assert(scripts.includes('content/instant-zoom.js'), 'instant-zoom.js must be in manifest');
-console.log('   ✅ manifest.json is valid Manifest V3 (v3.0.0) with all v3.0.0 content scripts.\n');
+console.log('   ✅ manifest.json is valid Manifest V3 (v3.0.1) with all content scripts.\n');
 
 // 2. Test ColorSuite (EyeDropper, WCAG Contrast Ratio, Color Presets)
 console.log('2. Testing ColorSuite (Sensory Contrast & Color Engine)...');
@@ -242,20 +242,29 @@ assert.strictEqual(uc.convert(32, 'pt').formatted, '24pt');
 assert.strictEqual(uc.formatBadge(32, 'px'), '32px');
 console.log('   ✅ UnitConverter passed multi-unit conversions.\n');
 
-// 7. Verify Design System: Anti-Pill Button Radius Rule & Badge Typography
-console.log('7. Verifying Design System: Strict Non-Pill Radius & Badge Typography...');
+// 7. Verify Golden Ratio (φ = 1.618) Typography Scale & Design System
+console.log('7. Verifying Golden Ratio (φ = 1.618) Modular Hierarchy & Design System...');
 const shadowCss = fs.readFileSync(path.join(__dirname, '..', 'content', 'styles', 'shadow-styles.css'), 'utf8');
+assert(shadowCss.includes('--golden-ratio: 1.618'), 'shadow-styles.css must declare --golden-ratio: 1.618');
+assert(shadowCss.includes('--phi: 1.6180339887'), 'shadow-styles.css must declare high-precision phi');
+assert(shadowCss.includes('--gr-leading-golden: 1.618'), 'shadow-styles.css must declare golden line-height');
+assert(shadowCss.includes('--gr-font-label: 14px'), 'Golden Ratio label step must be defined');
+assert(shadowCss.includes('--gr-font-title: 17.8px'), 'Golden Ratio title step must be defined');
+
+const popupCss = fs.readFileSync(path.join(__dirname, '..', 'popup', 'popup.css'), 'utf8');
+assert(popupCss.includes('--golden-ratio: 1.618'), 'popup.css must declare --golden-ratio: 1.618');
+
 assert(!shadowCss.includes('border-radius: 9999px'), 'Must not contain full capsule 9999px button radius');
 assert(shadowCss.includes('border-radius: 6px') || shadowCss.includes('--radius-sm: 6px'), 'Must strictly maintain 6px-8px radius');
 
 const overlayCode = fs.readFileSync(path.join(__dirname, '..', 'content', 'overlay-canvas.js'), 'utf8');
 assert(overlayCode.includes("'font-size', '12px'"), 'Overlay badges must have enlarged 12px font for readability');
 assert(overlayCode.includes("'font-weight', '700'"), 'Overlay badges must have 700 bold weight');
-console.log('   ✅ Strict non-pill radius constraint and high-readability 12px/700 badge typography preserved.\n');
+console.log('   ✅ Golden Ratio 1.618 typography system, non-pill radius, and 12px/700 badges verified.\n');
 
-// 8. Project Files Completeness for v3.0.0
-console.log('8. Verifying File Completeness for v3.0.0...');
-const v30Files = [
+// 8. Project Files Completeness for v3.0.1
+console.log('8. Verifying File Completeness for v3.0.1...');
+const v31Files = [
   'manifest.json',
   'content/color-suite.js',
   'content/asset-editor.js',
@@ -280,10 +289,10 @@ const v30Files = [
   'LICENSE'
 ];
 
-v30Files.forEach(rel => {
+v31Files.forEach(rel => {
   const full = path.join(__dirname, '..', rel);
   assert(fs.existsSync(full), `File ${rel} must exist`);
   console.log(`   ✅ Found ${rel}`);
 });
 
-console.log('\n🎉 ALL 8 VERIFICATION TEST PHASES FOR v3.0.0 PASSED BRILLIANTLY!');
+console.log('\n🎉 ALL 8 VERIFICATION TEST PHASES FOR v3.0.1 PASSED BRILLIANTLY!');
