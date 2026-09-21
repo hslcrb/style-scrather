@@ -1,27 +1,30 @@
-// Style Scratcher v2.1.0 - Instant Zoom In/Out Engine (Figma-style momentary canvas zoom)
+// Style Scratcher v4.0.0 - Instant Zoom & Step Zoom Engine (Alt++ / Alt+- / Alt+0)
 
 class InstantZoom {
   constructor(options = {}) {
     this.isZoomed = false;
-    this.isHolding = false;
-    this.mouseX = window.innerWidth / 2;
-    this.mouseY = window.innerHeight / 2;
-    this.maxScale = 2.4; // 240% magnification
-    this.zoomTarget = document.body;
-    this.originalStyle = '';
+    this.currentScale = 1.0;
+    this.mouseX = (typeof window !== 'undefined' ? window.innerWidth : 1920) / 2;
+    this.mouseY = (typeof window !== 'undefined' ? window.innerHeight : 1080) / 2;
+    this.maxScale = 3.0;
+    this.minScale = 0.4;
+    this.zoomTarget = typeof document !== 'undefined' ? document.body : null;
     this.indicator = null;
     this.onZoomChange = options.onZoomChange || (() => {});
 
-    this.initMouseTracker();
-    this.initIndicator();
-    this.initKeyListeners();
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      this.initMouseTracker();
+      this.initIndicator();
+      this.initKeyListeners();
+    }
   }
 
   initMouseTracker() {
+    if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
     window.addEventListener('mousemove', (e) => {
       this.mouseX = e.clientX;
       this.mouseY = e.clientY;
-      if (!this.isZoomed && this.zoomTarget) {
+      if (this.currentScale === 1.0 && this.zoomTarget) {
         this.zoomTarget.style.transformOrigin = `${this.mouseX}px ${this.mouseY}px`;
       }
     }, { passive: true });
@@ -55,7 +58,7 @@ class InstantZoom {
     `;
     this.indicator.innerHTML = `
       <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #3B82F6;"></span>
-      <span>인스턴트 줌 (2.4x) • 손을 떼면 원복</span>
+      <span class="zoom-label">줌 배율: 100%</span>
     `;
     const target = document.body || document.documentElement;
     if (target && target.appendChild) {
@@ -63,77 +66,110 @@ class InstantZoom {
     }
   }
 
+  showBadge(text) {
+    if (!this.indicator) return;
+    const label = this.indicator.querySelector('.zoom-label');
+    if (label) label.textContent = text;
+    this.indicator.style.transform = 'translateX(-50%) translateY(0)';
+    this.indicator.style.opacity = '1';
+
+    clearTimeout(this._badgeTimer);
+    this._badgeTimer = setTimeout(() => {
+      if (this.indicator) {
+        this.indicator.style.transform = 'translateX(-50%) translateY(-30px)';
+        this.indicator.style.opacity = '0';
+      }
+    }, 1800);
+  }
+
   initKeyListeners() {
-    // Hold Z to Instant Zoom In, Release Z to fast Zoom Out
+    if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
     window.addEventListener('keydown', (e) => {
-      // Don't trigger when typing in input, textarea, or contenteditable
       const activeEl = document.activeElement;
       if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
         return;
       }
 
-      if ((e.key === 'z' || e.key === 'Z') && !e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // Alt + + or Alt + = (Zoom In)
+      if (e.altKey && (e.key === '+' || e.key === '=')) {
+        e.preventDefault();
+        this.zoomIn();
+      }
+      // Alt + - (Zoom Out)
+      else if (e.altKey && (e.key === '-' || e.key === '_')) {
+        e.preventDefault();
+        this.zoomOut();
+      }
+      // Alt + 0 (Reset Zoom)
+      else if (e.altKey && e.key === '0') {
+        e.preventDefault();
+        this.resetZoom();
+      }
+      // Fallback hold Z (Legacy support)
+      else if ((e.key === 'z' || e.key === 'Z') && !e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey) {
         this.startZoom();
       }
     });
 
+    if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
     window.addEventListener('keyup', (e) => {
-      if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey) {
+      if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey && !e.altKey) {
         this.endZoom();
       }
     });
   }
 
-  startZoom(customScale = this.maxScale) {
-    if (this.isZoomed) return;
-    this.isZoomed = true;
-
-    const body = document.body;
+  applyScale(newScale, duration = 280) {
+    const body = (typeof document !== 'undefined' ? document.body : null) || this.zoomTarget;
     if (!body) return;
 
-    // Set transform-origin right at cursor position
-    body.style.transformOrigin = `${this.mouseX}px ${this.mouseY}px`;
-    
-    // Zoom-in Curve: Silky, gentle, deep deceleration (520ms)
-    body.style.transition = 'transform 520ms cubic-bezier(0.16, 1, 0.3, 1)';
-    body.style.transform = `scale(${customScale})`;
+    this.currentScale = Math.max(this.minScale, Math.min(this.maxScale, Math.round(newScale * 100) / 100));
+    this.isZoomed = this.currentScale !== 1.0;
 
-    if (this.indicator) {
-      this.indicator.style.transform = 'translateX(-50%) translateY(0)';
-      this.indicator.style.opacity = '1';
+    body.style.transformOrigin = `${this.mouseX}px ${this.mouseY}px`;
+    body.style.transition = `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+
+    if (this.currentScale === 1.0) {
+      body.style.transform = 'scale(1)';
+      setTimeout(() => {
+        if (this.currentScale === 1.0 && body) {
+          body.style.transition = '';
+          body.style.transform = '';
+        }
+      }, duration + 20);
+    } else {
+      body.style.transform = `scale(${this.currentScale})`;
     }
 
-    this.onZoomChange(true);
+    this.showBadge(`줌 배율: ${Math.round(this.currentScale * 100)}% (Alt + / - / 0)`);
+    this.onZoomChange(this.isZoomed, this.currentScale);
+  }
+
+  zoomIn(delta = 0.25) {
+    this.applyScale(this.currentScale + delta, 260);
+  }
+
+  zoomOut(delta = 0.25) {
+    this.applyScale(this.currentScale - delta, 260);
+  }
+
+  resetZoom() {
+    this.applyScale(1.0, 200);
+  }
+
+  startZoom(customScale = 2.4) {
+    this.applyScale(customScale, 450);
   }
 
   endZoom() {
-    if (!this.isZoomed) return;
-    this.isZoomed = false;
-
-    const body = document.body;
-    if (!body) return;
-
-    // Zoom-out Curve: Much faster than zoom-in (200ms vs 520ms), snappy cubic-bezier
-    body.style.transition = 'transform 200ms cubic-bezier(0.25, 1, 0.5, 1)';
-    body.style.transform = 'scale(1)';
-
-    if (this.indicator) {
-      this.indicator.style.transform = 'translateX(-50%) translateY(-30px)';
-      this.indicator.style.opacity = '0';
-    }
-
-    // Clean up transform after animation finishes
-    setTimeout(() => {
-      if (!this.isZoomed && body) {
-        body.style.transition = '';
-        body.style.transform = '';
-      }
-    }, 220);
-
-    this.onZoomChange(false);
+    this.resetZoom();
   }
 }
 
 if (typeof window !== 'undefined') {
   window.InstantZoom = InstantZoom;
 }
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = InstantZoom;
+}
+

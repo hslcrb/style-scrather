@@ -1,4 +1,4 @@
-// Style Scratcher v3.0.2 - Content Script Orchestrator
+// Style Scratcher v4.0.0 - Content Script Orchestrator
 
 (function () {
   // Prevent multiple injections
@@ -15,10 +15,18 @@
   let interactionDetector = null;
   let pageController = null;
   let motionInspector = null;
-  let isAltPressed = false;
-
-  let isSafeMode = true; // Safe Inspect Mode (Click Invalidation) Default: ON
+  let instantZoom = null;
   let precisionCursor = null;
+
+  // v4.0.0 Modules
+  let modeManager = null;
+  let deviceMockup = null;
+  let tabOrderVisualizer = null;
+  let shortcutManager = null;
+  let contextHud = null;
+
+  let isAltPressed = false;
+  let isSafeMode = true;
 
   function initStyleScratcher() {
     // 1. Create Shadow DOM Host
@@ -48,7 +56,7 @@
     }
     shadowRoot.appendChild(styleLink);
 
-    // 3. Initialize v3.0.0 Engines
+    // 3. Initialize Engines
     unitConverter = new UnitConverter();
     interactionDetector = new InteractionDetector();
     pageController = new PageController();
@@ -57,6 +65,16 @@
     precisionCursor = typeof PrecisionCursor !== 'undefined' ? new PrecisionCursor(shadowRoot) : null;
 
     overlayCanvas = new OverlayCanvas(shadowRoot, unitConverter);
+
+    // v4.0.0 New Engines
+    modeManager = typeof ModeManager !== 'undefined' ? new ModeManager({ shadowRoot }) : null;
+    deviceMockup = typeof DeviceMockup !== 'undefined' ? new DeviceMockup(shadowRoot) : null;
+    tabOrderVisualizer = typeof TabOrderVisualizer !== 'undefined' ? new TabOrderVisualizer(shadowRoot) : null;
+    shortcutManager = typeof ShortcutManager !== 'undefined' ? new ShortcutManager() : null;
+
+    if (overlayCanvas && tabOrderVisualizer) {
+      overlayCanvas.setTabOrderVisualizer(tabOrderVisualizer);
+    }
 
     styleTweaker = new StyleTweaker((element) => {
       if (floatingDock) {
@@ -73,6 +91,12 @@
       motionInspector: motionInspector,
       instantZoom: instantZoom,
       precisionCursor: precisionCursor,
+      modeManager: modeManager,
+      deviceMockup: deviceMockup,
+      fontStudio: typeof FontStudio !== 'undefined' ? FontStudio : null,
+      tabOrderVisualizer: tabOrderVisualizer,
+      shortcutManager: shortcutManager,
+      reactExporter: typeof ReactExporter !== 'undefined' ? ReactExporter : null,
       isSafeMode: isSafeMode,
       onToggleSafeMode: (state) => {
         isSafeMode = state;
@@ -81,10 +105,63 @@
       onToggleInspector: () => toggleInspector()
     });
 
+    // Smart Alternating Context Menu HUD (v4.0.0)
+    if (typeof ContextHud !== 'undefined') {
+      contextHud = new ContextHud(shadowRoot, (action, targetEl) => {
+        handleHudAction(action, targetEl);
+      });
+    }
+
     // 4. Attach Window/Document Listeners
     attachEventListeners();
 
-    console.log('[Style Scratcher v3.0.2] Initialized with Connection Guardian, Golden Ratio (1.618) Typography, Live Asset Editor, Sensory Color Suite, Precision Cursor, and Safe Mode.');
+    console.log('[Style Scratcher v4.0.0] Initialized with Edit Studio, Device Mockups, Figma Font Studio, Glyph Harvester, Tab Order Visualizer, and Smart Context HUD.');
+  }
+
+  function handleHudAction(action, targetEl) {
+    if (!targetEl) return;
+
+    if (action === 'inspect') {
+      modeManager?.setMode('inspect');
+      styleTweaker.setElement(targetEl);
+      overlayCanvas.setSelectedElement(targetEl);
+      floatingDock.switchTab('inspector');
+    } else if (action === 'edit') {
+      modeManager?.setMode('edit');
+      modeManager?.select(targetEl);
+      styleTweaker.setElement(targetEl);
+      overlayCanvas.setSelectedElement(targetEl);
+      floatingDock.switchTab('inspector');
+    } else if (action === 'font') {
+      styleTweaker.setElement(targetEl);
+      overlayCanvas.setSelectedElement(targetEl);
+      floatingDock.switchTab('fonts');
+    } else if (action === 'mockup') {
+      deviceMockup?.toggle(true);
+      floatingDock.switchTab('mockup');
+    } else if (action === 'taborder') {
+      tabOrderVisualizer?.toggle();
+    } else if (action === 'copyReact') {
+      if (typeof ReactExporter !== 'undefined') {
+        const jsx = ReactExporter.generateComponent(targetEl);
+        navigator.clipboard.writeText(jsx).then(() => {
+          floatingDock?.showToast('React JSX 컴포넌트가 복사되었습니다.');
+        });
+      }
+    } else if (action === 'copyCss') {
+      const comp = window.getComputedStyle(targetEl);
+      const css = `/* Style Scratcher CSS */\nwidth: ${comp.width};\nheight: ${comp.height};\ncolor: ${comp.color};\nbackground: ${comp.backgroundColor};`;
+      navigator.clipboard.writeText(css).then(() => {
+        floatingDock?.showToast('Clean CSS가 복사되었습니다.');
+      });
+    } else if (action === 'delete') {
+      if (modeManager?.removeElement(targetEl)) {
+        styleTweaker.setElement(null);
+        overlayCanvas.setSelectedElement(null);
+        floatingDock?.showToast('요소가 삭제되었습니다.');
+        floatingDock?.updateElement();
+      }
+    }
   }
 
   function toggleInspector(state) {
@@ -120,7 +197,7 @@
       overlayCanvas.setHoverElement(target);
     }, { passive: true });
 
-    // Click to Select & Lock Element
+    // Click to Select & Lock Element (with Edit Studio Multi-Select Shift+Click)
     window.addEventListener('click', (e) => {
       if (!isActive) return;
 
@@ -135,56 +212,102 @@
       const target = document.elementFromPoint(e.clientX, e.clientY);
       if (!target || target === document.body || target === document.documentElement) return;
 
-      e.preventDefault();
-      e.stopPropagation();
+      if (isSafeMode) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
 
-      styleTweaker.setElement(target);
-      overlayCanvas.setSelectedElement(target);
-      floatingDock.updateElement();
+      if (modeManager && modeManager.getMode() === 'edit' && e.shiftKey) {
+        // Multi-selection in Edit Mode
+        modeManager.toggleSelect(target);
+        overlayCanvas.setSelectedElements(modeManager.getSelectedElements());
+        styleTweaker.setElement(modeManager.getPrimaryElement());
+        floatingDock.updateElement();
+      } else {
+        // Single selection
+        modeManager?.select(target);
+        styleTweaker.setElement(target);
+        overlayCanvas.setSelectedElements([target]);
+        floatingDock.updateElement();
+      }
     }, true);
 
-    // Keyboard Shortcuts
+    // Keyboard Shortcuts (Managed by ShortcutManager v4.0.0)
     window.addEventListener('keydown', (e) => {
-      // Alt + S to Toggle Scratcher
-      if (e.altKey && (e.key === 's' || e.key === 'S' || e.code === 'KeyS')) {
-        e.preventDefault();
-        toggleInspector();
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
         return;
       }
 
-      // Alt + F to Toggle Freeze
-      if (e.altKey && (e.key === 'f' || e.key === 'F' || e.code === 'KeyF')) {
-        e.preventDefault();
-        if (pageController) {
-          const frozen = pageController.toggleFreeze();
-          floatingDock?.showToast(frozen ? '화면 인터랙션이 프리징되었습니다.' : '프리징이 해제되었습니다.');
+      if (shortcutManager) {
+        if (shortcutManager.matchKey(e, 'toggleInspector')) {
+          e.preventDefault();
+          toggleInspector();
+          return;
         }
-        return;
-      }
 
-      // Alt + U to Toggle Copy Unblocker
-      if (e.altKey && (e.key === 'u' || e.key === 'U' || e.code === 'KeyU')) {
-        e.preventDefault();
-        if (pageController) {
-          const unblocked = pageController.toggleUnblock();
-          floatingDock?.showToast(unblocked ? '복사 및 우클릭 제한이 해제되었습니다.' : '복사 제한이 복구되었습니다.');
+        if (shortcutManager.matchKey(e, 'toggleEditMode')) {
+          e.preventDefault();
+          if (modeManager) {
+            const nextMode = modeManager.toggleMode();
+            floatingDock?.showToast(nextMode === 'edit' ? '편집 모드 (Edit Studio)로 전환되었습니다.' : '검사 모드로 전환되었습니다.');
+            floatingDock?.renderCurrentTab();
+          }
+          return;
         }
-        return;
-      }
 
-      // Alt + C to Toggle Precision Cursor (v3.0.0)
-      if (e.altKey && (e.key === 'c' || e.key === 'C' || e.code === 'KeyC')) {
-        e.preventDefault();
-        if (precisionCursor) {
-          const active = precisionCursor.toggle();
-          floatingDock?.showToast(active ? '정밀 십자선 커서가 활성화되었습니다.' : '십자선 커서가 비활성화되었습니다.');
-          floatingDock?.renderCurrentTab();
+        if (shortcutManager.matchKey(e, 'instantZoomIn')) {
+          e.preventDefault();
+          instantZoom?.zoomIn();
+          return;
         }
-        return;
+
+        if (shortcutManager.matchKey(e, 'instantZoomOut')) {
+          e.preventDefault();
+          instantZoom?.zoomOut();
+          return;
+        }
+
+        if (shortcutManager.matchKey(e, 'resetZoom')) {
+          e.preventDefault();
+          instantZoom?.resetZoom();
+          return;
+        }
+
+        if (shortcutManager.matchKey(e, 'toggleGrid')) {
+          e.preventDefault();
+          if (overlayCanvas) {
+            const on = overlayCanvas.toggleGrid();
+            floatingDock?.showToast(on ? '그리드가 활성화되었습니다.' : '그리드가 꺼졌습니다.');
+            floatingDock?.renderCurrentTab();
+          }
+          return;
+        }
+
+        if (shortcutManager.matchKey(e, 'togglePrecisionCursor')) {
+          e.preventDefault();
+          if (precisionCursor) {
+            const active = precisionCursor.toggle();
+            floatingDock?.showToast(active ? '정밀 십자선 커서가 활성화되었습니다.' : '십자선 커서가 꺼졌습니다.');
+            floatingDock?.renderCurrentTab();
+          }
+          return;
+        }
+
+        if (shortcutManager.matchKey(e, 'toggleTabOrder')) {
+          e.preventDefault();
+          if (tabOrderVisualizer) {
+            const active = tabOrderVisualizer.toggle();
+            floatingDock?.showToast(active ? 'W3C 탭 순서 흐름이 켜졌습니다.' : '탭 순서 흐름이 꺼졌습니다.');
+            floatingDock?.renderCurrentTab();
+          }
+          return;
+        }
       }
 
       // Escape to Deselect / Unlock
       if (e.key === 'Escape') {
+        modeManager?.clearSelection();
         overlayCanvas.setSelectedElement(null);
         styleTweaker.setElement(null);
         floatingDock.updateElement();
@@ -255,7 +378,13 @@
     getMotionInspector: () => motionInspector,
     getInstantZoom: () => instantZoom,
     getPrecisionCursor: () => precisionCursor,
+    getModeManager: () => modeManager,
+    getDeviceMockup: () => deviceMockup,
+    getTabOrderVisualizer: () => tabOrderVisualizer,
+    getShortcutManager: () => shortcutManager,
+    getContextHud: () => contextHud,
     isSafeMode: () => isSafeMode,
     setSafeMode: (val) => { isSafeMode = !!val; return isSafeMode; }
   };
 })();
+

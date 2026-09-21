@@ -1278,4 +1278,414 @@
   line-height: var(--gr-leading-golden, 1.618) !important;
 }
 
+/* =======================================================
+   v4.0.0 Mode Switcher (Inspect Mode vs Edit Studio Mode)
+======================================================= */
+.mode-switch-group {
+  display: flex;
+  background: #F1F5F9;
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid #E2E8F0;
+}
+
+.mode-switch-btn {
+  border: none;
+  background: transparent;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: var(--gr-font-caption, 10px);
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mode-switch-btn:hover {
+  color: #0F172A;
+}
+
+.mode-switch-btn.active {
+  background: #FFFFFF;
+  color: #2563EB;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
+
+/* Edit Studio Multi-Select & Reorder Bar */
+.edit-studio-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+
+.edit-action-btn-group {
+  display: flex;
+  gap: 4px;
+}
+
+.edit-action-btn {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.edit-action-btn:hover {
+  background: #F1F5F9;
+  border-color: #94A3B8;
+  color: #0F172A;
+}
+
+/* =======================================================
+   v4.0.0 Figma AutoLayout Hug / Fill / Fixed Badges
+======================================================= */
+.autolayout-badge-container {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.al-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: var(--gr-font-micro, 8.65px);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.al-badge-hug {
+  background: #EDE9FE;
+  color: #6D28D9;
+  border: 1px solid #DDD6FE;
+}
+
+.al-badge-fill {
+  background: #D1FAE5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+.al-badge-fixed {
+  background: #FEF3C7;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+/* =======================================================
+   v4.0.0 Device Mockup & Viewport Simulator
+======================================================= */
+.mockup-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.preset-btn {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preset-btn:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.preset-btn.active {
+  background: #EFF6FF;
+  border-color: #3B82F6;
+}
+
+.preset-name {
+  font-size: var(--gr-font-base, 11px);
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.preset-dim {
+  font-size: var(--gr-font-micro, 8.65px);
+  color: #64748B;
+  font-family: ui-monospace, monospace;
+}
+
+.mockup-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #F8FAFC;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+}
+
+.mockup-scale-slider {
+  flex: 1;
+  accent-color: #2563EB;
+}
+
+/* =======================================================
+   v4.0.0 Figma Font Studio & WebFont Extractor
+======================================================= */
+.font-studio-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.font-select-field {
+  width: 100%;
+  height: 32px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 0 8px;
+  font-size: var(--gr-font-base, 11px);
+  font-weight: 600;
+  color: #0F172A;
+  outline: none;
+}
+
+.font-select-field:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.font-props-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.font-prop-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.glyph-harvest-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.glyph-progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.glyph-progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: #2563EB;
+  transition: width 0.1s linear;
+}
+
+.btn-primary-action {
+  width: 100%;
+  height: 32px;
+  background: #2563EB;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-size: var(--gr-font-base, 11px);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s ease;
+}
+
+.btn-primary-action:hover {
+  background: #1D4ED8;
+}
+
+.btn-secondary-action {
+  width: 100%;
+  height: 32px;
+  background: #FFFFFF;
+  color: #334155;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: var(--gr-font-base, 11px);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary-action:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  color: #0F172A;
+}
+
+/* =======================================================
+   v4.0.0 Settings & Shortcut Customization Table
+======================================================= */
+.shortcut-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--gr-font-base, 11px);
+}
+
+.shortcut-table th {
+  text-align: left;
+  padding: 6px 8px;
+  font-size: var(--gr-font-caption, 10px);
+  font-weight: 700;
+  color: #64748B;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.shortcut-table td {
+  padding: 8px 8px;
+  border-bottom: 1px solid #F1F5F9;
+  vertical-align: middle;
+}
+
+.shortcut-input {
+  width: 100px;
+  height: 26px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 0 6px;
+  font-family: ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #0F172A;
+  text-align: center;
+}
+
+.shortcut-input:focus {
+  background: #FFFFFF;
+  border-color: #2563EB;
+}
+
+.shortcut-reset-btn {
+  width: 100%;
+  height: 30px;
+  background: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+  border-radius: 6px;
+  font-size: var(--gr-font-caption, 10px);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 10px;
+}
+
+.shortcut-reset-btn:hover {
+  background: #FCA5A5;
+  color: #991B1B;
+}
+
+/* =======================================================
+   v4.0.0 Context Menu HUD
+======================================================= */
+.scratcher-context-hud {
+  position: fixed;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+  padding: 6px;
+  min-width: 220px;
+  z-index: 2147483646;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  user-select: none;
+  animation: hudFadeIn 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes hudFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1E293B;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.hud-item:hover {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.hud-item.danger:hover {
+  background: #FEF2F2;
+  color: #EF4444;
+}
+
+.hud-shortcut {
+  font-family: ui-monospace, monospace;
+  font-size: 9.5px;
+  color: #94A3B8;
+  background: #F1F5F9;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.hud-divider {
+  height: 1px;
+  background: #E2E8F0;
+  margin: 4px 0;
+}
+
 

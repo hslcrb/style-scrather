@@ -27,27 +27,27 @@ class PrecisionCursor {
       display: none;
     `;
 
-    // Horizontal line
+    // Horizontal line - v4.0.0: 2.5px thickness with 50% opacity
     this.lineH = document.createElement('div');
     this.lineH.style.cssText = `
       position: absolute;
       left: 0;
       width: 100%;
-      height: 1px;
-      background: rgba(37, 99, 235, 0.35);
-      border-top: 1px dashed rgba(37, 99, 235, 0.6);
+      height: 2.5px;
+      background: rgba(37, 99, 235, 0.5);
+      box-shadow: 0 0 2px rgba(37, 99, 235, 0.3);
       pointer-events: none;
     `;
 
-    // Vertical line
+    // Vertical line - v4.0.0: 2.5px thickness with 50% opacity
     this.lineV = document.createElement('div');
     this.lineV.style.cssText = `
       position: absolute;
       top: 0;
       height: 100%;
-      width: 1px;
-      background: rgba(37, 99, 235, 0.35);
-      border-left: 1px dashed rgba(37, 99, 235, 0.6);
+      width: 2.5px;
+      background: rgba(37, 99, 235, 0.5);
+      box-shadow: 0 0 2px rgba(37, 99, 235, 0.3);
       pointer-events: none;
     `;
 
@@ -114,4 +114,7 @@ class PrecisionCursor {
 
 if (typeof window !== 'undefined') {
   window.PrecisionCursor = PrecisionCursor;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PrecisionCursor;
 }

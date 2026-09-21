@@ -7,8 +7,18 @@ class OverlayCanvas {
     this.svg = null;
     this.hoverElement = null;
     this.selectedElement = null;
+    this.selectedElements = []; // v4.0.0 Multi-selection support
     this.isGridVisible = false;
     this.isBaselineVisible = false;
+    this.gridConfig = {
+      columns: 12,
+      gutter: 20,
+      margin: 'auto',
+      maxContainer: 1200,
+      color: '#EF4444',
+      opacity: 0.08
+    };
+    this.tabOrderVisualizer = null;
     this.initSvgOverlay();
   }
 
@@ -19,7 +29,19 @@ class OverlayCanvas {
     }
   }
 
+  setGridConfig(config = {}) {
+    this.gridConfig = { ...this.gridConfig, ...config };
+    if (this.isGridVisible) {
+      this.render();
+    }
+  }
+
+  setTabOrderVisualizer(visualizer) {
+    this.tabOrderVisualizer = visualizer;
+  }
+
   initSvgOverlay() {
+    if (typeof document === 'undefined') return;
     this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.svg.setAttribute('class', 'scratcher-overlay-svg');
     this.svg.style.cssText = `
@@ -48,6 +70,13 @@ class OverlayCanvas {
 
   setSelectedElement(el) {
     this.selectedElement = el;
+    this.selectedElements = el ? [el] : [];
+    this.render();
+  }
+
+  setSelectedElements(elements) {
+    this.selectedElements = Array.isArray(elements) ? elements : (elements ? [elements] : []);
+    this.selectedElement = this.selectedElements[0] || null;
     this.render();
   }
 
@@ -71,28 +100,44 @@ class OverlayCanvas {
       this.renderBaselineGrid();
     }
 
-    // 2. Render 12-Column Grid if active
+    // 2. Render Custom Responsive Column Grid if active (v4.0.0)
     if (this.isGridVisible) {
-      this.render12ColumnGrid();
+      this.renderCustomGrid();
     }
 
-    // 3. Render Selected (Locked) Element Box
+    // 3. Render Selected Elements (Multi-select or single)
     let selRect = null;
-    if (this.selectedElement && document.body.contains(this.selectedElement)) {
+    if (this.selectedElements && this.selectedElements.length > 0) {
+      this.selectedElements.forEach(el => {
+        if (el && document.body.contains(el)) {
+          const r = el.getBoundingClientRect();
+          this.renderSelectionBox(r, el);
+        }
+      });
+      if (this.selectedElement && document.body.contains(this.selectedElement)) {
+        selRect = this.selectedElement.getBoundingClientRect();
+      }
+    } else if (this.selectedElement && document.body.contains(this.selectedElement)) {
       selRect = this.selectedElement.getBoundingClientRect();
       this.renderSelectionBox(selRect, this.selectedElement);
     }
 
     // 4. Render Hover Element Box
     let hoverRect = null;
-    if (this.hoverElement && document.body.contains(this.hoverElement) && this.hoverElement !== this.selectedElement) {
+    const isAlreadySelected = this.selectedElements.includes(this.hoverElement) || this.hoverElement === this.selectedElement;
+    if (this.hoverElement && document.body.contains(this.hoverElement) && !isAlreadySelected) {
       hoverRect = this.hoverElement.getBoundingClientRect();
       this.renderHoverBox(hoverRect, this.hoverElement);
     }
 
-    // 5. Render Figma Smart Distance Guides between Selected and Hover
+    // 5. Render Figma Smart Distance Guides between Primary Selected and Hover
     if (selRect && hoverRect) {
       this.renderDistanceGuides(selRect, hoverRect);
+    }
+
+    // 6. Render Tab Order Flow if visualizer is active (v4.0.0)
+    if (this.tabOrderVisualizer && this.tabOrderVisualizer.isActive) {
+      this.tabOrderVisualizer.renderToSvg(this.svg);
     }
   }
 
@@ -334,28 +379,42 @@ class OverlayCanvas {
   }
 
   /**
-   * 12-Column Responsive Layout Grid
+   * Custom Responsive Layout Grid (v4.0.0)
    */
-  render12ColumnGrid() {
+  renderCustomGrid() {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    const maxContainer = Math.min(vw - 48, 1200);
-    const margin = (vw - maxContainer) / 2;
-    const gutter = 20;
-    const cols = 12;
-    const colWidth = (maxContainer - (cols - 1) * gutter) / cols;
+    const cols = Math.max(1, parseInt(this.gridConfig.columns, 10) || 12);
+    const gutter = Math.max(0, parseInt(this.gridConfig.gutter, 10) || 20);
+    const maxContainer = Math.min(vw - 24, parseInt(this.gridConfig.maxContainer, 10) || 1200);
+
+    let margin = (vw - maxContainer) / 2;
+    if (typeof this.gridConfig.margin === 'number' && this.gridConfig.margin >= 0) {
+      margin = this.gridConfig.margin;
+    }
+    margin = Math.max(12, margin);
+
+    const totalAvailableWidth = vw - (margin * 2);
+    const colWidth = Math.max(10, (totalAvailableWidth - (cols - 1) * gutter) / cols);
+
+    const baseColor = this.gridConfig.color || '#EF4444';
+    const op = Math.max(0.01, Math.min(1, parseFloat(this.gridConfig.opacity) || 0.08));
 
     for (let i = 0; i < cols; i++) {
       const x = margin + i * (colWidth + gutter);
+      if (x + colWidth > vw) break;
+
       const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       colRect.setAttribute('x', x);
       colRect.setAttribute('y', 0);
       colRect.setAttribute('width', colWidth);
       colRect.setAttribute('height', vh);
-      colRect.setAttribute('fill', 'rgba(239, 68, 68, 0.04)');
-      colRect.setAttribute('stroke', 'rgba(239, 68, 68, 0.15)');
+      colRect.setAttribute('fill', baseColor);
+      colRect.setAttribute('fill-opacity', op);
+      colRect.setAttribute('stroke', baseColor);
+      colRect.setAttribute('stroke-opacity', Math.min(1, op * 2.5));
       colRect.setAttribute('stroke-width', '1');
       g.appendChild(colRect);
 
@@ -363,15 +422,20 @@ class OverlayCanvas {
       const colNum = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       colNum.setAttribute('x', x + colWidth / 2);
       colNum.setAttribute('y', 16);
-      colNum.setAttribute('fill', '#EF4444');
-      colNum.setAttribute('font-size', '9px');
-      colNum.setAttribute('font-weight', '600');
+      colNum.setAttribute('fill', baseColor);
+      colNum.setAttribute('font-size', '10px');
+      colNum.setAttribute('font-weight', '700');
+      colNum.setAttribute('font-family', 'ui-monospace, SFMono-Regular, Menlo, monospace');
       colNum.setAttribute('text-anchor', 'middle');
       colNum.textContent = `${i + 1}`;
       g.appendChild(colNum);
     }
 
     this.svg.appendChild(g);
+  }
+
+  render12ColumnGrid() {
+    this.renderCustomGrid();
   }
 
   /**
@@ -399,4 +463,7 @@ class OverlayCanvas {
 
 if (typeof window !== 'undefined') {
   window.OverlayCanvas = OverlayCanvas;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = OverlayCanvas;
 }

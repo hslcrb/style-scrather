@@ -1,4 +1,4 @@
-// Style Scratcher v2.0 - Floating Dock Component (White Minimal Studio UI)
+// Style Scratcher v4.0.0 - Floating Dock Component (White Minimal Studio UI)
 
 class FloatingDock {
   constructor(shadowRoot, options = {}) {
@@ -11,15 +11,25 @@ class FloatingDock {
     this.motionInspector = options.motionInspector || (typeof MotionInspector !== 'undefined' ? new MotionInspector() : null);
     this.instantZoom = options.instantZoom || (typeof InstantZoom !== 'undefined' ? new InstantZoom() : null);
     this.precisionCursor = options.precisionCursor || (typeof PrecisionCursor !== 'undefined' ? new PrecisionCursor(this.shadowRoot) : null);
+
+    // v4.0.0 Modules
+    this.modeManager = options.modeManager || (typeof ModeManager !== 'undefined' ? new ModeManager({ shadowRoot }) : null);
+    this.deviceMockup = options.deviceMockup || (typeof DeviceMockup !== 'undefined' ? new DeviceMockup(this.shadowRoot) : null);
+    this.fontStudio = options.fontStudio || (typeof FontStudio !== 'undefined' ? FontStudio : null);
+    this.tabOrderVisualizer = options.tabOrderVisualizer || (typeof TabOrderVisualizer !== 'undefined' ? new TabOrderVisualizer(this.shadowRoot) : null);
+    this.shortcutManager = options.shortcutManager || (typeof ShortcutManager !== 'undefined' ? new ShortcutManager() : null);
+    this.reactExporter = options.reactExporter || (typeof ReactExporter !== 'undefined' ? ReactExporter : null);
+
     this.isSafeMode = options.isSafeMode !== undefined ? options.isSafeMode : true;
     this.onToggleSafeMode = options.onToggleSafeMode || (() => {});
     this.onToggleInspector = options.onToggleInspector || (() => {});
     
     this.container = null;
-    this.currentTab = 'inspector'; // 'inspector' | 'assets' | 'interaction' | 'motion' | 'graphics' | 'tools' | 'code'
+    this.currentTab = 'inspector';
     this.isMinimized = false;
     this.siteStylesheets = [];
     this.extractedPalette = null;
+    this.extractedFonts = [];
 
     this.initDOM();
     this.initDrag();
@@ -40,8 +50,15 @@ class FloatingDock {
             </svg>
           </div>
           <span class="dock-title">Style Scratcher</span>
-          <span class="dock-badge">v3.0.2</span>
+          <span class="dock-badge">v4.0.0</span>
         </div>
+
+        <!-- Mode Switcher (Inspect vs Edit Studio) -->
+        <div class="mode-switch-group" id="modeSwitchGroup">
+          <button class="mode-switch-btn ${!this.modeManager || this.modeManager.getMode() === 'inspect' ? 'active' : ''}" id="btnModeInspect" title="검사 모드: 거리 측정 및 스타일 분석">검사</button>
+          <button class="mode-switch-btn ${this.modeManager && this.modeManager.getMode() === 'edit' ? 'active' : ''}" id="btnModeEdit" title="편집 모드: DOM 순서 이동 및 폰트/텍스트 편집">편집</button>
+        </div>
+
         <div class="dock-controls">
           <button class="icon-btn" id="minimizeBtn" title="최소화/펼치기">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -57,15 +74,18 @@ class FloatingDock {
         </div>
       </div>
 
-      <!-- Navigation Tabs (v3.0.0 Expanded) -->
-      <div class="dock-tabs" id="dockTabs">
+      <!-- Navigation Tabs (v4.0.0 Comprehensive Suite) -->
+      <div class="dock-tabs" id="dockTabs" style="overflow-x: auto; scrollbar-width: none;">
         <button class="tab-btn active" data-tab="inspector">인스펙터</button>
-        <button class="tab-btn" data-tab="assets">에셋 편집</button>
+        <button class="tab-btn" data-tab="mockup">목업</button>
+        <button class="tab-btn" data-tab="fonts">폰트</button>
+        <button class="tab-btn" data-tab="assets">에셋</button>
         <button class="tab-btn" data-tab="interaction">인터랙션</button>
-        <button class="tab-btn" data-tab="motion">모션/속도</button>
-        <button class="tab-btn" data-tab="graphics">그래픽/WebGL</button>
-        <button class="tab-btn" data-tab="tools">도구 & 해제</button>
-        <button class="tab-btn" data-tab="code">코드 & CSS</button>
+        <button class="tab-btn" data-tab="motion">모션</button>
+        <button class="tab-btn" data-tab="graphics">WebGL</button>
+        <button class="tab-btn" data-tab="tools">도구</button>
+        <button class="tab-btn" data-tab="code">코드</button>
+        <button class="tab-btn" data-tab="settings">설정</button>
       </div>
 
       <!-- Tab Content Body -->
@@ -84,6 +104,26 @@ class FloatingDock {
 
     this.shadowRoot.appendChild(this.container);
 
+    // Bind Mode Switcher
+    const btnInspect = this.container.querySelector('#btnModeInspect');
+    const btnEdit = this.container.querySelector('#btnModeEdit');
+
+    btnInspect?.addEventListener('click', () => {
+      btnInspect.classList.add('active');
+      btnEdit.classList.remove('active');
+      this.modeManager?.setMode('inspect');
+      this.showToast('검사 모드 (Inspect Mode)로 전환되었습니다.');
+      this.renderCurrentTab();
+    });
+
+    btnEdit?.addEventListener('click', () => {
+      btnEdit.classList.add('active');
+      btnInspect.classList.remove('active');
+      this.modeManager?.setMode('edit');
+      this.showToast('편집 모드 (Edit Studio Mode)로 전환되었습니다.');
+      this.renderCurrentTab();
+    });
+
     // Bind Tab switching
     const tabBtns = this.container.querySelectorAll('.tab-btn');
     tabBtns.forEach(btn => {
@@ -101,6 +141,7 @@ class FloatingDock {
     // Render Initial Tab
     this.renderCurrentTab();
   }
+
 
   showToast(message) {
     const toast = this.container.querySelector('#scratcherToast');
@@ -186,6 +227,10 @@ class FloatingDock {
 
     if (this.currentTab === 'inspector') {
       this.renderInspectorTab(body);
+    } else if (this.currentTab === 'mockup') {
+      this.renderMockupTab(body);
+    } else if (this.currentTab === 'fonts') {
+      this.renderFontsTab(body);
     } else if (this.currentTab === 'assets') {
       this.renderAssetsTab(body);
     } else if (this.currentTab === 'interaction') {
@@ -198,6 +243,8 @@ class FloatingDock {
       this.renderToolsTab(body);
     } else if (this.currentTab === 'code') {
       this.renderCodeTab(body);
+    } else if (this.currentTab === 'settings') {
+      this.renderSettingsTab(body);
     }
   }
 
@@ -258,6 +305,13 @@ class FloatingDock {
     const contrast = typeof ColorSuite !== 'undefined' ? ColorSuite.getContrastRatio(colorHex, bgHex) : { ratio: 4.5, score: 'AA', passesAA: true };
     const presets = typeof ColorSuite !== 'undefined' ? ColorSuite.getPresets() : [];
 
+    // Figma AutoLayout Sizing Telemetry (v4.0.0)
+    const autolayout = typeof FontStudio !== 'undefined' && FontStudio.detectAutolayoutSizing
+      ? FontStudio.detectAutolayoutSizing(el)
+      : { widthSizing: 'Fixed', heightSizing: 'Fixed', widthBadge: 'Fixed', heightBadge: 'Fixed' };
+    const isEditMode = this.modeManager && this.modeManager.getMode() === 'edit';
+    const selectedCount = this.modeManager ? this.modeManager.getSelectedElements().length : 1;
+
     container.innerHTML = `
       <!-- Safe Mode (Click Invalidation) Toggle Banner -->
       <div class="safe-mode-banner ${this.isSafeMode ? '' : 'disabled'}">
@@ -293,7 +347,27 @@ class FloatingDock {
           <span class="element-dim-badge">${dimStr}</span>
         </div>
         ${className ? `<div class="element-classes" title="${className}">${className}</div>` : ''}
-        <div class="btn-group" style="margin-top: 4px;">
+
+        <!-- Figma AutoLayout Hug / Fill / Fixed Telemetry Badges (v4.0.0) -->
+        <div class="autolayout-badge-container">
+          <span class="al-badge al-badge-${autolayout.widthSizing.toLowerCase()}" title="Figma 너비 정책">너비: ${autolayout.widthBadge}</span>
+          <span class="al-badge al-badge-${autolayout.heightSizing.toLowerCase()}" title="Figma 높이 정책">높이: ${autolayout.heightBadge}</span>
+        </div>
+
+        ${isEditMode ? `
+        <!-- Edit Studio Action Bar (v4.0.0) -->
+        <div class="edit-studio-bar" style="margin-top: 8px;">
+          <span style="font-size: 10px; font-weight: 700; color: #2563EB;">편집 모드 (${selectedCount}개 선택)</span>
+          <div class="edit-action-btn-group">
+            <button class="edit-action-btn" id="btnDomMoveUp" title="DOM 상위로 이동">▲ 위로</button>
+            <button class="edit-action-btn" id="btnDomMoveDown" title="DOM 하위로 이동">▼ 아래로</button>
+            <button class="edit-action-btn" id="btnDomDuplicate" title="요소 복제">복제</button>
+            <button class="edit-action-btn" id="btnDomDelete" style="color: #EF4444;" title="요소 삭제">삭제</button>
+          </div>
+        </div>
+        ` : ''}
+
+        <div class="btn-group" style="margin-top: 6px;">
           <button class="btn-secondary" id="unlockBtn">선택 해제 (Esc)</button>
           <button class="btn-secondary" id="resetStylesBtn">스타일 초기화</button>
         </div>
@@ -467,6 +541,40 @@ class FloatingDock {
       this.showToast('스타일이 복원되었습니다.');
     });
 
+    // Edit Studio DOM Actions (v4.0.0)
+    container.querySelector('#btnDomMoveUp')?.addEventListener('click', () => {
+      if (this.modeManager && this.modeManager.moveUp(el)) {
+        this.showToast('요소를 위로 이동했습니다.');
+        this.overlayCanvas?.render();
+      }
+    });
+
+    container.querySelector('#btnDomMoveDown')?.addEventListener('click', () => {
+      if (this.modeManager && this.modeManager.moveDown(el)) {
+        this.showToast('요소를 아래로 이동했습니다.');
+        this.overlayCanvas?.render();
+      }
+    });
+
+    container.querySelector('#btnDomDuplicate')?.addEventListener('click', () => {
+      if (this.modeManager) {
+        const dup = this.modeManager.duplicateElement(el);
+        if (dup) {
+          this.showToast('요소가 복제되었습니다.');
+          this.tweaker.setElement(dup);
+          this.renderCurrentTab();
+        }
+      }
+    });
+
+    container.querySelector('#btnDomDelete')?.addEventListener('click', () => {
+      if (this.modeManager && this.modeManager.removeElement(el)) {
+        this.showToast('요소가 삭제되었습니다.');
+        this.tweaker.setElement(null);
+        this.renderCurrentTab();
+      }
+    });
+
     // Radius Slider & Input
     const rSlider = container.querySelector('#radiusSlider');
     const rInput = container.querySelector('#radiusInput');
@@ -529,6 +637,293 @@ class FloatingDock {
     };
     bindColor('bgColorPicker', 'bgHexInput', 'background');
     bindColor('textColorPicker', 'textHexInput', 'text');
+  }
+
+  // ==========================================
+  // TAB: Device Mockup & Viewport Simulator (v4.0.0)
+  // ==========================================
+  renderMockupTab(container) {
+    const isMockupOn = this.deviceMockup ? this.deviceMockup.isActive : false;
+    const currentPreset = this.deviceMockup ? this.deviceMockup.currentPreset : 'iphone';
+    const currentScale = this.deviceMockup ? Math.round(this.deviceMockup.scale * 100) : 85;
+    const isLandscape = this.deviceMockup ? this.deviceMockup.isLandscape : false;
+
+    container.innerHTML = `
+      <div class="mockup-panel">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span class="section-title" style="margin: 0;">디바이스 뷰포트 시뮬레이터</span>
+          <span style="font-size: 10px; color: #64748B;">비율 유지 샌드박스</span>
+        </div>
+
+        <div class="tool-banner">
+          <div>
+            <div class="tool-meta-title">목업 시뮬레이터 창</div>
+            <div class="tool-meta-desc">웹사이트 화면을 디바이스 프레임으로 래핑</div>
+          </div>
+          <button class="toggle-switch-btn ${isMockupOn ? 'active' : ''}" id="btnToggleMockup">
+            ${isMockupOn ? 'ON' : 'OFF'}
+          </button>
+        </div>
+
+        <span class="section-title" style="margin-top: 6px;">디바이스 프리셋 (Presets)</span>
+        <div class="preset-grid">
+          <button class="preset-btn ${currentPreset === 'tv' ? 'active' : ''}" data-preset="tv">
+            <span class="preset-name">📺 Smart TV</span>
+            <span class="preset-dim">1920 × 1080 (16:9)</span>
+          </button>
+          <button class="preset-btn ${currentPreset === 'desktop' ? 'active' : ''}" data-preset="desktop">
+            <span class="preset-name">💻 Desktop Studio</span>
+            <span class="preset-dim">1440 × 900 (16:10)</span>
+          </button>
+          <button class="preset-btn ${currentPreset === 'ipad' ? 'active' : ''}" data-preset="ipad">
+            <span class="preset-name">📱 iPad Pro</span>
+            <span class="preset-dim">820 × 1180 (4:3)</span>
+          </button>
+          <button class="preset-btn ${currentPreset === 'iphone' ? 'active' : ''}" data-preset="iphone">
+            <span class="preset-name">📱 iPhone 16 Pro</span>
+            <span class="preset-dim">393 × 852 (19.5:9)</span>
+          </button>
+          <button class="preset-btn ${currentPreset === 'galaxy' ? 'active' : ''}" data-preset="galaxy">
+            <span class="preset-name">📱 Galaxy S25 Ultra</span>
+            <span class="preset-dim">412 × 915 (20:9)</span>
+          </button>
+        </div>
+
+        <div class="mockup-controls-bar">
+          <button class="btn-secondary" id="btnMockupRotate" style="padding: 4px 8px; font-size: 11px;">
+            ${isLandscape ? '가로 모드 🔄' : '세로 모드 🔄'}
+          </button>
+          <span style="font-size: 10.5px; font-weight: 600; color: #475569;">배율:</span>
+          <input type="range" class="mockup-scale-slider" id="mockupScaleInput" min="0.25" max="1.2" step="0.05" value="${currentScale / 100}">
+          <span id="mockupScaleLabel" style="font-size: 11px; font-weight: 700; min-width: 36px; text-align: right;">${currentScale}%</span>
+        </div>
+      </div>
+    `;
+
+    container.querySelector('#btnToggleMockup')?.addEventListener('click', () => {
+      if (this.deviceMockup) {
+        const active = this.deviceMockup.toggle();
+        this.showToast(active ? '디바이스 목업 시뮬레이터가 열렸습니다.' : '시뮬레이터가 닫혔습니다.');
+        this.renderMockupTab(container);
+      }
+    });
+
+    container.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const preset = btn.dataset.preset;
+        if (this.deviceMockup) {
+          this.deviceMockup.setPreset(preset);
+          if (!this.deviceMockup.isActive) this.deviceMockup.toggle(true);
+          this.showToast(`${preset.toUpperCase()} 프리셋이 적용되었습니다.`);
+          this.renderMockupTab(container);
+        }
+      });
+    });
+
+    container.querySelector('#btnMockupRotate')?.addEventListener('click', () => {
+      if (this.deviceMockup) {
+        this.deviceMockup.toggleOrientation();
+        this.renderMockupTab(container);
+      }
+    });
+
+    const scaleSlider = container.querySelector('#mockupScaleInput');
+    const scaleLabel = container.querySelector('#mockupScaleLabel');
+    scaleSlider?.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      scaleLabel.textContent = `${Math.round(val * 100)}%`;
+      if (this.deviceMockup) {
+        this.deviceMockup.setScale(val);
+      }
+    });
+  }
+
+  // ==========================================
+  // TAB: Figma Font Studio & WebFont Harvester (v4.0.0)
+  // ==========================================
+  renderFontsTab(container) {
+    const el = this.tweaker.getElement();
+    const computed = el ? window.getComputedStyle(el) : null;
+    const currentFamily = computed ? computed.fontFamily.replace(/['"]/g, '').split(',')[0].trim() : 'Inter';
+    const currentSize = computed ? Math.round(parseFloat(computed.fontSize) || 16) : 16;
+    const currentWeight = computed ? computed.fontWeight : '400';
+    const textContent = el ? (el.innerText || el.textContent || '').trim() : '';
+
+    container.innerHTML = `
+      <div class="font-studio-section">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span class="section-title" style="margin: 0;">피그마 폰트 스튜디오</span>
+          <span style="font-size: 10px; color: #2563EB; font-weight: 600;">Google Fonts 실시간 주입</span>
+        </div>
+
+        ${el ? `
+          <!-- 1. Font Family Picker -->
+          <div class="tweak-row">
+            <span class="tweak-label">폰트 패밀리</span>
+            <select class="font-select-field" id="fontFamilySelect">
+              ${(FontStudio?.CURATED_FONTS || []).map(f => `
+                <option value="${f.name}" ${currentFamily.toLowerCase().includes(f.name.toLowerCase()) ? 'selected' : ''}>${f.name} (${f.google ? 'Google' : 'System'})</option>
+              `).join('')}
+            </select>
+          </div>
+
+          <!-- 2. Font Properties Grid -->
+          <div class="font-props-grid">
+            <div class="font-prop-card">
+              <span class="tweak-label">크기 (Size)</span>
+              <div class="tweak-control-group">
+                <input type="number" class="num-input" id="fontSizeInput" min="8" max="120" value="${currentSize}">
+                <span style="font-size: 10px; color: #64748B;">px</span>
+              </div>
+            </div>
+            <div class="font-prop-card">
+              <span class="tweak-label">굵기 (Weight)</span>
+              <select class="num-input" id="fontWeightSelect" style="width: 100%;">
+                <option value="300" ${currentWeight === '300' ? 'selected' : ''}>300 Light</option>
+                <option value="400" ${currentWeight === '400' ? 'selected' : ''}>400 Regular</option>
+                <option value="500" ${currentWeight === '500' ? 'selected' : ''}>500 Medium</option>
+                <option value="600" ${currentWeight === '600' ? 'selected' : ''}>600 SemiBold</option>
+                <option value="700" ${currentWeight === '700' ? 'selected' : ''}>700 Bold</option>
+                <option value="800" ${currentWeight === '800' ? 'selected' : ''}>800 ExtraBold</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 3. Direct Text Content Live Editor -->
+          <div class="tweak-section">
+            <div class="section-title">
+              <span>내용 직접 편집 (Text Content)</span>
+            </div>
+            <textarea class="live-text-area" id="fontStudioTextArea" placeholder="선택된 요소의 텍스트를 실시간으로 변경하세요...">${textContent}</textarea>
+          </div>
+
+          <!-- 4. Text Outlining (SVG Vector Conversion) -->
+          <button class="btn-secondary-action" id="btnCreateOutlines" style="margin-top: 4px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+            텍스트 아웃라인화 (Create Outlines) SVG 복사
+          </button>
+        ` : `
+          <div class="empty-state">
+            <div class="empty-title">텍스트 요소를 선택하세요</div>
+            <div class="empty-desc">웹페이지의 타이틀, 본문, 버튼 등을 선택하면 피그마처럼 즉시 폰트를 교체하고 텍스트 내용을 바꿀 수 있습니다.</div>
+          </div>
+        `}
+
+        <div class="hud-divider" style="margin: 8px 0;"></div>
+
+        <!-- 5. WebFont Extractor -->
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span class="section-title" style="margin: 0;">웹폰트 (@font-face) 추출</span>
+          <button class="section-reset-btn" id="btnExtractWebFonts">폰트 스캔</button>
+        </div>
+        <div id="webFontsList" style="display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto;">
+          <div style="font-size: 10px; color: #94A3B8; text-align: center; padding: 8px;">'폰트 스캔'을 누르면 페이지에 로드된 @font-face 소스를 추출합니다.</div>
+        </div>
+
+        <!-- 6. Parallel Non-Blocking Glyph Harvester -->
+        <div class="glyph-harvest-box">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; font-weight: 700; color: #1E293B;">병렬 백그라운드 글리프 수확기</span>
+            <span class="dock-badge" id="glyphStatusBadge">대기 중</span>
+          </div>
+          <div style="font-size: 10px; color: #64748B;">글리프 제한 웹폰트 시 한글·라틴·특수문자 전 음절을 렉 없이 병렬 스캔</div>
+          <div class="glyph-progress-bar-container">
+            <div class="glyph-progress-bar-fill" id="glyphProgressBar"></div>
+          </div>
+          <button class="btn-primary-action" id="btnStartHarvest">
+            ⚡ 병렬 글리프 수확 시작 (Non-blocking)
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Event Bindings
+    if (el) {
+      container.querySelector('#fontFamilySelect')?.addEventListener('change', (e) => {
+        const font = e.target.value;
+        if (typeof FontStudio !== 'undefined') {
+          FontStudio.applyFont(el, font);
+          this.overlayCanvas?.render();
+          this.showToast(`'${font}' 폰트가 적용되었습니다.`);
+        }
+      });
+
+      container.querySelector('#fontSizeInput')?.addEventListener('change', (e) => {
+        el.style.fontSize = `${e.target.value}px`;
+        this.overlayCanvas?.render();
+      });
+
+      container.querySelector('#fontWeightSelect')?.addEventListener('change', (e) => {
+        el.style.fontWeight = e.target.value;
+        this.overlayCanvas?.render();
+      });
+
+      container.querySelector('#fontStudioTextArea')?.addEventListener('input', (e) => {
+        el.innerText = e.target.value;
+        this.overlayCanvas?.render();
+      });
+
+      container.querySelector('#btnCreateOutlines')?.addEventListener('click', () => {
+        if (typeof FontStudio !== 'undefined') {
+          const out = FontStudio.createTextOutlines(el);
+          if (out && out.svg) {
+            navigator.clipboard.writeText(out.svg).then(() => {
+              this.showToast('벡터 아웃라인 SVG가 클립보드에 복사되었습니다.');
+            });
+          }
+        }
+      });
+    }
+
+    container.querySelector('#btnExtractWebFonts')?.addEventListener('click', async () => {
+      const list = container.querySelector('#webFontsList');
+      list.innerHTML = `<div style="text-align: center; color: #2563EB; font-size: 10px; padding: 6px;">웹폰트 스캔 중...</div>`;
+      if (typeof FontStudio !== 'undefined') {
+        const fonts = await FontStudio.extractWebFonts();
+        if (!fonts || fonts.length === 0) {
+          list.innerHTML = `<div style="text-align: center; color: #94A3B8; font-size: 10px; padding: 6px;">감지된 외부 @font-face 웹폰트가 없습니다.</div>`;
+          return;
+        }
+        list.innerHTML = fonts.map((f, i) => `
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 5px 8px;">
+            <div>
+              <span style="font-size: 11px; font-weight: 700; color: #0F172A;">${f.family}</span>
+              <span style="font-size: 9.5px; color: #64748B;">(${f.weight} / ${f.style})</span>
+            </div>
+            ${f.url ? `<button class="copy-mini-btn" data-url="${f.url}" style="font-size: 9.5px;">URL 복사</button>` : '<span style="font-size: 9px; color: #10B981;">내장됨</span>'}
+          </div>
+        `).join('');
+
+        list.querySelectorAll('[data-url]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            navigator.clipboard.writeText(btn.dataset.url).then(() => this.showToast('폰트 URL이 복사되었습니다.'));
+          });
+        });
+      }
+    });
+
+    container.querySelector('#btnStartHarvest')?.addEventListener('click', async () => {
+      const progressBar = container.querySelector('#glyphProgressBar');
+      const statusBadge = container.querySelector('#glyphStatusBadge');
+      const btnHarvest = container.querySelector('#btnStartHarvest');
+      btnHarvest.disabled = true;
+      btnHarvest.textContent = '수확 진행 중...';
+
+      if (typeof FontStudio !== 'undefined') {
+        await FontStudio.harvestGlyphs(currentFamily, (percent, done, total) => {
+          progressBar.style.width = `${percent}%`;
+          statusBadge.textContent = `${percent}% (${done}/${total})`;
+        });
+        statusBadge.textContent = '수확 완료';
+        btnHarvest.disabled = false;
+        btnHarvest.textContent = '⚡ 병렬 글리프 수확 완료 (재실행 가능)';
+        this.showToast('모든 글리프 음절 병렬 조사가 완료되었습니다.');
+      }
+    });
   }
 
   // ==========================================
@@ -1052,7 +1447,7 @@ class FloatingDock {
   }
 
   // ==========================================
-  // TAB 5: Tools & Unblocker
+  // TAB 5: Tools & Accessibility (v4.0.0)
   // ==========================================
   renderToolsTab(container) {
     const isUnblocked = this.pageController ? this.pageController.isUnblocked : false;
@@ -1060,33 +1455,48 @@ class FloatingDock {
     const isGridOn = this.overlayCanvas ? this.overlayCanvas.isGridVisible : false;
     const isBaseOn = this.overlayCanvas ? this.overlayCanvas.isBaselineVisible : false;
     const isCursorOn = this.precisionCursor ? this.precisionCursor.isActive : false;
+    const isTabOrderOn = this.tabOrderVisualizer ? this.tabOrderVisualizer.isActive : false;
+    const gridCols = this.overlayCanvas?.gridConfig?.columns || 12;
+    const gridGutter = this.overlayCanvas?.gridConfig?.gutter || 20;
 
     container.innerHTML = `
       <div class="section-title">접근성 및 편의 도구 (Power Tools)</div>
 
-      <!-- Precision Crosshair Cursor & Live Coordinates (v3.0.0) -->
+      <!-- W3C Tab Order Flow Visualizer (v4.0.0) -->
+      <div class="tool-banner" style="margin-bottom: 8px;">
+        <div>
+          <div class="tool-meta-title">W3C 키보드 탭 순서 흐름 (Tab Order)</div>
+          <div class="tool-meta-desc">포커스 순번 넘버 배지 및 탭 이동 흐름선 시각화</div>
+        </div>
+        <button class="toggle-switch-btn ${isTabOrderOn ? 'active' : ''}" id="toggleTabOrderBtn">
+          ${isTabOrderOn ? 'ON' : 'OFF'}
+        </button>
+      </div>
+
+      <!-- Precision Crosshair Cursor & Live Coordinates (v4.0.0 2.5px 50% opacity) -->
       <div class="tool-banner" style="margin-bottom: 8px;">
         <div>
           <div class="tool-meta-title">정밀 십자선 커서 & 좌표 (Alt + C)</div>
-          <div class="tool-meta-desc">실시간 (X, Y) 픽셀 좌표 및 커서 타겟 태그 가이드 헤어라인</div>
+          <div class="tool-meta-desc">2.5px 두께 50% 반투명 헤어라인 및 실시간 (X, Y) 픽셀 좌표</div>
         </div>
         <button class="toggle-switch-btn ${isCursorOn ? 'active' : ''}" id="toggleCursorBtn">
           ${isCursorOn ? 'ON' : 'OFF'}
         </button>
       </div>
 
-      <!-- Instant Zoom In / Zoom Out (v2.1.0) -->
+      <!-- Instant Zoom In / Zoom Out (v4.0.0 Alt++, Alt--, Alt+0) -->
       <div class="tool-banner" style="margin-bottom: 8px;">
         <div style="flex: 1; padding-right: 10px;">
-          <div class="tool-meta-title">인스턴트 줌인 / 줌아웃 (Hold Z)</div>
+          <div class="tool-meta-title">인스턴트 줌 (Alt + / - / 0)</div>
           <div class="tool-meta-desc">
-            꾹 누르면 부드럽게 줌인(520ms), 떼면 빠르게 줌아웃(200ms).<br>
-            <span style="color: #9CA3AF; font-size: 9px;">(Ctrl + +/- 노멀 줌과 별개의 피그마 순간 돋보기 줌)</span>
+            마우스 커서 중심 확대/축소 및 원복
           </div>
         </div>
-        <button class="toggle-switch-btn" id="holdInstantZoomBtn" style="width: auto; min-width: 100px; text-align: center; user-select: none;">
-          꾹 눌러서 줌
-        </button>
+        <div style="display: flex; gap: 4px;">
+          <button class="btn-secondary" id="btnZoomIn" style="padding: 4px 8px; font-size: 11px;">+ 줌인</button>
+          <button class="btn-secondary" id="btnZoomOut" style="padding: 4px 8px; font-size: 11px;">- 줌아웃</button>
+          <button class="btn-secondary" id="btnZoomReset" style="padding: 4px 8px; font-size: 11px;">원복</button>
+        </div>
       </div>
 
       <!-- Copy & Right-Click Unblocker -->
@@ -1111,17 +1521,35 @@ class FloatingDock {
         </button>
       </div>
 
-      <div class="section-title" style="margin-top: 14px;">피그마 레이아웃 가이드</div>
+      <div class="section-title" style="margin-top: 14px;">피그마 커스텀 그리드 설정</div>
 
-      <!-- 12-Col Grid -->
+      <!-- Responsive Grid Toggle -->
       <div class="tool-banner">
         <div>
-          <div class="tool-meta-title">12컬럼 반응형 그리드</div>
-          <div class="tool-meta-desc">Figma 12-Col 레이아웃 정렬선 표시</div>
+          <div class="tool-meta-title">반응형 컬럼 그리드 표시</div>
+          <div class="tool-meta-desc">Figma 레이아웃 컬럼 가이드라인</div>
         </div>
         <button class="toggle-switch-btn ${isGridOn ? 'active' : ''}" id="toggleGridToolBtn">
           ${isGridOn ? 'ON' : 'OFF'}
         </button>
+      </div>
+
+      <!-- Grid Columns Slider -->
+      <div class="tweak-row" style="margin-top: 8px;">
+        <span class="tweak-label">컬럼 수 (Columns)</span>
+        <div class="tweak-control-group">
+          <input type="range" class="range-slider" id="gridColsSlider" min="1" max="24" value="${gridCols}">
+          <span id="gridColsVal" style="font-size: 11px; font-weight: 700; min-width: 24px;">${gridCols}</span>
+        </div>
+      </div>
+
+      <!-- Grid Gutter Slider -->
+      <div class="tweak-row">
+        <span class="tweak-label">간격 (Gutter)</span>
+        <div class="tweak-control-group">
+          <input type="range" class="range-slider" id="gridGutterSlider" min="0" max="64" value="${gridGutter}">
+          <span id="gridGutterVal" style="font-size: 11px; font-weight: 700; min-width: 32px;">${gridGutter}px</span>
+        </div>
       </div>
 
       <!-- 8px Baseline Grid -->
@@ -1136,6 +1564,15 @@ class FloatingDock {
       </div>
     `;
 
+    // Tab Order Visualizer Toggle
+    container.querySelector('#toggleTabOrderBtn')?.addEventListener('click', () => {
+      if (this.tabOrderVisualizer) {
+        const active = this.tabOrderVisualizer.toggle();
+        this.showToast(active ? 'W3C 탭 순서 흐름이 시각화되었습니다.' : '탭 순서 시각화가 꺼졌습니다.');
+        this.renderToolsTab(container);
+      }
+    });
+
     // Precision Cursor Toggle
     container.querySelector('#toggleCursorBtn')?.addEventListener('click', () => {
       if (this.precisionCursor) {
@@ -1145,27 +1582,16 @@ class FloatingDock {
       }
     });
 
-    // Instant Zoom hold/release events
-    const zoomBtn = container.querySelector('#holdInstantZoomBtn');
-    if (zoomBtn && this.instantZoom) {
-      const start = (e) => {
-        e.preventDefault();
-        zoomBtn.classList.add('active');
-        zoomBtn.textContent = '줌인 유지 중...';
-        this.instantZoom.startZoom();
-      };
-      const end = (e) => {
-        zoomBtn.classList.remove('active');
-        zoomBtn.textContent = '꾹 눌러서 줌';
-        this.instantZoom.endZoom();
-      };
-
-      zoomBtn.addEventListener('mousedown', start);
-      zoomBtn.addEventListener('mouseup', end);
-      zoomBtn.addEventListener('mouseleave', end);
-      zoomBtn.addEventListener('touchstart', start, { passive: false });
-      zoomBtn.addEventListener('touchend', end);
-    }
+    // Instant Zoom Step Buttons
+    container.querySelector('#btnZoomIn')?.addEventListener('click', () => {
+      if (this.instantZoom) this.instantZoom.zoomIn();
+    });
+    container.querySelector('#btnZoomOut')?.addEventListener('click', () => {
+      if (this.instantZoom) this.instantZoom.zoomOut();
+    });
+    container.querySelector('#btnZoomReset')?.addEventListener('click', () => {
+      if (this.instantZoom) this.instantZoom.resetZoom();
+    });
 
     container.querySelector('#toggleUnblockBtn').addEventListener('click', () => {
       if (this.pageController) {
@@ -1196,18 +1622,47 @@ class FloatingDock {
         this.renderToolsTab(container);
       }
     });
+
+    // Custom Grid Sliders
+    const colSlider = container.querySelector('#gridColsSlider');
+    const colVal = container.querySelector('#gridColsVal');
+    colSlider?.addEventListener('input', (e) => {
+      colVal.textContent = e.target.value;
+      if (this.overlayCanvas) {
+        this.overlayCanvas.setGridConfig({ columns: parseInt(e.target.value, 10) });
+      }
+    });
+
+    const gutterSlider = container.querySelector('#gridGutterSlider');
+    const gutterVal = container.querySelector('#gridGutterVal');
+    gutterSlider?.addEventListener('input', (e) => {
+      gutterVal.textContent = `${e.target.value}px`;
+      if (this.overlayCanvas) {
+        this.overlayCanvas.setGridConfig({ gutter: parseInt(e.target.value, 10) });
+      }
+    });
   }
 
   // ==========================================
-  // TAB 6: Code Export & CSS De-minifier
+  // TAB 6: Code Export & CSS De-minifier (v4.0.0 React & Asset Downloader)
   // ==========================================
   renderCodeTab(container) {
     const el = this.tweaker.getElement();
     const converted = el ? TailwindConverter.convert(el) : null;
+    const reactComponent = (el && typeof ReactExporter !== 'undefined') ? ReactExporter.generateComponent(el) : null;
 
     container.innerHTML = `
       <div class="section-title">스마트 코드 추출 (Smart Code)</div>
       ${converted ? `
+        <!-- React JSX Component Card (v4.0.0) -->
+        <div class="code-card" style="margin-bottom: 8px;">
+          <div class="code-header">
+            <span class="code-lang-tag">React (JSX) Component</span>
+            <button class="copy-mini-btn" id="copyReactBtn">JSX 복사</button>
+          </div>
+          <pre class="code-content">${(reactComponent || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+        </div>
+
         <!-- Tailwind CSS Card -->
         <div class="code-card" style="margin-bottom: 8px;">
           <div class="code-header">
@@ -1225,9 +1680,19 @@ class FloatingDock {
           </div>
           <pre class="code-content">${converted.cleanCss}</pre>
         </div>
+
+        <!-- One-click Asset Downloader (v4.0.0) -->
+        <button class="btn-secondary-action" id="btnDownloadAssets" style="margin-bottom: 12px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          요소 및 하위 에셋 일괄 다운로드 (SVG/IMG)
+        </button>
       ` : `
         <div style="text-align: center; padding: 12px; color: #9CA3AF; font-size: 11px;">
-          요소를 선택하면 Tailwind 및 Clean CSS 코드가 생성됩니다.
+          요소를 선택하면 React JSX, Tailwind 및 Clean CSS 코드가 생성됩니다.
         </div>
       `}
 
@@ -1246,11 +1711,22 @@ class FloatingDock {
     `;
 
     if (converted) {
+      container.querySelector('#copyReactBtn')?.addEventListener('click', () => {
+        if (reactComponent) {
+          navigator.clipboard.writeText(reactComponent).then(() => this.showToast('React 컴포넌트 코드가 복사되었습니다.'));
+        }
+      });
       container.querySelector('#copyTailwindBtn')?.addEventListener('click', () => {
         navigator.clipboard.writeText(converted.tailwind).then(() => this.showToast('Tailwind 클래스가 복사되었습니다.'));
       });
       container.querySelector('#copyCssBtn')?.addEventListener('click', () => {
         navigator.clipboard.writeText(converted.cleanCss).then(() => this.showToast('Clean CSS가 복사되었습니다.'));
+      });
+      container.querySelector('#btnDownloadAssets')?.addEventListener('click', async () => {
+        if (typeof ReactExporter !== 'undefined') {
+          const count = await ReactExporter.downloadAllAssets(el);
+          this.showToast(`${count}개의 에셋 다운로드를 시작했습니다.`);
+        }
       });
     }
 
@@ -1318,8 +1794,91 @@ class FloatingDock {
       });
     });
   }
+
+  // ==========================================
+  // TAB 7: Settings & Shortcut Customization (v4.0.0)
+  // ==========================================
+  renderSettingsTab(container) {
+    const shortcuts = this.shortcutManager ? this.shortcutManager.getShortcuts() : {
+      toggleInspector: 'alt+s',
+      toggleEditMode: 'alt+e',
+      instantZoomIn: 'alt+=',
+      instantZoomOut: 'alt+-',
+      resetZoom: 'alt+0',
+      toggleGrid: 'alt+g',
+      togglePrecisionCursor: 'alt+c',
+      toggleTabOrder: 'alt+t'
+    };
+
+    const actionLabels = {
+      toggleInspector: '인스펙터 토글 (Alt + S)',
+      toggleEditMode: '검사 / 편집 모드 전환 (Alt + E)',
+      instantZoomIn: '인스턴트 줌인 (Alt + +)',
+      instantZoomOut: '인스턴트 줌아웃 (Alt + -)',
+      resetZoom: '줌 배율 초기화 (Alt + 0)',
+      toggleGrid: '반응형 그리드 토글 (Alt + G)',
+      togglePrecisionCursor: '정밀 십자선 커서 토글 (Alt + C)',
+      toggleTabOrder: 'W3C 탭 순서 시각화 토글 (Alt + T)'
+    };
+
+    container.innerHTML = `
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span class="section-title" style="margin: 0;">단축키 설정 & 관리</span>
+          <span style="font-size: 10px; color: #64748B;">키 입력 시 자동 저장</span>
+        </div>
+
+        <table class="shortcut-table">
+          <thead>
+            <tr>
+              <th>기능명</th>
+              <th style="text-align: right;">단축키</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Object.entries(shortcuts).map(([action, key]) => `
+              <tr>
+                <td>
+                  <div style="font-weight: 600; color: #1E293B;">${actionLabels[action] || action}</div>
+                </td>
+                <td style="text-align: right;">
+                  <input type="text" class="shortcut-input" data-action="${action}" value="${key}" placeholder="단축키 입력">
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <button class="shortcut-reset-btn" id="btnResetShortcuts">
+          모든 단축키를 기본값으로 되돌리기
+        </button>
+      </div>
+    `;
+
+    container.querySelectorAll('.shortcut-input').forEach(input => {
+      input.addEventListener('change', (e) => {
+        const act = input.dataset.action;
+        const val = e.target.value.trim();
+        if (this.shortcutManager && val) {
+          this.shortcutManager.setShortcut(act, val);
+          this.showToast(`'${actionLabels[act] || act}' 단축키가 '${val}'(으)로 변경되었습니다.`);
+        }
+      });
+    });
+
+    container.querySelector('#btnResetShortcuts')?.addEventListener('click', () => {
+      if (this.shortcutManager) {
+        this.shortcutManager.resetToDefaults();
+        this.showToast('모든 단축키가 기본값으로 복원되었습니다.');
+        this.renderSettingsTab(container);
+      }
+    });
+  }
 }
 
 if (typeof window !== 'undefined') {
   window.FloatingDock = FloatingDock;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = FloatingDock;
 }
