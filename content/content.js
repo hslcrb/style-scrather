@@ -1,4 +1,4 @@
-// Style Scratcher v3.0.1 - Content Script Orchestrator
+// Style Scratcher v3.0.2 - Content Script Orchestrator
 
 (function () {
   // Prevent multiple injections
@@ -84,7 +84,7 @@
     // 4. Attach Window/Document Listeners
     attachEventListeners();
 
-    console.log('[Style Scratcher v3.0.1] Initialized with Golden Ratio (1.618) Typography, Live Asset Editor, Sensory Color Suite, Precision Cursor, and Safe Mode.');
+    console.log('[Style Scratcher v3.0.2] Initialized with Connection Guardian, Golden Ratio (1.618) Typography, Live Asset Editor, Sensory Color Suite, Precision Cursor, and Safe Mode.');
   }
 
   function toggleInspector(state) {

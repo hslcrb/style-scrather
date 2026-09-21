@@ -121,6 +121,20 @@ body {
   margin: -2px 0;
 }
 
+/* Restricted Warning Banner */
+.restricted-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: #FEF3C7;
+  border: 1px solid #FDE68A;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: var(--gr-font-caption, 10px);
+  line-height: var(--gr-leading-golden, 1.618);
+  color: #92400E;
+}
+
 /* Action Section */
 .action-section {
   display: flex;

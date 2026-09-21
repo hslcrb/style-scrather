@@ -1,19 +1,19 @@
-// Style Scratcher v3.0.1 - Automated Verification Test Suite
+// Style Scratcher v3.0.2 - Automated Verification Test Suite
 
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const vm = require('vm');
 
-console.log('🧪 [Style Scratcher v3.0.1] Running Comprehensive Verification Test Suite...\n');
+console.log('🧪 [Style Scratcher v3.0.2] Running Comprehensive Verification Test Suite...\n');
 
-// 1. Verify Manifest V3 & Version 3.0.1
-console.log('1. Verifying manifest.json v3.0.1...');
+// 1. Verify Manifest V3 & Version 3.0.2
+console.log('1. Verifying manifest.json v3.0.2...');
 const manifestPath = path.join(__dirname, '..', 'manifest.json');
 assert(fs.existsSync(manifestPath), 'manifest.json must exist');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 assert.strictEqual(manifest.manifest_version, 3, 'Manifest version must be 3');
-assert.strictEqual(manifest.version, '3.0.1', 'Extension version must be 3.0.1');
+assert.strictEqual(manifest.version, '3.0.2', 'Extension version must be 3.0.2');
 assert(manifest.action && manifest.action.default_popup, 'Popup must be declared');
 assert(manifest.content_scripts && manifest.content_scripts.length > 0, 'Content scripts must be declared');
 const scripts = manifest.content_scripts[0].js;
@@ -21,7 +21,7 @@ assert(scripts.includes('content/color-suite.js'), 'color-suite.js must be in ma
 assert(scripts.includes('content/asset-editor.js'), 'asset-editor.js must be in manifest');
 assert(scripts.includes('content/precision-cursor.js'), 'precision-cursor.js must be in manifest');
 assert(scripts.includes('content/instant-zoom.js'), 'instant-zoom.js must be in manifest');
-console.log('   ✅ manifest.json is valid Manifest V3 (v3.0.1) with all content scripts.\n');
+console.log('   ✅ manifest.json is valid Manifest V3 (v3.0.2) with all content scripts.\n');
 
 // 2. Test ColorSuite (EyeDropper, WCAG Contrast Ratio, Color Presets)
 console.log('2. Testing ColorSuite (Sensory Contrast & Color Engine)...');
@@ -254,17 +254,26 @@ assert(shadowCss.includes('--gr-font-title: 17.8px'), 'Golden Ratio title step m
 const popupCss = fs.readFileSync(path.join(__dirname, '..', 'popup', 'popup.css'), 'utf8');
 assert(popupCss.includes('--golden-ratio: 1.618'), 'popup.css must declare --golden-ratio: 1.618');
 
+// Check Popup Connection Guardian & Auto-Injector
+const popupJs = fs.readFileSync(path.join(__dirname, '..', 'popup', 'popup.js'), 'utf8');
+assert(popupJs.includes('isRestrictedUrl'), 'popup.js must contain isRestrictedUrl security checker');
+assert(popupJs.includes('ensureInjected'), 'popup.js must contain ensureInjected auto-injector');
+assert(popupJs.includes('CONTENT_SCRIPTS'), 'popup.js must declare complete CONTENT_SCRIPTS dependency array');
+
+const serviceWorkerJs = fs.readFileSync(path.join(__dirname, '..', 'background', 'service-worker.js'), 'utf8');
+assert(serviceWorkerJs.includes('executeScript'), 'service-worker.js must support dynamic auto-injection fallback');
+
 assert(!shadowCss.includes('border-radius: 9999px'), 'Must not contain full capsule 9999px button radius');
 assert(shadowCss.includes('border-radius: 6px') || shadowCss.includes('--radius-sm: 6px'), 'Must strictly maintain 6px-8px radius');
 
 const overlayCode = fs.readFileSync(path.join(__dirname, '..', 'content', 'overlay-canvas.js'), 'utf8');
 assert(overlayCode.includes("'font-size', '12px'"), 'Overlay badges must have enlarged 12px font for readability');
 assert(overlayCode.includes("'font-weight', '700'"), 'Overlay badges must have 700 bold weight');
-console.log('   ✅ Golden Ratio 1.618 typography system, non-pill radius, and 12px/700 badges verified.\n');
+console.log('   ✅ Golden Ratio 1.618 typography system, Connection Guardian, and 12px/700 badges verified.\n');
 
-// 8. Project Files Completeness for v3.0.1
-console.log('8. Verifying File Completeness for v3.0.1...');
-const v31Files = [
+// 8. Project Files Completeness for v3.0.2
+console.log('8. Verifying File Completeness for v3.0.2...');
+const v32Files = [
   'manifest.json',
   'content/color-suite.js',
   'content/asset-editor.js',
@@ -284,15 +293,19 @@ const v31Files = [
   'content/components/floating-dock.js',
   'content/styles/shadow-styles.css',
   'content/content.js',
+  'background/service-worker.js',
+  'popup/popup.js',
+  'popup/popup.html',
+  'popup/popup.css',
   'demo/index.html',
   'README.md',
   'LICENSE'
 ];
 
-v31Files.forEach(rel => {
+v32Files.forEach(rel => {
   const full = path.join(__dirname, '..', rel);
   assert(fs.existsSync(full), `File ${rel} must exist`);
   console.log(`   ✅ Found ${rel}`);
 });
 
-console.log('\n🎉 ALL 8 VERIFICATION TEST PHASES FOR v3.0.1 PASSED BRILLIANTLY!');
+console.log('\n🎉 ALL 8 VERIFICATION TEST PHASES FOR v3.0.2 PASSED BRILLIANTLY!');

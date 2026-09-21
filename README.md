@@ -1,4 +1,4 @@
-# Style Scratcher (스타일 스크래처) v3.0.1
+# Style Scratcher (스타일 스크래처) v3.0.2
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-success.svg)](#)
-[![Version](https://img.shields.io/badge/Version-v3.0.1-blueviolet.svg)](#)
+[![Version](https://img.shields.io/badge/Version-v3.0.2-blueviolet.svg)](#)
 [![Design](https://img.shields.io/badge/Design-White%20Minimal%20Studio-black.svg)](#)
 [![Typography](https://img.shields.io/badge/Typography-Golden%20Ratio%201.618-gold.svg)](#)
 
@@ -26,20 +26,33 @@
 Style Scratcher는 표준 3자리 버전 체계(`Major.Minor.Patch`)를 엄격히 준수합니다.
 - **Major (첫 번째 자리)**: 아키텍처 및 핵심 패러다임이 바뀌는 대규모 메이저 릴리즈 (v3.0.0)
 - **Minor (두 번째 자리)**: 핵심 신규 기능 및 주요 사용자 경험 확장
-- **Patch (세 번째 자리)**: 디자인 정밀 튜닝, 미세 최적화 및 패치 (v3.0.1)
+- **Patch (세 번째 자리)**: 안정성 강화, 연결 가디언 및 타이포그래피 정밀 패치 (v3.0.2)
 
 ---
 
-## 📐 v3.0.1 패치: 황금비율 (Golden Ratio φ = 1.618) 모듈러 타이포그래피 위계
+## 🛡️ v3.0.2 패치: 연결 가디언 & 동적 자동 인젝션 (Connection Guardian)
 
-v3.0.1 패치에서는 르네상스 고전 건축과 애플/피그마 디자인 시스템의 근간인 **황금비율($\phi \approx 1.618034$) 모듈러 스케일**을 플로팅 독과 팝업 전체 UI에 전격 도입하여 시각적 위계의 균형감과 가독성을 극대화했습니다.
+Chrome 확장 프로그램을 재로드하거나 새로 설치했을 때, 기존에 열려 있던 탭에서 팝업을 열면 발생하던 대표적 오류인 **`Could not establish connection. Receiving end does not exist`** 문제를 원천 해결했습니다:
+
+1. **사전 열린 탭 동적 자동 인젝션 (Dynamic Auto-Injection)**:
+   - 사용자가 페이지를 일일이 새로고침하지 않아도, 팝업에서 인스펙터를 켜거나 <kbd>Alt</kbd>+<kbd>S</kbd>를 누르면 `chrome.scripting.executeScript`를 통해 17개의 핵심 콘텐츠 스크립트 의존성을 탭에 실시간 주입하고 즉각 통신을 연결합니다.
+2. **보안 정책 제한 페이지 자동 탐지 (Restricted URL Guardian)**:
+   - Chrome 내부 페이지(`chrome://extensions`, `chrome://newtab`, 웹스토어 등)에서는 보안 정책상 콘텐츠 스크립트가 실행될 수 없습니다. 이를 사전에 감지하여 팝업 내에 부드러운 안내 경고 배너를 띄우고 불필요한 콘솔 오류 발생을 차단합니다.
+3. **무결점 에러 핸들링**:
+   - 백그라운드 서비스 워커 및 팝업 간의 모든 통신 단계에 이중 안전장치를 마련하여 탭이 닫히거나 언로드된 상태에서도 크래시 없이 견고하게 동작합니다.
+
+---
+
+## 📐 황금비율 (Golden Ratio φ = 1.618) 모듈러 타이포그래피 위계
+
+르네상스 고전 건축과 애플/피그마 디자인 시스템의 근간인 **황금비율($\phi \approx 1.618034$) 모듈러 스케일**을 플로팅 독과 팝업 전체 UI에 적용하여 시각적 위계의 균형감과 가독성을 극대화했습니다.
 
 ### 1. 기하학적 모듈러 스케일 구조 (Geometric Progression)
 기본 단위 $f_0 = 11\text{px}$을 중심으로, 한 단계 격차로 인한 급격한 폰트 점프를 방지하고자 황금비율의 기하평균 제곱근 $\sqrt{\phi} \approx 1.27202$ ($1.27202 \times 1.27202 = 1.61803$)를 하프스텝 승수로 활용한 정밀 스케일을 구축했습니다:
 
 | 스케일 레벨 | 수식 단계 | 계산 크기 | 실제 적용 UI 구성 요소 |
 | :--- | :--- | :--- | :--- |
-| **Micro (Level -1)** | $11 / 1.272$ | **`8.65px`** | 독 버전 뱃지, 미세 메타데이터 라벨 |
+| **Micro (Level -1)** | $11 / 1.272$ | **`8.65px`** | 독 버전 뱃지(`v3.0.2`), 미세 메타데이터 라벨 |
 | **Caption (Level -0.5)** | $11 / 1.100$ | **`10px`** | 안내 설명문, 안전 모드 설명, 빈 상태 설명 |
 | **Base (Level 0)** | $11\text{px}$ 기준 | **`11px`** | 탭 네비게이션 버튼, 단위 칩, 기본 본문 |
 | **Body (Level +0.5)** | $11 \times 1.136$ | **`12.5px`** | 설정 컨트롤 라벨, 텍스트 에어리어 본문 |
@@ -103,7 +116,7 @@ v3.0.1 패치에서는 르네상스 고전 건축과 애플/피그마 디자인 
 ## 🚀 Chrome 브라우저 설치 및 사용법 (Installation Guide)
 
 ### 방법 1. 릴리즈 ZIP 파일로 설치 (가장 추천)
-1. 본 리포지토리의 [Releases](https://github.com/hslcrb/style-scrather/releases) 페이지에서 최신 `style-scrather-v3.0.1.zip` 파일을 다운로드합니다.
+1. 본 리포지토리의 [Releases](https://github.com/hslcrb/style-scrather/releases) 페이지에서 최신 `style-scrather-v3.0.2.zip` 파일을 다운로드합니다.
 2. 다운로드한 ZIP 파일의 압축을 해제합니다.
 3. Chrome 브라우저 주소창에 `chrome://extensions` 를 입력하고 이동합니다.
 4. 우측 상단의 **'개발자 모드(Developer mode)'** 토글 스위치를 켭니다.
@@ -127,7 +140,7 @@ cd style-scrather
 
 | 단축키 / 동작 | 기능 설명 |
 | :--- | :--- |
-| <kbd>Alt</kbd> + <kbd>S</kbd> | **Style Scratcher 인스펙터 켜기 / 끄기 토글** |
+| <kbd>Alt</kbd> + <kbd>S</kbd> | **Style Scratcher 인스펙터 켜기 / 끄기 토글** (미주입 탭 자동 인젝션) |
 | <kbd>Alt</kbd> + <kbd>C</kbd> | **정밀 십자선 커서 & (X, Y) 실시간 좌표 가이드 토글** |
 | <kbd>Z</kbd> **(꾹 누름)** | **인스턴트 줌인** (마우스 커서 중심 520ms 줌인, 손 떼면 200ms 쾌속 줌아웃) |
 | <kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd> | **브라우저 노멀 줌** (표준 브라우저 레이아웃 확대/축소) |
