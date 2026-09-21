@@ -1,4 +1,4 @@
-// Style Scratcher v4.0.2. - Background Service Worker (Manifest V3)
+// Style Scratcher v4.0.3. - Background Service Worker (Manifest V3)
 
 const CONTENT_SCRIPTS = [
   'content/event-interceptor.js',
@@ -29,7 +29,7 @@ const CONTENT_SCRIPTS = [
 ];
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('[Style Scratcher v4.0.2.] Extension installed successfully.');
+  console.log('[Style Scratcher v4.0.3.] Extension installed successfully.');
 });
 
 // Command shortcut listener (e.g. Alt+S)
@@ -62,7 +62,32 @@ chrome.commands.onCommand.addListener(async (command) => {
 // Listen for messages from popup or content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'GET_STATUS') {
-    sendResponse({ success: true, version: '4.0.2', displayVersion: 'v4.0.2.' });
+    sendResponse({ success: true, version: '4.0.3', displayVersion: 'v4.0.3.' });
+    return true;
   }
+
+  // Background CORS-free font resource fetcher
+  if (message.type === 'FETCH_FONT_BUFFER') {
+    fetch(message.url)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          sendResponse({ success: true, dataUrl: reader.result, size: blob.size });
+        };
+        reader.onerror = () => {
+          sendResponse({ success: false, error: 'Failed to convert font blob to DataURL' });
+        };
+        reader.readAsDataURL(blob);
+      })
+      .catch(err => {
+        sendResponse({ success: false, error: err.message });
+      });
+    return true; // async response
+  }
+
   return true;
 });

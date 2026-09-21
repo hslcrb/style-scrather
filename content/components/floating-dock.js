@@ -1,4 +1,4 @@
-// Style Scratcher v4.0.2. - Floating Dock Component (White Minimal Studio UI)
+// Style Scratcher v4.0.3. - Floating Dock Component (White Minimal Studio UI)
 
 class FloatingDock {
   constructor(shadowRoot, options = {}) {
@@ -19,7 +19,7 @@ class FloatingDock {
     this.tabOrderVisualizer = options.tabOrderVisualizer || (typeof TabOrderVisualizer !== 'undefined' ? new TabOrderVisualizer(this.shadowRoot) : null);
     this.shortcutManager = options.shortcutManager || (typeof ShortcutManager !== 'undefined' ? new ShortcutManager() : null);
     this.reactExporter = options.reactExporter || (typeof ReactExporter !== 'undefined' ? ReactExporter : null);
-    this.updateGuardian = options.updateGuardian || (typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion: '4.0.2' }) : null);
+    this.updateGuardian = options.updateGuardian || (typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion: '4.0.3' }) : null);
 
     this.isSafeMode = options.isSafeMode !== undefined ? options.isSafeMode : true;
     this.onToggleSafeMode = options.onToggleSafeMode || (() => {});
@@ -52,7 +52,7 @@ class FloatingDock {
             </svg>
           </div>
           <span class="dock-title">Style Scratcher</span>
-          <span class="dock-badge">v4.0.2.</span>
+          <span class="dock-badge">v4.0.3.</span>
         </div>
 
         <!-- Mode Switcher (Inspect vs Edit Studio) -->
@@ -852,15 +852,26 @@ class FloatingDock {
             <textarea class="live-text-area" id="fontStudioTextArea" placeholder="선택된 요소의 텍스트를 실시간으로 변경하세요...">${textContent}</textarea>
           </div>
 
-          <!-- 4. Text Outlining (SVG Vector Conversion) -->
-          <button class="btn-secondary-action" id="btnCreateOutlines" style="margin-top: 4px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-              <polyline points="2 17 12 22 22 17"></polyline>
-              <polyline points="2 12 12 17 22 12"></polyline>
-            </svg>
-            텍스트 아웃라인화 (Create Outlines) SVG 복사
-          </button>
+          <!-- 4. Text Outlining (True Vector SVG Path Conversion) -->
+          <div style="display: flex; gap: 6px; margin-top: 6px;">
+            <button class="btn-secondary-action" id="btnCreateOutlines" style="flex: 1; margin: 0;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+              </svg>
+              벡터 아웃라인 복사
+            </button>
+            <button class="btn-secondary-action" id="btnDownloadOutlineSvg" style="padding: 0 10px; margin: 0;" title="SVG 파일로 다운로드">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              다운로드
+            </button>
+          </div>
+          <div style="font-size: 9.5px; color: #64748B; margin-top: 3px;">피그마·일러스트레이터용 순수 곡선 패스(Curves) 추출 (폰트 미설치 시에도 100% 보존)</div>
         ` : `
           <div class="empty-state">
             <div class="empty-title">텍스트 요소를 선택하세요</div>
@@ -870,31 +881,41 @@ class FloatingDock {
 
         <div class="hud-divider" style="margin: 8px 0;"></div>
 
-        <!-- 5. WebFont Extractor -->
+        <!-- 5. Real WebFont Extractor & Downloader -->
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span class="section-title" style="margin: 0;">웹폰트 (@font-face) 추출</span>
+          <span class="section-title" style="margin: 0;">웹폰트 (@font-face) 바이너리 추출</span>
           <button class="section-reset-btn" id="btnExtractWebFonts">폰트 스캔</button>
         </div>
-        <div id="webFontsList" style="display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto;">
-          <div style="font-size: 10px; color: #94A3B8; text-align: center; padding: 8px;">'폰트 스캔'을 누르면 페이지에 로드된 @font-face 소스를 추출합니다.</div>
+        <div id="webFontsList" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
+          <div style="font-size: 10px; color: #94A3B8; text-align: center; padding: 8px;">'폰트 스캔'을 누르면 페이지에 로드된 @font-face 소스와 원본 폰트 파일을 추출합니다.</div>
         </div>
 
-        <!-- 6. Parallel Non-Blocking Glyph Harvester -->
+        <!-- 6. Parallel Non-Blocking Glyph Harvester & SVG Font Builder -->
         <div class="glyph-harvest-box">
           <div style="display: flex; align-items: center; justify-content: space-between;">
             <span style="font-size: 11px; font-weight: 700; color: #1E293B;">병렬 백그라운드 글리프 수확기</span>
             <span class="dock-badge" id="glyphStatusBadge">대기 중</span>
           </div>
-          <div style="font-size: 10px; color: #64748B;">글리프 제한 웹폰트 시 한글·라틴·특수문자 전 음절을 렉 없이 병렬 스캔</div>
+          <div style="font-size: 10px; color: #64748B;">글리프 지원 여부(한글·라틴·기호) 실측 및 W3C SVG 폰트 파일 재구성</div>
           <div class="glyph-progress-bar-container">
             <div class="glyph-progress-bar-fill" id="glyphProgressBar"></div>
           </div>
-          <button class="btn-primary-action" id="btnStartHarvest">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-            병렬 글리프 수확 시작 (Non-blocking)
-          </button>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-primary-action" id="btnStartHarvest" style="flex: 1;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              병렬 글리프 실측 수확
+            </button>
+            <button class="btn-secondary-action" id="btnExportSvgFont" style="display: none; padding: 0 10px; font-size: 10px;" title="W3C SVG 폰트 파일 다운로드">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              .SVG 폰트 저장
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -925,13 +946,35 @@ class FloatingDock {
         this.overlayCanvas?.render();
       });
 
+      // Vector Outlines Copy
       container.querySelector('#btnCreateOutlines')?.addEventListener('click', () => {
         if (typeof FontStudio !== 'undefined') {
           const out = FontStudio.createTextOutlines(el);
           if (out && out.svg) {
             navigator.clipboard.writeText(out.svg).then(() => {
-              this.showToast('벡터 아웃라인 SVG가 클립보드에 복사되었습니다.');
+              this.showToast('트루 벡터 패스 SVG가 클립보드에 복사되었습니다. (피그마 즉시 붙여넣기 가능)');
             });
+          }
+        }
+      });
+
+      // Vector Outlines File Download
+      container.querySelector('#btnDownloadOutlineSvg')?.addEventListener('click', () => {
+        if (typeof FontStudio !== 'undefined') {
+          const out = FontStudio.createTextOutlines(el);
+          if (out && out.svg) {
+            const blob = new Blob([out.svg], { type: 'image/svg+xml;charset=utf-8' });
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = `outline_${(out.text || 'text').slice(0, 15).replace(/\s+/g, '_')}.svg`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              URL.revokeObjectURL(blobUrl);
+              a.remove();
+            }, 2000);
+            this.showToast('벡터 아웃라인 SVG 파일이 다운로드되었습니다.');
           }
         }
       });
@@ -939,7 +982,7 @@ class FloatingDock {
 
     container.querySelector('#btnExtractWebFonts')?.addEventListener('click', async () => {
       const list = container.querySelector('#webFontsList');
-      list.innerHTML = `<div style="text-align: center; color: #E11D48; font-size: 10px; padding: 6px;">웹폰트 스캔 중...</div>`;
+      list.innerHTML = `<div style="text-align: center; color: #E11D48; font-size: 10px; padding: 6px;">웹폰트 바이너리 스캔 중...</div>`;
       if (typeof FontStudio !== 'undefined') {
         const fonts = await FontStudio.extractWebFonts();
         if (!fonts || fonts.length === 0) {
@@ -947,39 +990,80 @@ class FloatingDock {
           return;
         }
         list.innerHTML = fonts.map((f, i) => `
-          <div style="display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 5px 8px;">
-            <div>
-              <span style="font-size: 11px; font-weight: 700; color: #0F172A;">${f.family}</span>
-              <span style="font-size: 9.5px; color: #64748B;">(${f.weight} / ${f.style})</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 5px 8px; gap: 6px;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 11px; font-weight: 700; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${f.family}</div>
+              <div style="font-size: 9px; color: #64748B;">${f.weight} / ${f.style} • <span style="color: #E11D48; font-weight: 600;">${(f.format || 'woff2').toUpperCase()}</span></div>
             </div>
-            ${f.url ? `<button class="copy-mini-btn" data-url="${f.url}" style="font-size: 9.5px;">URL 복사</button>` : '<span style="font-size: 9px; color: #10B981;">내장됨</span>'}
+            <div style="display: flex; gap: 4px;">
+              ${f.url ? `
+                <button class="copy-mini-btn" data-url="${f.url}" style="font-size: 9px; padding: 3px 6px;">URL</button>
+                <button class="download-font-btn" data-url="${f.url}" data-family="${f.family}" data-weight="${f.weight}" style="font-size: 9px; padding: 3px 6px; background: #FFF1F2; border: 1px solid #FECDD3; color: #E11D48; border-radius: 4px; cursor: pointer; font-weight: 600;">다운로드</button>
+              ` : '<span style="font-size: 9px; color: #10B981; padding: 2px 4px;">내장됨</span>'}
+            </div>
           </div>
         `).join('');
 
-        list.querySelectorAll('[data-url]').forEach(btn => {
+        // URL Copy
+        list.querySelectorAll('[data-url].copy-mini-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             navigator.clipboard.writeText(btn.dataset.url).then(() => this.showToast('폰트 URL이 복사되었습니다.'));
           });
         });
+
+        // Binary Font Download
+        list.querySelectorAll('.download-font-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const { url, family, weight } = btn.dataset;
+            btn.disabled = true;
+            btn.textContent = '받는 중...';
+            try {
+              const res = await FontStudio.downloadFontFile(url, family, weight);
+              this.showToast(`'${res.filename}' 폰트 파일이 다운로드되었습니다.`);
+            } catch (err) {
+              this.showToast(`다운로드 실패: ${err.message}`);
+            } finally {
+              btn.disabled = false;
+              btn.textContent = '다운로드';
+            }
+          });
+        });
       }
     });
+
+    let lastHarvestResult = null;
+    const btnExportSvg = container.querySelector('#btnExportSvgFont');
 
     container.querySelector('#btnStartHarvest')?.addEventListener('click', async () => {
       const progressBar = container.querySelector('#glyphProgressBar');
       const statusBadge = container.querySelector('#glyphStatusBadge');
       const btnHarvest = container.querySelector('#btnStartHarvest');
       btnHarvest.disabled = true;
-      btnHarvest.textContent = '수확 진행 중...';
+      btnHarvest.textContent = '실측 진행 중...';
 
       if (typeof FontStudio !== 'undefined') {
-        await FontStudio.harvestGlyphs(currentFamily, (percent, done, total) => {
+        lastHarvestResult = await FontStudio.harvestGlyphs(currentFamily, (percent, done, total) => {
           progressBar.style.width = `${percent}%`;
           statusBadge.textContent = `${percent}% (${done}/${total})`;
         });
-        statusBadge.textContent = '수확 완료';
+
+        statusBadge.textContent = `${lastHarvestResult.coveragePct}% (${lastHarvestResult.supportedCount}/${lastHarvestResult.totalGlyphs})`;
+        statusBadge.style.color = lastHarvestResult.coveragePct >= 90 ? '#10B981' : '#E11D48';
         btnHarvest.disabled = false;
-        btnHarvest.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 병렬 글리프 수확 완료 (재실행 가능)';
-        this.showToast('모든 글리프 음절 병렬 조사가 완료되었습니다.');
+        btnHarvest.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 실측 완료 (재실행)';
+
+        if (btnExportSvg) {
+          btnExportSvg.style.display = 'inline-flex';
+        }
+
+        this.showToast(`글리프 실측 완료: ${lastHarvestResult.totalGlyphs}개 중 ${lastHarvestResult.supportedCount}개 지원 (${lastHarvestResult.coveragePct}%)`);
+      }
+    });
+
+    btnExportSvg?.addEventListener('click', () => {
+      if (lastHarvestResult && typeof FontStudio !== 'undefined') {
+        const res = FontStudio.downloadSvgFont(currentFamily, lastHarvestResult.glyphs);
+        this.showToast(`'${res.filename}' W3C SVG 폰트가 다운로드되었습니다.`);
       }
     });
   }
@@ -1879,8 +1963,8 @@ class FloatingDock {
       toggleTabOrder: 'W3C 탭 순서 시각화 토글 (Alt + T)'
     };
 
-    const curVer = this.updateGuardian ? this.updateGuardian.currentVersion : '4.0.2';
-    const curDisplayVer = typeof UpdateGuardian !== 'undefined' ? UpdateGuardian.formatDisplayVersion(curVer) : 'v4.0.2.';
+    const curVer = this.updateGuardian ? this.updateGuardian.currentVersion : '4.0.3';
+    const curDisplayVer = typeof UpdateGuardian !== 'undefined' ? UpdateGuardian.formatDisplayVersion(curVer) : 'v4.0.3.';
 
     container.innerHTML = `
       <div style="display: flex; flex-direction: column; gap: 12px;">
@@ -1935,7 +2019,7 @@ class FloatingDock {
           <div id="settingsUpdateBox" style="display: none; background: #FFF1F2; border: 1px solid #FECDD3; border-radius: 6px; padding: 10px; flex-direction: column; gap: 6px;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <span style="font-size: 11px; font-weight: 700; color: #9F1239;" id="settingsNewVerTitle">새 버전 발견</span>
-              <span class="dock-badge" id="settingsNewVerBadge" style="background: #E11D48; color: #fff;">v4.0.2.</span>
+              <span class="dock-badge" id="settingsNewVerBadge" style="background: #E11D48; color: #fff;">v4.0.3.</span>
             </div>
             <p style="font-size: 10.5px; color: #475569;" id="settingsNewVerNotes">새로운 기능과 안정성 개선이 포함되어 있습니다.</p>
             <button class="btn-primary-action" id="btnOneClickUpdate" style="height: 32px; font-size: 11px; background: #E11D48;">
