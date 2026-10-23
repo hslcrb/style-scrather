@@ -36,7 +36,7 @@ async function main() {
     const send = message => worker.evaluate(async ({ id, message }) => chrome.tabs.sendMessage(id, message), { id: tab.id, message });
     const inspect = async (action, value) => {
       const results = await worker.evaluate(async ({ id, action, value }) => chrome.scripting.executeScript({
-        target: { tabId: id }, args: [action, value],
+        target: { tabId: id }, args: [action, value ?? null],
         func: (action, value) => {
           const app = window.StyleScratcher;
           if (action === 'selected') return app.getTweaker()?.getElement()?.id;
