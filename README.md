@@ -6,7 +6,7 @@
   <p><a href="LICENSE">Apache-2.0</a> · Manifest V3 · v4.1.0. preview · Runtime dependencies: 0</p>
 </div>
 
-![Style Scratcher brand](icons/social-card.svg)
+![Style Scratcher 실제 스튜디오](docs/assets/studio-desktop.png)
 
 **Style Scratcher**는 웹 페이지의 요소를 관찰하고 CSS를 조정하며, 발견한 색상과 코드를 다음 작업으로 가져오는 Chrome 확장 프로그램입니다. 필요할 때 켜고, 작업을 마치면 페이지에 대한 제어를 돌려줍니다.
 
