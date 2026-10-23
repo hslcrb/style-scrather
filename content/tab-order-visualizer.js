@@ -56,16 +56,34 @@ class TabOrderVisualizer {
       '[contenteditable="true"]'
     ].join(',');
 
-    const all = Array.from(document.querySelectorAll(selector));
+    const all = [];
+    this.isTruncated = false;
+    if (document.createTreeWalker) {
+      const walker = document.createTreeWalker(document.body || document.documentElement, 1);
+      let visited = 0;
+      while (visited < 5000 && all.length < 250) {
+        const el = walker.nextNode();
+        if (!el) break;
+        visited++;
+        if (el.matches(selector) && !el.matches(':disabled') && !el.closest?.('[inert]')) all.push(el);
+      }
+      this.isTruncated = visited >= 5000 || all.length >= 250;
+    } else {
+      // Compatibility with lightweight standalone document implementations.
+      const candidates = document.querySelectorAll(selector);
+      for (let i = 0; i < Math.min(candidates.length, 250); i++) all.push(candidates[i]);
+      this.isTruncated = candidates.length > 250;
+    }
     const host = document.getElementById('style-scratcher-host');
 
     // Filter out hidden, zero-sized elements or elements inside Style Scratcher host
     const visible = all.filter(el => {
       if (host && (el === host || host.contains(el))) return false;
+      if (el.matches?.(':disabled') || el.closest?.('[inert]')) return false;
       const rect = el.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return false;
       const style = window.getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+      if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse') return false;
       return true;
     });
 

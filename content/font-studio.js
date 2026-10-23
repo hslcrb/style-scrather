@@ -127,7 +127,7 @@ class FontStudio {
               let absoluteUrl = primaryUrl;
               if (primaryUrl && !primaryUrl.startsWith('data:') && !primaryUrl.startsWith('http')) {
                 try {
-                  absoluteUrl = new URL(primaryUrl, document.baseURI || window.location.href).href;
+                  absoluteUrl = new URL(primaryUrl, sheet.href || document.baseURI || window.location.href).href;
                 } catch (e) {
                   absoluteUrl = primaryUrl;
                 }

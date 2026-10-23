@@ -59,49 +59,56 @@ class PaletteExtractor {
       }
     };
 
-    // 1. Scan DOM elements
-    const elements = document.querySelectorAll('body *:not([data-style-scratcher])');
-    const sampleSize = Math.min(elements.length, 300); // sampling for performance
-
-    for (let i = 0; i < sampleSize; i++) {
-      const el = elements[i];
-      // Skip hidden elements or scratcher elements
-      if (el.offsetParent === null && el.tagName !== 'BODY') continue;
-
-      try {
-        const computed = window.getComputedStyle(el);
-        addColor(computed.backgroundColor);
-        addColor(computed.color);
-        addColor(computed.borderTopColor);
-        addFont(computed.fontFamily);
-      } catch (e) {
-        // ignore detached or inaccessible nodes
+    // Sample without creating a NodeList for the entire page.
+    const root = document.body || document.documentElement;
+    let scannedElements = 0;
+    let sampledElements = 0;
+    let scannedRules = 0;
+    let cssCharacters = 0;
+    let truncated = false;
+    if (root) {
+      const walker = document.createTreeWalker(root, 1 /* SHOW_ELEMENT */);
+      while (scannedElements < 2000 && sampledElements < 300) {
+        const el = walker.nextNode();
+        if (!el) break;
+        scannedElements++;
+        if (el.closest?.('[data-style-scratcher]')) continue;
+        if (el.offsetParent === null && el.tagName !== 'BODY') continue;
+        try {
+          const computed = window.getComputedStyle(el);
+          addColor(computed.backgroundColor);
+          addColor(computed.color);
+          addColor(computed.borderTopColor);
+          addFont(computed.fontFamily);
+          sampledElements++;
+        } catch {}
       }
+      truncated = scannedElements >= 2000 || sampledElements >= 300;
     }
 
-    // 2. Scan Stylesheet text for color patterns (#hex, rgb)
-    const sheets = Array.from(document.styleSheets);
-    sheets.forEach(sheet => {
+    // CSS can contain enormous generated rule sets; cap both count and text.
+    const sheets = document.styleSheets || [];
+    for (let s = 0; s < Math.min(sheets.length, 100); s++) {
+      if (scannedRules >= 2000 || cssCharacters >= 200000) { truncated = true; break; }
       try {
-        if (!sheet.cssRules) return;
-        const rules = Array.from(sheet.cssRules);
-        rules.forEach(rule => {
-          if (!rule.cssText) return;
-          const hexMatches = rule.cssText.match(/#[0-9a-fA-F]{3,6}\b/g);
-          if (hexMatches) {
-            hexMatches.forEach(h => {
-              let norm = h.toUpperCase();
-              if (norm.length === 4) {
-                norm = `#${norm[1]}${norm[1]}${norm[2]}${norm[2]}${norm[3]}${norm[3]}`;
-              }
-              colorCounts.set(norm, (colorCounts.get(norm) || 0) + 1);
-            });
+        const rules = sheets[s].cssRules;
+        if (!rules) continue;
+        for (let r = 0; r < rules.length; r++) {
+          if (scannedRules >= 2000 || cssCharacters >= 200000) { truncated = true; break; }
+          scannedRules++;
+          const fullText = rules[r].cssText || '';
+          const text = fullText.slice(0, 200000 - cssCharacters);
+          if (text.length < fullText.length) truncated = true;
+          cssCharacters += text.length;
+          for (const hex of text.match(/#[0-9a-fA-F]{3,6}\b/g) || []) {
+            let norm = hex.toUpperCase();
+            if (norm.length === 4) norm = `#${norm[1]}${norm[1]}${norm[2]}${norm[2]}${norm[3]}${norm[3]}`;
+            colorCounts.set(norm, (colorCounts.get(norm) || 0) + 1);
           }
-        });
-      } catch (cors) {
-        // ignore cross-origin security errors
-      }
-    });
+        }
+      } catch {}
+    }
+    if (sheets.length > 100) truncated = true;
 
     // Format & Sort Colors
     const sortedColors = Array.from(colorCounts.entries())
@@ -124,7 +131,8 @@ class PaletteExtractor {
 
     return {
       colors: sortedColors,
-      fonts: sortedFonts
+      fonts: sortedFonts,
+      sampledElements, scannedElements, scannedRules, truncated
     };
   }
 }
