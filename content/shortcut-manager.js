@@ -1,5 +1,8 @@
 // Style Scratcher v4.0.0 - Shortcut Manager & Keybinding Customizer
 
+(function () {
+if (typeof window !== 'undefined' && window.ShortcutManager) return;
+
 class ShortcutManager {
   static DEFAULTS = {
     zoomIn: 'Alt+=',       // Alt + +
@@ -135,3 +138,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ShortcutManager;
 }
+})();

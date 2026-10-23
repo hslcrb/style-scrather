@@ -1,5 +1,8 @@
 // Style Scratcher v2.0 - Graphics & WebGL / Canvas / SVG Deep Inspector
 
+(function () {
+if (typeof window !== 'undefined' && window.GraphicsInspector) return;
+
 class GraphicsInspector {
   /**
    * Inspect a graphic element (canvas, svg, img, or video)
@@ -133,3 +136,4 @@ class GraphicsInspector {
 if (typeof window !== 'undefined') {
   window.GraphicsInspector = GraphicsInspector;
 }
+})();

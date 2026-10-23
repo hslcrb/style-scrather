@@ -1,11 +1,13 @@
-// Style Scratcher v4.0.3. - Content Script Orchestrator
+// Style Scratcher v4.1.0. - Content Script Orchestrator
 
 (function () {
   // Prevent multiple injections
   if (window.__STYLE_SCRATCHER_INITIALIZED__) return;
   window.__STYLE_SCRATCHER_INITIALIZED__ = true;
 
-  let isActive = true;
+  let isActive = false;
+  let isInitialized = false;
+  const activeListeners = [];
   let shadowRoot = null;
   let hostContainer = null;
   let overlayCanvas = null;
@@ -30,6 +32,7 @@
   let isSafeMode = true;
 
   function initStyleScratcher() {
+    if (isInitialized) return;
     // 1. Create Shadow DOM Host
     hostContainer = document.createElement('div');
     hostContainer.id = 'style-scratcher-host';
@@ -62,7 +65,7 @@
     interactionDetector = new InteractionDetector();
     pageController = new PageController();
     motionInspector = new MotionInspector();
-    instantZoom = typeof InstantZoom !== 'undefined' ? new InstantZoom() : null;
+    instantZoom = typeof InstantZoom !== 'undefined' ? new InstantZoom({ active: false, manageShortcuts: false }) : null;
     precisionCursor = typeof PrecisionCursor !== 'undefined' ? new PrecisionCursor(shadowRoot) : null;
 
     overlayCanvas = new OverlayCanvas(shadowRoot, unitConverter);
@@ -83,6 +86,10 @@
       }
     });
 
+    const currentVersion = typeof chrome !== 'undefined' && chrome.runtime?.getManifest
+      ? chrome.runtime.getManifest().version : '4.1.0';
+    updateGuardian = typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion }) : null;
+
     floatingDock = new FloatingDock(shadowRoot, {
       tweaker: styleTweaker,
       overlayCanvas: overlayCanvas,
@@ -98,7 +105,7 @@
       tabOrderVisualizer: tabOrderVisualizer,
       shortcutManager: shortcutManager,
       reactExporter: typeof ReactExporter !== 'undefined' ? ReactExporter : null,
-      updateGuardian: typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion: '4.0.3' }) : null,
+      updateGuardian: updateGuardian,
       isSafeMode: isSafeMode,
       onToggleSafeMode: (state) => {
         isSafeMode = state;
@@ -110,86 +117,130 @@
     // Smart Alternating Context Menu HUD (v4.0.0)
     if (typeof ContextHud !== 'undefined') {
       contextHud = new ContextHud(shadowRoot, (action, targetEl) => {
-        handleHudAction(action, targetEl);
+        return handleHudAction(action, targetEl);
       });
     }
 
-    // 4. Attach Window/Document Listeners
-    attachEventListeners();
+    isInitialized = true;
 
-    console.log('[Style Scratcher v4.0.3.] Initialized with True Vector Outliner, WebFont Downloader & SVG Font Builder.');
+    console.log('[Style Scratcher] Studio initialized on demand.');
   }
 
-  function handleHudAction(action, targetEl) {
-    if (!targetEl) return;
+  function selectElement(element) {
+    modeManager?.select(element);
+    styleTweaker.setElement(element);
+    overlayCanvas.setSelectedElement(element);
+    floatingDock?.updateElement();
+  }
 
-    if (action === 'inspect') {
-      modeManager?.setMode('inspect');
-      styleTweaker.setElement(targetEl);
-      overlayCanvas.setSelectedElement(targetEl);
-      floatingDock.switchTab('inspector');
-    } else if (action === 'edit') {
-      modeManager?.setMode('edit');
-      modeManager?.select(targetEl);
-      styleTweaker.setElement(targetEl);
-      overlayCanvas.setSelectedElement(targetEl);
-      floatingDock.switchTab('inspector');
-    } else if (action === 'font') {
-      styleTweaker.setElement(targetEl);
-      overlayCanvas.setSelectedElement(targetEl);
-      floatingDock.switchTab('fonts');
-    } else if (action === 'mockup') {
-      deviceMockup?.toggle(true);
-      floatingDock.switchTab('mockup');
-    } else if (action === 'taborder') {
-      tabOrderVisualizer?.toggle();
-    } else if (action === 'copyReact') {
-      if (typeof ReactExporter !== 'undefined') {
-        const jsx = ReactExporter.generateComponent(targetEl);
-        navigator.clipboard.writeText(jsx).then(() => {
-          floatingDock?.showToast('React JSX 컴포넌트가 복사되었습니다.');
-        });
-      }
-    } else if (action === 'copyCss') {
-      const comp = window.getComputedStyle(targetEl);
-      const css = `/* Style Scratcher CSS */\nwidth: ${comp.width};\nheight: ${comp.height};\ncolor: ${comp.color};\nbackground: ${comp.backgroundColor};`;
-      navigator.clipboard.writeText(css).then(() => {
-        floatingDock?.showToast('Clean CSS가 복사되었습니다.');
-      });
-    } else if (action === 'delete') {
-      if (modeManager?.removeElement(targetEl)) {
-        styleTweaker.setElement(null);
-        overlayCanvas.setSelectedElement(null);
+  async function copyText(text, message) {
+    if (!navigator.clipboard?.writeText) throw new Error('이 페이지에서 클립보드를 사용할 수 없습니다.');
+    await navigator.clipboard.writeText(text);
+    floatingDock?.showToast(message);
+  }
+
+  async function handleHudAction(action, targetEl) {
+    if (!isActive || !targetEl) return;
+    const aliases = { 'copy-react': 'copyReact', 'copy-css': 'copyCss' };
+    action = aliases[action] || action;
+    try {
+      if (action === 'inspect' || action === 'edit') {
+        modeManager?.setMode(action);
+        selectElement(targetEl);
+        floatingDock.switchTab('inspector');
+      } else if (action === 'font') {
+        selectElement(targetEl);
+        floatingDock.switchTab('fonts');
+      } else if (action === 'mockup') {
+        deviceMockup?.toggle(true);
+        floatingDock.switchTab('mockup');
+      } else if (action === 'taborder') {
+        tabOrderVisualizer?.toggle();
+      } else if (action === 'copyReact') {
+        await copyText(ReactExporter.generateComponent(targetEl), 'React JSX 컴포넌트가 복사되었습니다.');
+      } else if (action === 'copyCss') {
+        const comp = window.getComputedStyle(targetEl);
+        const css = `/* Style Scratcher CSS */\nwidth: ${comp.width};\nheight: ${comp.height};\ncolor: ${comp.color};\nbackground: ${comp.backgroundColor};`;
+        await copyText(css, 'CSS가 복사되었습니다.');
+      } else if (action === 'copy-tailwind') {
+        await copyText(TailwindConverter.convert(targetEl).tailwind, 'Tailwind CSS가 복사되었습니다.');
+      } else if (action === 'outlines') {
+        const output = FontStudio.createTextOutlines(targetEl);
+        if (!output?.svg) throw new Error('아웃라인으로 변환할 텍스트가 없습니다.');
+        await copyText(output.svg, '텍스트 아웃라인 SVG가 복사되었습니다.');
+      } else if (action === 'edit-text') {
+        modeManager?.setMode('edit');
+        selectElement(targetEl);
+        const editable = AssetEditor.toggleContentEditable(targetEl);
+        floatingDock.switchTab('assets');
+        floatingDock.showToast(editable ? '직접 타이핑 모드가 켜졌습니다.' : '직접 타이핑 모드가 꺼졌습니다.');
+      } else if (action === 'download-asset') {
+        if (!await ReactExporter.downloadAsset(targetEl)) throw new Error('다운로드할 이미지나 SVG를 찾지 못했습니다.');
+      } else if (action === 'move-up' || action === 'move-down') {
+        const moved = action === 'move-up' ? modeManager?.moveUp(targetEl) : modeManager?.moveDown(targetEl);
+        if (moved) selectElement(targetEl);
+      } else if (action === 'duplicate') {
+        const clone = modeManager?.duplicate(targetEl);
+        if (clone) selectElement(clone);
+      } else if (action === 'delete' && modeManager?.removeElement(targetEl)) {
+        selectElement(null);
         floatingDock?.showToast('요소가 삭제되었습니다.');
-        floatingDock?.updateElement();
       }
+    } catch (error) {
+      floatingDock?.showToast(`작업 실패: ${error.message}`);
     }
   }
 
   function toggleInspector(state) {
-    isActive = state !== undefined ? state : !isActive;
+    const next = state !== undefined ? !!state : !isActive;
+    if (next === isActive) return isActive;
+    if (next) initStyleScratcher();
+    isActive = next;
+    window.__STYLE_SCRATCHER_SET_INTERCEPTION__?.(isActive);
+    overlayCanvas?.setActive?.(isActive);
+    instantZoom?.setActive?.(isActive);
+    contextHud?.setActive?.(isActive);
+    floatingDock?.setActive?.(isActive);
     if (!isActive) {
-      overlayCanvas.clear();
+      activeListeners.splice(0).forEach(({ type, listener, options }) => {
+        window.removeEventListener(type, listener, options);
+      });
+      isAltPressed = false;
+      precisionCursor?.toggle(false);
+      tabOrderVisualizer?.toggle(false);
+      deviceMockup?.toggle(false);
+      pageController?.toggleFreeze(false);
+      pageController?.toggleUnblock(false);
+      motionInspector?.reset?.();
+      interactionDetector?.reset?.();
+      if (typeof AssetEditor !== 'undefined') AssetEditor.restoreContentEditable?.();
+      modeManager?.clearSelection();
       overlayCanvas.setSelectedElement(null);
       overlayCanvas.setHoverElement(null);
+      overlayCanvas.clear();
       styleTweaker.setElement(null);
-      if (floatingDock && floatingDock.container) {
-        floatingDock.container.classList.add('hidden');
-      }
+      if (hostContainer) hostContainer.style.display = 'none';
+      floatingDock?.container?.classList.add('hidden');
     } else {
-      if (floatingDock && floatingDock.container) {
-        floatingDock.container.classList.remove('hidden');
-      }
+      if (hostContainer) hostContainer.style.display = '';
+      floatingDock?.container?.classList.remove('hidden');
+      attachEventListeners();
+      overlayCanvas.render();
     }
     return isActive;
   }
 
+  function listen(type, listener, options) {
+    window.addEventListener(type, listener, options);
+    activeListeners.push({ type, listener, options });
+  }
+
   function attachEventListeners() {
     // Mouse Move for Inspector Hover
-    window.addEventListener('mousemove', (e) => {
+    listen('mousemove', (e) => {
       if (!isActive) return;
 
-      if (hostContainer && hostContainer.contains(e.target)) return;
+      if (e.target === hostContainer || e.composedPath?.().includes(hostContainer)) return;
 
       const target = document.elementFromPoint(e.clientX, e.clientY);
       if (!target || target === hostContainer || hostContainer.contains(target)) return;
@@ -200,10 +251,10 @@
     }, { passive: true });
 
     // Click to Select & Lock Element (with Edit Studio Multi-Select Shift+Click)
-    window.addEventListener('click', (e) => {
+    listen('click', (e) => {
       if (!isActive) return;
 
-      if (hostContainer && (e.target === hostContainer || hostContainer.contains(e.target))) {
+      if (e.target === hostContainer || e.composedPath?.().includes(hostContainer)) {
         return;
       }
 
@@ -235,9 +286,10 @@
     }, true);
 
     // Keyboard Shortcuts (Managed by ShortcutManager v4.0.0)
-    window.addEventListener('keydown', (e) => {
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
+    listen('keydown', (e) => {
+      if (!isActive) return;
+      const activeEl = shadowRoot?.activeElement || document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT' || activeEl.isContentEditable)) {
         return;
       }
 
@@ -296,6 +348,20 @@
           return;
         }
 
+        if (shortcutManager.matchKey(e, 'toggleFreeze')) {
+          e.preventDefault();
+          pageController?.toggleFreeze();
+          floatingDock?.renderCurrentTab();
+          return;
+        }
+
+        if (shortcutManager.matchKey(e, 'toggleUnblock')) {
+          e.preventDefault();
+          pageController?.toggleUnblock();
+          floatingDock?.renderCurrentTab();
+          return;
+        }
+
         if (shortcutManager.matchKey(e, 'toggleTabOrder')) {
           e.preventDefault();
           if (tabOrderVisualizer) {
@@ -305,6 +371,12 @@
           }
           return;
         }
+      }
+
+      if (e.altKey && !e.ctrlKey && !e.metaKey && ['ArrowUp', 'ArrowDown'].includes(e.key) && modeManager?.getPrimaryElement()) {
+        e.preventDefault();
+        handleHudAction(e.key === 'ArrowUp' ? 'move-up' : 'move-down', modeManager.getPrimaryElement());
+        return;
       }
 
       // Escape to Deselect / Unlock
@@ -323,7 +395,7 @@
       }
     });
 
-    window.addEventListener('keyup', (e) => {
+    listen('keyup', (e) => {
       if (e.key === 'Alt') {
         isAltPressed = false;
         overlayCanvas.render();
@@ -331,47 +403,50 @@
     });
 
     // Window Resize / Scroll
-    window.addEventListener('scroll', () => {
-      if (isActive) overlayCanvas.render();
-    }, { passive: true });
+    listen('scroll', () => {
+      if (isActive) {
+        overlayCanvas.render();
+        tabOrderVisualizer?.scheduleRender?.();
+      }
+    }, { passive: true, capture: true });
 
-    window.addEventListener('resize', () => {
-      if (isActive) overlayCanvas.render();
+    listen('resize', () => {
+      if (isActive) {
+        overlayCanvas.render();
+        tabOrderVisualizer?.scheduleRender?.();
+      }
     }, { passive: true });
   }
 
-  // Listen for Messages from Extension Background or Popup
+  function getState() {
+    return { isActive, isGridActive: overlayCanvas ? overlayCanvas.isGridVisible : false };
+  }
+
+  // Merely probing the receiver must not create any UI or event handlers.
   if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.type === 'TOGGLE_SCRATCHER') {
-        const state = toggleInspector();
-        sendResponse({ isActive: state, isGridActive: overlayCanvas.isGridVisible });
-      } else if (request.type === 'TOGGLE_GRID') {
-        const gridState = overlayCanvas.toggleGrid();
-        sendResponse({ isActive: isActive, isGridActive: gridState });
-      } else if (request.type === 'OPEN_TAB') {
-        if (!isActive) toggleInspector(true);
-        if (floatingDock) floatingDock.switchTab(request.tabName || 'inspector');
-        sendResponse({ success: true });
-      } else if (request.type === 'GET_STATE') {
-        sendResponse({
-          isActive: isActive,
-          isGridActive: overlayCanvas ? overlayCanvas.isGridVisible : false
-        });
+      if (!request || !['TOGGLE_SCRATCHER', 'TOGGLE_GRID', 'OPEN_TAB', 'GET_STATE'].includes(request.type)) return false;
+      try {
+        if (request.type === 'TOGGLE_SCRATCHER') {
+          toggleInspector();
+        } else if (request.type === 'TOGGLE_GRID') {
+          toggleInspector(true);
+          overlayCanvas.toggleGrid();
+        } else if (request.type === 'OPEN_TAB') {
+          toggleInspector(true);
+          floatingDock.switchTab(request.tabName || 'inspector');
+        }
+        sendResponse({ success: true, ...getState() });
+      } catch (error) {
+        sendResponse({ success: false, error: error.message, ...getState() });
       }
-      return true;
+      return false;
     });
-  }
-
-  // Initialize on DOM Ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initStyleScratcher);
-  } else {
-    initStyleScratcher();
   }
 
   window.StyleScratcher = {
     toggle: toggleInspector,
+    getState,
     getCanvas: () => overlayCanvas,
     getTweaker: () => styleTweaker,
     getDock: () => floatingDock,
