@@ -20,6 +20,8 @@ class ReactExporter {
 
     const tag = element.tagName.toLowerCase();
     const componentName = tag.charAt(0).toUpperCase() + tag.slice(1) + 'Block';
+    // JSX string expressions preserve quotes, braces, entities, and newlines.
+    const jsxString = value => `{${JSON.stringify(String(value))}}`;
 
     // Get Tailwind classes if TailwindConverter exists
     const tw = typeof TailwindConverter !== 'undefined' ? TailwindConverter.convert(element).tailwind : '';
@@ -33,19 +35,19 @@ class ReactExporter {
     const formatAttrs = (el) => {
       const attrs = [];
       if (tw) {
-        attrs.push(`className="${tw}"`);
+        attrs.push(`className=${jsxString(tw)}`);
       } else if (el.className && typeof el.className === 'string') {
-        attrs.push(`className="${el.className.trim()}"`);
+        attrs.push(`className=${jsxString(el.className.trim())}`);
       } else if (styleClassName) {
-        attrs.push(`className="${styleClassName}"`);
+        attrs.push(`className=${jsxString(styleClassName)}`);
       }
 
-      if (el.id) attrs.push(`id="${el.id}"`);
+      if (el.id) attrs.push(`id=${jsxString(el.id)}`);
       const getAttr = el.getAttribute ? (a) => el.getAttribute(a) : () => null;
-      if (getAttr('src')) attrs.push(`src="${getAttr('src')}"`);
-      if (getAttr('alt')) attrs.push(`alt="${getAttr('alt')}"`);
-      if (getAttr('href')) attrs.push(`href="${getAttr('href')}"`);
-      if (getAttr('target')) attrs.push(`target="${getAttr('target')}"`);
+      for (const name of ['src', 'alt', 'href', 'target']) {
+        const value = getAttr(name);
+        if (value !== null && value !== undefined) attrs.push(`${name}=${jsxString(value)}`);
+      }
 
       return attrs.length > 0 ? ' ' + attrs.join(' ') : '';
     };
@@ -55,11 +57,14 @@ class ReactExporter {
       ? (element.textContent || '').trim()
       : '';
 
-    const isSelfClosing = ['img', 'input', 'hr', 'br'].includes(tag);
+    // Current HTML void elements, plus legacy <param> on existing pages.
+    const isSelfClosing = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img',
+      'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'].includes(tag);
 
-    let innerContent = text;
+    let innerContent = text ? jsxString(text) : '';
     if (!innerContent && !isSelfClosing) {
-      innerContent = `\n    {/* Content of <${tag}> */}\n    ${element.innerText ? element.innerText.slice(0, 100).trim() : ''}\n  `;
+      const preview = element.innerText ? element.innerText.slice(0, 100).trim() : '';
+      innerContent = `\n    {/* Content of <${tag}> */}\n    ${preview ? jsxString(preview) : ''}\n  `;
     }
 
     const jsxTag = isSelfClosing
@@ -85,8 +90,10 @@ export default function GeneratedComponent() {
 
   /**
    * Download image, SVG, or background asset to user's disk
+   * Resolves after requesting the download; rejects fetch/HTTP/body failures.
+   * @returns {Promise<{type: string, filename: string, src?: string}|null>}
    */
-  static downloadAsset(element) {
+  static async downloadAsset(element) {
     if (!element) return null;
     const tag = element.tagName.toLowerCase();
 
@@ -105,7 +112,7 @@ export default function GeneratedComponent() {
     if (tag === 'img' && element.src) {
       const src = element.src;
       const filename = src.split('/').pop().split('?')[0] || `image-${Date.now()}.png`;
-      this.fetchAndDownload(src, filename);
+      await this.fetchAndDownload(src, filename);
       return { type: 'image', filename, src };
     }
 
@@ -115,7 +122,7 @@ export default function GeneratedComponent() {
     if (match && match[1]) {
       const src = match[1];
       const filename = src.split('/').pop().split('?')[0] || `background-${Date.now()}.png`;
-      this.fetchAndDownload(src, filename);
+      await this.fetchAndDownload(src, filename);
       return { type: 'background', filename, src };
     }
 
@@ -135,15 +142,11 @@ export default function GeneratedComponent() {
   }
 
   static async fetchAndDownload(url, filename) {
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const objUrl = URL.createObjectURL(blob);
-      this.triggerDownload(objUrl, filename);
-    } catch (e) {
-      // Fallback direct link
-      this.triggerDownload(url, filename);
-    }
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`에셋 요청 실패 (HTTP ${res.status})`);
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    this.triggerDownload(objUrl, filename);
   }
 }
 
