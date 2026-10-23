@@ -46,7 +46,7 @@ class FloatingDock {
     this.container.innerHTML = `
       <header class="dock-header" id="dockHeader">
         <div class="dock-brand">
-          <div class="dock-logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3M12 7v10M7 12h10"/><circle cx="12" cy="12" r="2.3"/></svg></div>
+          <div class="dock-logo" aria-hidden="true"><svg width="28" height="28" aria-hidden="true" viewBox="0 0 64 64"><g fill="none" stroke="#E11D48" stroke-linecap="round" stroke-linejoin="round"><g stroke-width="3.5"><path d="M17 25 L17 20 Q17 17 20 17 L25 17"/><path d="M39 17 L44 17 Q47 17 47 20 L47 25"/><path d="M47 39 L47 44 Q47 47 44 47 L39 47"/><path d="M25 47 L20 47 Q17 47 17 44 L17 39"/></g><g stroke-width="2.2" opacity=".68"><path d="M32 6 L32 10"/><path d="M54 32 L58 32"/><path d="M32 54 L32 58"/><path d="M6 32 L10 32"/></g></g><circle cx="32" cy="32" r="3.3" fill="#E11D48"/></svg></div>
           <div><span class="dock-title">Style Scratcher</span><span class="dock-subtitle">LIQUID STUDIO <span class="dock-version">v${escapeHtml(this.version)}</span></span></div>
         </div>
         <div class="dock-controls">
@@ -180,10 +180,14 @@ class FloatingDock {
   async performAction(button, action, label = '처리 중…') {
     if (button?.disabled) return;
     const original = button?.innerHTML;
+    const originTab = this.currentTab;
     if (button) { button.disabled = true; button.setAttribute('aria-busy', 'true'); button.textContent = label; }
     try { return await action(); }
     catch (error) { this.showToast(`작업을 완료하지 못했습니다. ${error?.message || '다시 시도해주세요.'}`, 'error'); }
-    finally { if (button) { button.disabled = false; button.removeAttribute('aria-busy'); button.innerHTML = original; } }
+    finally {
+      if (button) { button.disabled = false; button.removeAttribute('aria-busy'); button.innerHTML = original; }
+      if (button?.isConnected === false && this.currentTab === originTab && this.container?.isConnected) this.renderCurrentTab();
+    }
   }
 
   switchTab(tabName) {
@@ -493,13 +497,13 @@ class FloatingDock {
       <div class="mockup-panel">
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <span class="section-title" style="margin: 0;">디바이스 뷰포트 시뮬레이터</span>
-          <span style="font-size: 10px; color: #64748B;">비율 유지 샌드박스</span>
+          <span style="font-size: 11px; color: var(--ss-muted);">프레임 미리보기</span>
         </div>
 
         <div class="tool-banner">
           <div>
             <div class="tool-meta-title">목업 시뮬레이터 창</div>
-            <div class="tool-meta-desc">웹사이트 화면을 디바이스 프레임으로 래핑</div>
+            <div class="tool-meta-desc">페이지를 프레임 안에 표시합니다. 일부 사이트는 임베드를 제한합니다.</div>
           </div>
           <button class="toggle-switch-btn ${isMockupOn ? 'active' : ''}" id="btnToggleMockup">
             ${isMockupOn ? 'ON' : 'OFF'}
@@ -518,14 +522,14 @@ class FloatingDock {
           </button>
           <button class="preset-btn ${currentPreset === 'ipad' ? 'active' : ''}" data-preset="ipad">
             <span class="preset-name">iPad Pro</span>
-            <span class="preset-dim">820 × 1180 (4:3)</span>
+            <span class="preset-dim">820 × 1180</span>
           </button>
           <button class="preset-btn ${currentPreset === 'iphone' ? 'active' : ''}" data-preset="iphone">
-            <span class="preset-name">iPhone 16 Pro</span>
+            <span class="preset-name">iPhone</span>
             <span class="preset-dim">393 × 852 (19.5:9)</span>
           </button>
           <button class="preset-btn ${currentPreset === 'galaxy' ? 'active' : ''}" data-preset="galaxy">
-            <span class="preset-name">Galaxy S25 Ultra</span>
+            <span class="preset-name">Galaxy</span>
             <span class="preset-dim">412 × 915 (20:9)</span>
           </button>
         </div>
@@ -534,7 +538,7 @@ class FloatingDock {
           <button class="btn-secondary" id="btnMockupRotate" style="padding: 4px 8px; font-size: 11px;">
             ${isLandscape ? '가로 모드' : '세로 모드'}
           </button>
-          <span style="font-size: 10.5px; font-weight: 600; color: #475569;">배율:</span>
+          <span style="font-size: 11px; font-weight: 600; color: var(--ss-muted);">배율:</span>
           <input type="range" class="mockup-scale-slider" id="mockupScaleInput" min="0.25" max="1.2" step="0.05" value="${currentScale / 100}">
           <span id="mockupScaleLabel" style="font-size: 11px; font-weight: 700; min-width: 36px; text-align: right;">${currentScale}%</span>
         </div>
@@ -583,275 +587,107 @@ class FloatingDock {
   // TAB: Figma Font Studio & WebFont Harvester (v4.0.0)
   // ==========================================
   renderFontsTab(container) {
-    const el = this.tweaker.getElement();
+    const el = this.tweaker?.getElement();
+    const studio = this.fontStudio || (typeof FontStudio !== 'undefined' ? FontStudio : null);
     const computed = el ? window.getComputedStyle(el) : null;
-    const currentFamily = computed ? computed.fontFamily.replace(/['"]/g, '').split(',')[0].trim() : 'Inter';
-    const currentSize = computed ? Math.round(parseFloat(computed.fontSize) || 16) : 16;
-    const currentWeight = computed ? computed.fontWeight : '400';
-    const textContent = el ? (el.innerText || el.textContent || '').trim() : '';
-
+    const family = computed ? computed.fontFamily.replace(/['"]/g, '').split(',')[0].trim() : 'sans-serif';
+    const size = computed ? Math.round(parseFloat(computed.fontSize) || 16) : 16;
+    const weight = computed?.fontWeight || '400';
+    const text = el ? (el.innerText || el.textContent || '').trim() : '';
+    const fonts = (studio?.CURATED_FONTS || []).filter(font => font.name.toLowerCase() !== family.toLowerCase());
+    const result = this.harvestResult?.family === family ? this.harvestResult.value : null;
     container.innerHTML = `
-      <div class="font-studio-section">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span class="section-title" style="margin: 0;">피그마 폰트 스튜디오</span>
-          <span style="font-size: 10px; color: #E11D48; font-weight: 600;">Google Fonts 실시간 주입</span>
-        </div>
-
-        ${el ? `
-          <!-- 1. Font Family Picker -->
-          <div class="tweak-row">
-            <span class="tweak-label">폰트 패밀리</span>
-            <select class="font-select-field" id="fontFamilySelect">
-              ${(FontStudio?.CURATED_FONTS || []).map(f => `
-                <option value="${f.name}" ${currentFamily.toLowerCase().includes(f.name.toLowerCase()) ? 'selected' : ''}>${f.name} (${f.google ? 'Google' : 'System'})</option>
-              `).join('')}
-            </select>
-          </div>
-
-          <!-- 2. Font Properties Grid -->
-          <div class="font-props-grid">
-            <div class="font-prop-card">
-              <span class="tweak-label">크기 (Size)</span>
-              <div class="tweak-control-group">
-                <input type="number" class="num-input" id="fontSizeInput" min="8" max="120" value="${currentSize}">
-                <span style="font-size: 10px; color: #64748B;">px</span>
-              </div>
-            </div>
-            <div class="font-prop-card">
-              <span class="tweak-label">굵기 (Weight)</span>
-              <select class="num-input" id="fontWeightSelect" style="width: 100%;">
-                <option value="300" ${currentWeight === '300' ? 'selected' : ''}>300 Light</option>
-                <option value="400" ${currentWeight === '400' ? 'selected' : ''}>400 Regular</option>
-                <option value="500" ${currentWeight === '500' ? 'selected' : ''}>500 Medium</option>
-                <option value="600" ${currentWeight === '600' ? 'selected' : ''}>600 SemiBold</option>
-                <option value="700" ${currentWeight === '700' ? 'selected' : ''}>700 Bold</option>
-                <option value="800" ${currentWeight === '800' ? 'selected' : ''}>800 ExtraBold</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- 3. Direct Text Content Live Editor -->
-          <div class="tweak-section">
-            <div class="section-title">
-              <span>내용 직접 편집 (Text Content)</span>
-            </div>
-            <textarea class="live-text-area" id="fontStudioTextArea" placeholder="선택된 요소의 텍스트를 실시간으로 변경하세요...">${textContent}</textarea>
-          </div>
-
-          <!-- 4. Text Outlining (True Vector SVG Path Conversion) -->
-          <div style="display: flex; gap: 6px; margin-top: 6px;">
-            <button class="btn-secondary-action" id="btnCreateOutlines" style="flex: 1; margin: 0;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                <polyline points="2 17 12 22 22 17"></polyline>
-                <polyline points="2 12 12 17 22 12"></polyline>
-              </svg>
-              벡터 아웃라인 복사
-            </button>
-            <button class="btn-secondary-action" id="btnDownloadOutlineSvg" style="padding: 0 10px; margin: 0;" title="SVG 파일로 다운로드">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-              다운로드
-            </button>
-          </div>
-          <div style="font-size: 9.5px; color: #64748B; margin-top: 3px;">피그마·일러스트레이터용 순수 곡선 패스(Curves) 추출 (폰트 미설치 시에도 100% 보존)</div>
-        ` : `
-          <div class="empty-state">
-            <div class="empty-title">텍스트 요소를 선택하세요</div>
-            <div class="empty-desc">웹페이지의 타이틀, 본문, 버튼 등을 선택하면 피그마처럼 즉시 폰트를 교체하고 텍스트 내용을 바꿀 수 있습니다.</div>
-          </div>
-        `}
-
-        <div class="hud-divider" style="margin: 8px 0;"></div>
-
-        <!-- 5. Real WebFont Extractor & Downloader -->
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span class="section-title" style="margin: 0;">웹폰트 (@font-face) 바이너리 추출</span>
-          <button class="section-reset-btn" id="btnExtractWebFonts">폰트 스캔</button>
-        </div>
-        <div id="webFontsList" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
-          <div style="font-size: 10px; color: #94A3B8; text-align: center; padding: 8px;">'폰트 스캔'을 누르면 페이지에 로드된 @font-face 소스와 원본 폰트 파일을 추출합니다.</div>
-        </div>
-
-        <!-- 6. Parallel Non-Blocking Glyph Harvester & SVG Font Builder -->
-        <div class="glyph-harvest-box">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-size: 11px; font-weight: 700; color: #1E293B;">병렬 백그라운드 글리프 수확기</span>
-            <span class="dock-badge" id="glyphStatusBadge">대기 중</span>
-          </div>
-          <div style="font-size: 10px; color: #64748B;">글리프 지원 여부(한글·라틴·기호) 실측 및 W3C SVG 폰트 파일 재구성</div>
-          <div class="glyph-progress-bar-container">
-            <div class="glyph-progress-bar-fill" id="glyphProgressBar"></div>
-          </div>
-          <div style="display: flex; gap: 6px;">
-            <button class="btn-primary-action" id="btnStartHarvest" style="flex: 1;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-              </svg>
-              병렬 글리프 실측 수확
-            </button>
-            <button class="btn-secondary-action" id="btnExportSvgFont" style="display: none; padding: 0 10px; font-size: 10px;" title="W3C SVG 폰트 파일 다운로드">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-              .SVG 폰트 저장
-            </button>
-          </div>
-        </div>
-      </div>
+      ${el ? `<details class="studio-section" data-section="type-editor" open><summary><span>선택한 텍스트</span><small>Live edit</small></summary><div class="section-content">
+        <div class="tweak-row"><label class="tweak-label" for="fontFamilySelect">글꼴</label><select class="font-select-field" id="fontFamilySelect"><option value="${escapeHtml(family)}" selected>${escapeHtml(family)} · 현재</option>${fonts.map(font => `<option value="${escapeHtml(font.name)}">${escapeHtml(font.name)}${font.google ? ' · Google' : ''}</option>`).join('')}</select></div>
+        <p class="muted-copy">Google 표시 글꼴은 선택하면 Google Fonts에서 불러옵니다.</p>
+        <div class="font-props-grid"><label class="font-prop-card"><span class="tweak-label">크기</span><div class="tweak-control-group"><input type="number" class="num-input" id="fontSizeInput" min="8" max="256" value="${size}"><span class="input-unit">px</span></div></label><label class="font-prop-card"><span class="tweak-label">굵기</span><select class="font-select-field" id="fontWeightSelect">${[100, 200, 300, 400, 500, 600, 700, 800, 900].map(value => `<option value="${value}" ${String(value) === weight ? 'selected' : ''}>${value}</option>`).join('')}</select></label></div>
+        <label class="field-label" for="fontStudioTextArea">텍스트 내용</label><textarea class="live-text-area" id="fontStudioTextArea" spellcheck="false">${escapeHtml(text)}</textarea><p class="muted-copy">입력하면 선택한 요소의 내용을 텍스트로 교체합니다.</p>
+        <div class="btn-group"><button class="btn-secondary" id="btnCreateOutlines">SVG 복사</button><button class="btn-secondary" id="btnDownloadOutlineSvg">SVG 저장</button></div><p class="muted-copy">화면에 렌더링한 글자를 윤곽으로 추출합니다. 복잡한 줄바꿈과 글자 배치는 원본과 다를 수 있습니다.</p>
+      </div></details>` : `<div class="empty-state"><div class="empty-title">텍스트를 선택해보세요.</div><p class="empty-desc">제목, 본문, 버튼을 클릭하면 글꼴과 크기를 바꾸고 텍스트를 직접 편집할 수 있습니다.</p></div>`}
+      <details class="studio-section" data-section="webfonts" open><summary><span>페이지 웹폰트</span><small>Font files</small></summary><div class="section-content"><p class="muted-copy">접근할 수 있는 @font-face 규칙에서 폰트 주소를 찾습니다.</p><button class="btn-secondary-action" id="btnExtractWebFonts" ${this.fontScanPending ? 'disabled' : ''}>${this.fontScanPending ? '폰트 확인 중…' : '웹폰트 스캔'}</button><div id="webFontsList" class="font-results"></div></div></details>
+      <details class="studio-section" data-section="glyphs"><summary><span>문자 폭 실측</span><small>Advanced</small></summary><div class="section-content"><p class="muted-copy">${escapeHtml(family)} · 지정 글꼴과 대체 글꼴에서 문자 폭을 측정합니다. 글리프 지원률을 판정하지 않습니다.</p><span class="dock-badge" id="glyphStatusBadge">${result ? `${result.measuredCount ?? result.glyphs.length}개 폭 측정` : this.harvestPending ? '측정 중…' : '측정 전'}</span><div class="glyph-progress-bar-container" role="progressbar" aria-label="문자 폭 측정 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${result ? 100 : 0}" id="glyphProgress"><div class="glyph-progress-bar-fill" id="glyphProgressBar" style="width:${result ? 100 : 0}%"></div></div><button class="btn-primary-action" id="btnStartHarvest" ${this.harvestPending ? 'disabled' : ''}>${this.harvestPending ? '문자 폭 측정 중…' : '문자 폭 측정'}</button><button class="btn-secondary-action" id="btnExportGlyphData" ${result ? '' : 'hidden'}>측정 데이터 저장 · JSON</button></div></details>
     `;
-
-    // Event Bindings
     if (el) {
-      container.querySelector('#fontFamilySelect')?.addEventListener('change', (e) => {
-        const font = e.target.value;
-        if (typeof FontStudio !== 'undefined') {
-          FontStudio.applyFont(el, font);
+      container.querySelector('#fontFamilySelect').addEventListener('change', async event => {
+        const select = event.target;
+        select.disabled = true;
+        try {
+          if (!studio) throw new Error('폰트 도구를 불러올 수 없습니다.');
+          await studio.applyFont(el, select.value);
           this.overlayCanvas?.render();
-          this.showToast(`'${font}' 폰트가 적용되었습니다.`);
-        }
+          this.showToast(`${select.value} 글꼴을 적용했습니다.`);
+        } catch (error) { this.showToast(`글꼴 적용 실패: ${error.message}`, 'error'); }
+        finally { select.disabled = false; }
       });
-
-      container.querySelector('#fontSizeInput')?.addEventListener('change', (e) => {
-        el.style.fontSize = `${e.target.value}px`;
-        this.overlayCanvas?.render();
-      });
-
-      container.querySelector('#fontWeightSelect')?.addEventListener('change', (e) => {
-        el.style.fontWeight = e.target.value;
-        this.overlayCanvas?.render();
-      });
-
-      container.querySelector('#fontStudioTextArea')?.addEventListener('input', (e) => {
-        el.innerText = e.target.value;
-        this.overlayCanvas?.render();
-      });
-
-      // Vector Outlines Copy
-      container.querySelector('#btnCreateOutlines')?.addEventListener('click', () => {
-        if (typeof FontStudio !== 'undefined') {
-          const out = FontStudio.createTextOutlines(el);
-          if (out && out.svg) {
-            navigator.clipboard.writeText(out.svg).then(() => {
-              this.showToast('트루 벡터 패스 SVG가 클립보드에 복사되었습니다. (피그마 즉시 붙여넣기 가능)');
-            });
-          }
-        }
-      });
-
-      // Vector Outlines File Download
-      container.querySelector('#btnDownloadOutlineSvg')?.addEventListener('click', () => {
-        if (typeof FontStudio !== 'undefined') {
-          const out = FontStudio.createTextOutlines(el);
-          if (out && out.svg) {
-            const blob = new Blob([out.svg], { type: 'image/svg+xml;charset=utf-8' });
-            const blobUrl = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = blobUrl;
-            a.download = `outline_${(out.text || 'text').slice(0, 15).replace(/\s+/g, '_')}.svg`;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-              URL.revokeObjectURL(blobUrl);
-              a.remove();
-            }, 2000);
-            this.showToast('벡터 아웃라인 SVG 파일이 다운로드되었습니다.');
-          }
-        }
-      });
+      container.querySelector('#fontSizeInput').addEventListener('change', event => { el.style.fontSize = `${Math.max(8, Math.min(256, Number(event.target.value) || 16))}px`; this.overlayCanvas?.render(); });
+      container.querySelector('#fontWeightSelect').addEventListener('change', event => { el.style.fontWeight = event.target.value; this.overlayCanvas?.render(); });
+      container.querySelector('#fontStudioTextArea').addEventListener('input', event => { el.innerText = event.target.value; this.overlayCanvas?.render(); });
+      const outline = async (button, download) => this.performAction(button, async () => {
+        if (!studio) throw new Error('폰트 도구를 불러올 수 없습니다.');
+        await new Promise(resolve => requestAnimationFrame(resolve));
+        const output = studio.createTextOutlines(el);
+        if (!output?.svg) throw new Error('윤곽으로 변환할 텍스트가 없습니다.');
+        if (download) {
+          const url = URL.createObjectURL(new Blob([output.svg], { type: 'image/svg+xml;charset=utf-8' }));
+          const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'style-scratcher-text.svg';
+          document.body.append(anchor); anchor.click(); anchor.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
+          this.showToast('SVG 파일 다운로드를 요청했습니다.');
+        } else await this.copyText(output.svg, '텍스트 윤곽 SVG를 복사했습니다.');
+      }, '윤곽 추출 중…');
+      container.querySelector('#btnCreateOutlines').addEventListener('click', event => outline(event.currentTarget, false));
+      container.querySelector('#btnDownloadOutlineSvg').addEventListener('click', event => outline(event.currentTarget, true));
     }
-
-    container.querySelector('#btnExtractWebFonts')?.addEventListener('click', async () => {
+    this.renderWebFonts(container.querySelector('#webFontsList'));
+    container.querySelector('#btnExtractWebFonts').addEventListener('click', event => this.performAction(event.currentTarget, async () => {
+      if (!studio) throw new Error('폰트 도구를 불러올 수 없습니다.');
+      this.fontScanPending = true;
       const list = container.querySelector('#webFontsList');
-      list.innerHTML = `<div style="text-align: center; color: #E11D48; font-size: 10px; padding: 6px;">웹폰트 바이너리 스캔 중...</div>`;
-      if (typeof FontStudio !== 'undefined') {
-        const fonts = await FontStudio.extractWebFonts();
-        if (!fonts || fonts.length === 0) {
-          list.innerHTML = `<div style="text-align: center; color: #94A3B8; font-size: 10px; padding: 6px;">감지된 외부 @font-face 웹폰트가 없습니다.</div>`;
-          return;
-        }
-        list.innerHTML = fonts.map((f, i) => `
-          <div style="display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 5px 8px; gap: 6px;">
-            <div style="flex: 1; min-width: 0;">
-              <div style="font-size: 11px; font-weight: 700; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${f.family}</div>
-              <div style="font-size: 9px; color: #64748B;">${f.weight} / ${f.style} • <span style="color: #E11D48; font-weight: 600;">${(f.format || 'woff2').toUpperCase()}</span></div>
-            </div>
-            <div style="display: flex; gap: 4px;">
-              ${f.url ? `
-                <button class="copy-mini-btn" data-url="${f.url}" style="font-size: 9px; padding: 3px 6px;">URL</button>
-                <button class="download-font-btn" data-url="${f.url}" data-family="${f.family}" data-weight="${f.weight}" style="font-size: 9px; padding: 3px 6px; background: #FFF1F2; border: 1px solid #FECDD3; color: #E11D48; border-radius: 4px; cursor: pointer; font-weight: 600;">다운로드</button>
-              ` : '<span style="font-size: 9px; color: #10B981; padding: 2px 4px;">내장됨</span>'}
-            </div>
-          </div>
-        `).join('');
-
-        // URL Copy
-        list.querySelectorAll('[data-url].copy-mini-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            navigator.clipboard.writeText(btn.dataset.url).then(() => this.showToast('폰트 URL이 복사되었습니다.'));
-          });
+      list.textContent = '웹폰트 규칙을 확인하고 있습니다…';
+      try {
+        this.extractedFonts = await studio.extractWebFonts();
+        this.fontsScanned = true;
+        this.renderWebFonts(list);
+      } catch (error) { list.textContent = '폰트 목록을 불러오지 못했습니다. 다시 스캔해주세요.'; throw error; }
+      finally { this.fontScanPending = false; }
+    }, '폰트 확인 중…'));
+    container.querySelector('#btnStartHarvest').addEventListener('click', event => this.performAction(event.currentTarget, async () => {
+      if (!studio) throw new Error('폰트 도구를 불러올 수 없습니다.');
+      this.harvestPending = true;
+      const badge = container.querySelector('#glyphStatusBadge');
+      try {
+        const output = await studio.harvestGlyphs(family, percent => {
+          container.querySelector('#glyphProgressBar').style.width = `${percent}%`;
+          container.querySelector('#glyphProgress').setAttribute('aria-valuenow', String(percent));
+          badge.textContent = `${percent}% 측정 중`;
         });
+        this.harvestResult = { family, value: output };
+        this.showToast(`${output.measuredCount ?? output.glyphs.length}개 문자의 폭을 측정했습니다.`);
+      } finally { this.harvestPending = false; if (this.currentTab === 'fonts') this.renderCurrentTab(); }
+    }, '문자 폭 측정 중…'));
+    container.querySelector('#btnExportGlyphData').addEventListener('click', event => this.performAction(event.currentTarget, async () => {
+      const saved = this.harvestResult;
+      if (!saved) throw new Error('먼저 문자 폭 측정을 실행해주세요.');
+      const measurements = { fontFamily: saved.family, measurementFontSizePx: 24, measurementOnly: true, coverageDetermined: false, totalGlyphs: saved.value.totalGlyphs, measuredCount: saved.value.measuredCount ?? saved.value.glyphs.length, glyphs: saved.value.glyphs.map(({ char, code, width, fallbackWidth }) => ({ char, code, width, fallbackWidth })) };
+      const url = URL.createObjectURL(new Blob([JSON.stringify(measurements, null, 2)], { type: 'application/json' }));
+      const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'style-scratcher-glyph-widths.json';
+      document.body.append(anchor); anchor.click(); anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      this.showToast('문자 폭 측정 데이터 다운로드를 요청했습니다.');
+    }, 'JSON 생성 중…'));
+  }
 
-        // Binary Font Download
-        list.querySelectorAll('.download-font-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const { url, family, weight } = btn.dataset;
-            btn.disabled = true;
-            btn.textContent = '받는 중...';
-            try {
-              const res = await FontStudio.downloadFontFile(url, family, weight);
-              this.showToast(`'${res.filename}' 폰트 파일이 다운로드되었습니다.`);
-            } catch (err) {
-              this.showToast(`다운로드 실패: ${err.message}`);
-            } finally {
-              btn.disabled = false;
-              btn.textContent = '다운로드';
-            }
-          });
-        });
-      }
-    });
-
-    let lastHarvestResult = null;
-    const btnExportSvg = container.querySelector('#btnExportSvgFont');
-
-    container.querySelector('#btnStartHarvest')?.addEventListener('click', async () => {
-      const progressBar = container.querySelector('#glyphProgressBar');
-      const statusBadge = container.querySelector('#glyphStatusBadge');
-      const btnHarvest = container.querySelector('#btnStartHarvest');
-      btnHarvest.disabled = true;
-      btnHarvest.textContent = '실측 진행 중...';
-
-      if (typeof FontStudio !== 'undefined') {
-        lastHarvestResult = await FontStudio.harvestGlyphs(currentFamily, (percent, done, total) => {
-          progressBar.style.width = `${percent}%`;
-          statusBadge.textContent = `${percent}% (${done}/${total})`;
-        });
-
-        statusBadge.textContent = `${lastHarvestResult.coveragePct}% (${lastHarvestResult.supportedCount}/${lastHarvestResult.totalGlyphs})`;
-        statusBadge.style.color = lastHarvestResult.coveragePct >= 90 ? '#10B981' : '#E11D48';
-        btnHarvest.disabled = false;
-        btnHarvest.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 실측 완료 (재실행)';
-
-        if (btnExportSvg) {
-          btnExportSvg.style.display = 'inline-flex';
-        }
-
-        this.showToast(`글리프 실측 완료: ${lastHarvestResult.totalGlyphs}개 중 ${lastHarvestResult.supportedCount}개 지원 (${lastHarvestResult.coveragePct}%)`);
-      }
-    });
-
-    btnExportSvg?.addEventListener('click', () => {
-      if (lastHarvestResult && typeof FontStudio !== 'undefined') {
-        const res = FontStudio.downloadSvgFont(currentFamily, lastHarvestResult.glyphs);
-        this.showToast(`'${res.filename}' W3C SVG 폰트가 다운로드되었습니다.`);
-      }
-    });
+  renderWebFonts(list) {
+    const fonts = this.extractedFonts || [];
+    if (!fonts.length) { list.innerHTML = `<p class="muted-copy">${this.fontsScanned ? '접근 가능한 웹폰트가 없습니다.' : '스캔하면 폰트 이름과 파일 주소가 표시됩니다.'}</p>`; return; }
+    list.innerHTML = fonts.slice(0, 100).map((font, index) => `<div class="font-result"><div class="font-result-meta"><strong title="${escapeHtml(font.family)}">${escapeHtml(font.family)}</strong><small>${escapeHtml(font.weight)} · ${escapeHtml(font.style)} · ${escapeHtml(font.format || 'font')}</small></div>${font.url ? `<div class="font-result-actions"><button class="copy-mini-btn" data-font-copy="${index}" aria-label="${escapeHtml(font.family)} 폰트 URL 복사">URL</button><button class="download-font-btn" data-font-download="${index}" aria-label="${escapeHtml(font.family)} 폰트 다운로드">저장</button></div>` : '<span class="muted-copy">내장 글꼴</span>'}</div>`).join('');
+    list.querySelectorAll('[data-font-copy]').forEach(button => button.addEventListener('click', () => this.copyText(fonts[Number(button.dataset.fontCopy)].url, '폰트 URL을 복사했습니다.')));
+    list.querySelectorAll('[data-font-download]').forEach(button => button.addEventListener('click', () => this.performAction(button, async () => {
+      const font = fonts[Number(button.dataset.fontDownload)];
+      const result = await this.fontStudio.downloadFontFile(font.url, font.family, font.weight);
+      if (!result?.success) throw new Error('폰트 파일을 다운로드하지 못했습니다.');
+      this.showToast(result.method === 'link-fallback' ? '폰트 주소를 열었습니다. 브라우저에서 파일을 저장해주세요.' : `${result.filename} 다운로드를 요청했습니다.`);
+    }, '받는 중…')));
   }
 
   // ==========================================
@@ -879,19 +715,19 @@ class FloatingDock {
 
     container.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-        <span class="section-title" style="margin: 0;">실시간 에셋 & 콘텐츠 편집</span>
+        <span class="section-title" style="margin: 0;">선택한 요소의 콘텐츠</span>
         <span class="prop-tag">&lt;${tag}&gt; [${assetType.toUpperCase()}]</span>
       </div>
 
       <!-- 1. Text Content Editor -->
       <div class="asset-editor-card" style="margin-bottom: 10px;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: 11px; font-weight: 700; color: #1E293B; display: inline-flex; align-items: center; gap: 5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg> 텍스트 내용 실시간 수정</span>
-          <button class="btn-secondary" id="toggleContentEditableBtn" style="padding: 2px 8px; font-size: 10px;">
-            ${isEditable ? '직접 타이핑 끄기' : '요소 직접 타이핑 (contentEditable)'}
+          <span style="font-size: 11px; font-weight: 700; color: var(--ss-ink); display: inline-flex; align-items: center; gap: 5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg> 텍스트 편집</span>
+          <button class="btn-secondary" id="toggleContentEditableBtn" style="padding: 2px 8px; font-size: 11px;">
+            ${isEditable ? '직접 타이핑 끄기' : '페이지에서 직접 입력'}
           </button>
         </div>
-        <textarea class="live-text-area" id="liveTextarea" placeholder="텍스트 내용을 입력하면 즉시 DOM에 반영됩니다...">${textVal}</textarea>
+        <textarea class="live-text-area" id="liveTextarea" placeholder="텍스트 내용을 입력하면 즉시 DOM에 반영됩니다...">${escapeHtml(textVal)}</textarea>
         ${isEditable ? `
           <div class="editable-active-badge">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
@@ -903,17 +739,17 @@ class FloatingDock {
       <!-- 2. Image & Media Swapper -->
       <div class="asset-editor-card" style="margin-bottom: 10px;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: 11px; font-weight: 700; color: #1E293B; display: inline-flex; align-items: center; gap: 5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> 이미지 소스 교체 (Image Swapper)</span>
+          <span style="font-size: 11px; font-weight: 700; color: var(--ss-ink); display: inline-flex; align-items: center; gap: 5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> 이미지 교체</span>
         </div>
         <div style="display: flex; gap: 6px;">
-          <input type="text" class="asset-input-field" id="imgUrlInput" placeholder="새 이미지 URL 입력 (https://...)" value="${imgSrc}">
+          <input type="text" class="asset-input-field" id="imgUrlInput" placeholder="새 이미지 URL 입력 (https://...)" value="${escapeHtml(imgSrc)}">
           <button class="btn-primary" id="applyImgUrlBtn" style="white-space: nowrap; padding: 0 10px; font-size: 11px;">적용</button>
         </div>
         <div style="display: flex; gap: 6px;">
-          <button class="btn-secondary" id="randomUnsplashBtn" style="flex: 1; font-size: 10px; justify-content: center;">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>고화질 Unsplash 랜덤
+          <button class="btn-secondary" id="randomUnsplashBtn" style="flex: 1; font-size: 11px; justify-content: center;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>샘플 이미지 · Unsplash
           </button>
-          <button class="btn-secondary" id="uploadImageBtn" style="flex: 1; font-size: 10px; justify-content: center;">
+          <button class="btn-secondary" id="uploadImageBtn" style="flex: 1; font-size: 11px; justify-content: center;">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>로컬 이미지 업로드
           </button>
           <input type="file" id="localFileInput" accept="image/*" style="display: none;">
@@ -923,7 +759,7 @@ class FloatingDock {
       <!-- 3. SVG & Vector Editor -->
       <div class="asset-editor-card">
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: 11px; font-weight: 700; color: #1E293B; display: inline-flex; align-items: center; gap: 5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg> SVG 벡터 속성 & XML 코드 조작</span>
+          <span style="font-size: 11px; font-weight: 700; color: var(--ss-ink); display: inline-flex; align-items: center; gap: 5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg> SVG 속성과 원본 코드</span>
           ${svgInfo ? '<span class="prop-tag" style="background:#FFF1F2;color:#E11D48;">SVG 감지됨</span>' : ''}
         </div>
         ${svgInfo ? `
@@ -931,42 +767,42 @@ class FloatingDock {
             <div class="tweak-row">
               <span class="tweak-label">채우기 (Fill)</span>
               <div class="color-picker-group">
-                <div class="color-swatch-wrapper" style="background-color: ${svgInfo.fill.startsWith('#') ? svgInfo.fill : '#F43F5E'};">
-                  <input type="color" class="native-color-picker" id="svgFillPicker" value="${svgInfo.fill.startsWith('#') && svgInfo.fill.length === 7 ? svgInfo.fill : '#f43f5e'}">
+                <div class="color-swatch-wrapper" style="background-color: ${/^#[\da-f]{6}$/i.test(svgInfo.fill) ? svgInfo.fill : '#F43F5E'};">
+                  <input type="color" class="native-color-picker" id="svgFillPicker" value="${/^#[\da-f]{6}$/i.test(svgInfo.fill) && svgInfo.fill.length === 7 ? svgInfo.fill : '#f43f5e'}">
                 </div>
-                <input type="text" class="color-hex-input" id="svgFillInput" value="${svgInfo.fill}">
+                <input type="text" class="color-hex-input" id="svgFillInput" value="${escapeHtml(svgInfo.fill)}">
               </div>
             </div>
 
             <div class="tweak-row">
               <span class="tweak-label">윤곽선 (Stroke)</span>
               <div class="color-picker-group">
-                <div class="color-swatch-wrapper" style="background-color: ${svgInfo.stroke.startsWith('#') ? svgInfo.stroke : '#1E293B'};">
-                  <input type="color" class="native-color-picker" id="svgStrokePicker" value="${svgInfo.stroke.startsWith('#') && svgInfo.stroke.length === 7 ? svgInfo.stroke : '#1e293b'}">
+                <div class="color-swatch-wrapper" style="background-color: ${/^#[\da-f]{6}$/i.test(svgInfo.stroke) ? svgInfo.stroke : 'var(--ss-ink)'};">
+                  <input type="color" class="native-color-picker" id="svgStrokePicker" value="${/^#[\da-f]{6}$/i.test(svgInfo.stroke) && svgInfo.stroke.length === 7 ? svgInfo.stroke : '#1e293b'}">
                 </div>
-                <input type="text" class="color-hex-input" id="svgStrokeInput" value="${svgInfo.stroke}">
+                <input type="text" class="color-hex-input" id="svgStrokeInput" value="${escapeHtml(svgInfo.stroke)}">
               </div>
             </div>
 
             <div class="tweak-row">
               <span class="tweak-label">선 두께 (Stroke Width)</span>
               <div class="tweak-control-group">
-                <input type="range" class="range-slider" id="svgStrokeWidthSlider" min="0" max="24" step="0.5" value="${svgInfo.strokeWidth}">
-                <input type="number" class="num-input" id="svgStrokeWidthInput" min="0" max="24" step="0.5" value="${svgInfo.strokeWidth}">
-                <span style="font-size: 10px; color: #6B7280;">px</span>
+                <input type="range" class="range-slider" id="svgStrokeWidthSlider" min="0" max="24" step="0.5" value="${escapeHtml(svgInfo.strokeWidth)}">
+                <input type="number" class="num-input" id="svgStrokeWidthInput" min="0" max="24" step="0.5" value="${escapeHtml(svgInfo.strokeWidth)}">
+                <span style="font-size: 11px; color: var(--ss-muted);">px</span>
               </div>
             </div>
 
             <div style="margin-top: 4px;">
               <span class="tweak-label" style="display: block; margin-bottom: 4px;">SVG XML 원본 코드 직접 수정</span>
-              <textarea class="live-text-area" id="svgXmlTextarea" style="font-family: ui-monospace, monospace; font-size: 10px; min-height: 80px;">${svgInfo.xml}</textarea>
+              <textarea class="live-text-area" id="svgXmlTextarea" style="font-family: ui-monospace, monospace; font-size: 11px; min-height: 80px;">${escapeHtml(svgInfo.xml)}</textarea>
               <button class="btn-primary" id="applySvgXmlBtn" style="width: 100%; margin-top: 6px; justify-content: center; font-size: 11px;">
-                SVG XML 코드 업데이트 반영
+                SVG 코드 적용
               </button>
             </div>
           </div>
         ` : `
-          <div style="font-size: 11px; color: #94A3B8; text-align: center; padding: 10px 6px;">
+          <div style="font-size: 11px; color: var(--ss-muted); text-align: center; padding: 10px 6px;">
             선택된 요소에 SVG 벡터가 포함되어 있지 않습니다.<br>
             아이콘 또는 SVG 그래픽을 선택하면 fill, stroke, 및 원본 XML을 실시간으로 조작할 수 있습니다.
           </div>
@@ -1012,7 +848,7 @@ class FloatingDock {
         const url = AssetEditor.setRandomUnsplash(el, 'design');
         const input = container.querySelector('#imgUrlInput');
         if (input) input.value = url;
-        this.showToast('고화질 Unsplash 이미지가 적용되었습니다.');
+        this.showToast('Unsplash 샘플 이미지 주소를 적용했습니다.');
         this.overlayCanvas?.render();
       }
     });
@@ -1031,6 +867,7 @@ class FloatingDock {
           this.showToast('로컬 이미지가 업로드되어 적용되었습니다.');
           this.overlayCanvas?.render();
         };
+        reader.onerror = () => this.showToast('이미지 파일을 읽지 못했습니다. 다른 파일을 선택해주세요.', 'error');
         reader.readAsDataURL(file);
       }
     });
@@ -1086,7 +923,7 @@ class FloatingDock {
             this.tweaker.setElement(replaced);
             this.renderCurrentTab();
           } else {
-            this.showToast('SVG XML 파싱에 실패했습니다. 올바른 XML 문법인지 확인하세요.');
+            this.showToast('SVG XML 파싱에 실패했습니다. 올바른 XML 문법인지 확인하세요.', 'error');
           }
         }
       });
@@ -1117,23 +954,24 @@ class FloatingDock {
 
     let eventsListHtml = '';
     if (events.length === 0) {
-      eventsListHtml = `<div style="text-align: center; padding: 16px; color: #9CA3AF; font-size: 11px;">감지된 이벤트 리스너가 없습니다.</div>`;
+      eventsListHtml = `<div style="text-align: center; padding: 16px; color: var(--ss-muted); font-size: 11px;">감지된 이벤트 리스너가 없습니다.</div>`;
     } else {
       events.forEach(evt => {
         eventsListHtml += `
           <div class="event-item-card">
             <div class="event-header">
-              <span class="event-badge">${evt.type}</span>
-              <span style="font-size: 9px; color: #6B7280;">${evt.isInline ? '인라인 핸들러' : 'addEventListener'}</span>
+              <span class="event-badge">${escapeHtml(evt.type)}</span>
+              <span style="font-size: 11px; color: var(--ss-muted);">${evt.isInline ? '인라인 핸들러' : 'addEventListener'}</span>
             </div>
-            <pre class="event-code-snippet">${evt.handler.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+            <pre class="event-code-snippet">${escapeHtml(evt.handler)}</pre>
           </div>
         `;
       });
     }
 
     container.innerHTML = `
-      <div class="section-title">가상 클래스 강제 활성화 (Force Pseudo-State)</div>
+      <div class="section-title">상태 시뮬레이션</div>
+      <p class="muted-copy">표식과 이벤트로 상태를 근사합니다. 브라우저의 실제 가상 클래스 강제 적용과는 다릅니다.</p>
       <div class="pseudo-toggle-group">
         <button class="pseudo-btn ${isHoverForced ? 'active' : ''}" data-pseudo="hover">:hover</button>
         <button class="pseudo-btn ${isActiveForced ? 'active' : ''}" data-pseudo="active">:active</button>
@@ -1141,10 +979,10 @@ class FloatingDock {
         <button class="pseudo-btn" id="clearPseudoBtn">초기화</button>
       </div>
 
-      <div class="section-title" style="margin-top: 14px;">등록된 자바스크립트 이벤트 (${events.length}개)</div>
+      <div class="section-title" style="margin-top: 14px;">확인 가능한 이벤트 (${events.length}개)</div>
       <div style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto;">
         ${eventsListHtml}
-      </div>
+      </div><p class="muted-copy">인라인 속성·현재 실행 환경에서 확인한 정보입니다. 전체 리스너 목록은 아닙니다.</p>
     `;
 
     container.querySelectorAll('[data-pseudo]').forEach(btn => {
@@ -1153,6 +991,7 @@ class FloatingDock {
         if (this.interactionDetector) {
           const active = this.interactionDetector.togglePseudo(el, p);
           btn.classList.toggle('active', active);
+          btn.setAttribute('aria-pressed', String(active));
         }
       });
     });
@@ -1184,10 +1023,10 @@ class FloatingDock {
     if (motion.animations.length > 0) {
       motion.animations.forEach(a => {
         animListHtml += `
-          <div style="padding: 6px 10px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 11px;">
-            <div style="font-weight: 600; color: #E11D48;">@keyframes ${a.name}</div>
-            <div style="color: #6B7280; font-size: 10px; margin-top: 2px;">
-              지속 시간: <strong>${a.duration}</strong> • 타이밍: <strong>${a.timing}</strong> • 반복: <strong>${a.iteration}</strong>
+          <div style="padding: 6px 10px; background: var(--ss-raised); border: 1px solid #E5E7EB; border-radius: 6px; font-size: 11px;">
+            <div style="font-weight: 600; color: #E11D48;">@keyframes ${escapeHtml(a.name)}</div>
+            <div style="color: var(--ss-muted); font-size: 11px; margin-top: 2px;">
+              지속 시간: <strong>${escapeHtml(a.duration)}</strong> • 타이밍: <strong>${escapeHtml(a.timing)}</strong> • 반복: <strong>${escapeHtml(a.iteration)}</strong>
             </div>
           </div>
         `;
@@ -1198,10 +1037,10 @@ class FloatingDock {
     if (motion.transitions.length > 0) {
       motion.transitions.forEach(t => {
         transListHtml += `
-          <div style="padding: 6px 10px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 11px;">
-            <div style="font-weight: 600; color: #111827;">${t.property}</div>
-            <div style="color: #6B7280; font-size: 10px; margin-top: 2px;">
-              지속: <strong>${t.duration}</strong> • 타이밍: <strong>${t.timing}</strong>
+          <div style="padding: 6px 10px; background: var(--ss-raised); border: 1px solid #E5E7EB; border-radius: 6px; font-size: 11px;">
+            <div style="font-weight: 600; color: var(--ss-ink);">${escapeHtml(t.property)}</div>
+            <div style="color: var(--ss-muted); font-size: 11px; margin-top: 2px;">
+              지속: <strong>${escapeHtml(t.duration)}</strong> • 타이밍: <strong>${escapeHtml(t.timing)}</strong>
             </div>
           </div>
         `;
@@ -1209,7 +1048,7 @@ class FloatingDock {
     }
 
     container.innerHTML = `
-      <div class="section-title">글로벌 재생 속도 컨트롤러 (Slow-Mo)</div>
+      <div class="section-title">페이지 애니메이션 재생 속도</div>
       <div class="motion-card">
         <div class="speed-control-group">
           <button class="speed-chip ${currentRate === 0.1 ? 'active' : ''}" data-speed="0.1">0.1x</button>
@@ -1225,21 +1064,21 @@ class FloatingDock {
         </div>
       </div>
 
-      <div class="section-title" style="margin-top: 14px;">가속도 곡선 (Cubic-Bezier Easing)</div>
+      <div class="section-title" style="margin-top: 14px;">이징 곡선</div>
       <div class="bezier-box">
         <div>${bezierSvg}</div>
         <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11px;">
-          <span style="font-weight: 600; color: #111827;">${motion.animations[0]?.timing || 'ease'}</span>
-          <span style="font-family: ui-monospace, monospace; font-size: 10px; color: #6B7280;">
+          <span style="font-weight: 600; color: var(--ss-ink);">${escapeHtml(motion.animations[0]?.timing || 'ease')}</span>
+          <span style="font-family: ui-monospace, monospace; font-size: 11px; color: var(--ss-muted);">
             [${defaultCoords.map(n => n.toFixed(2)).join(', ')}]
           </span>
-          <span style="font-size: 10px; color: #9CA3AF;">Figma/CSS 표준 가속도 곡선</span>
+          <span style="font-size: 11px; color: var(--ss-muted);">Figma/CSS 표준 가속도 곡선</span>
         </div>
       </div>
 
-      <div class="section-title" style="margin-top: 14px;">적용된 CSS 애니메이션 & 트랜지션</div>
+      <div class="section-title" style="margin-top: 14px;">적용된 애니메이션과 전환</div>
       <div style="display: flex; flex-direction: column; gap: 6px;">
-        ${animListHtml || transListHtml || '<div style="color: #9CA3AF; font-size: 11px; text-align: center; padding: 12px;">선택된 요소에 애니메이션이 없습니다.</div>'}
+        ${(animListHtml + transListHtml) || '<div style="color: var(--ss-muted); font-size: 11px; text-align: center; padding: 12px;">선택된 요소에 애니메이션이 없습니다.</div>'}
       </div>
     `;
 
@@ -1293,23 +1132,23 @@ class FloatingDock {
         <div class="telemetry-grid">
           <div class="telemetry-item">
             <span class="telemetry-label">컨텍스트 타입</span>
-            <span class="telemetry-val" style="color: #E11D48;">${graphics.contextType}</span>
+            <span class="telemetry-val" style="color: #E11D48;">${escapeHtml(graphics.contextType)}</span>
           </div>
           <div class="telemetry-item">
             <span class="telemetry-label">버퍼 해상도</span>
-            <span class="telemetry-val">${graphics.bufferSize}</span>
+            <span class="telemetry-val">${escapeHtml(graphics.bufferSize)}</span>
           </div>
           <div class="telemetry-item">
             <span class="telemetry-label">CSS 렌더링 크기</span>
-            <span class="telemetry-val">${graphics.cssSize}</span>
+            <span class="telemetry-val">${escapeHtml(graphics.cssSize)}</span>
           </div>
           <div class="telemetry-item">
             <span class="telemetry-label">DPR 픽셀 밀도</span>
-            <span class="telemetry-val">${graphics.dprRatio}</span>
+            <span class="telemetry-val">${escapeHtml(graphics.dprRatio)}</span>
           </div>
           <div class="telemetry-item">
             <span class="telemetry-label">추정 VRAM 점유율</span>
-            <span class="telemetry-val">${graphics.estimatedVram}</span>
+            <span class="telemetry-val">${escapeHtml(graphics.estimatedVram)}</span>
           </div>
           <div class="telemetry-item">
             <span class="telemetry-label">레티나 선명도 (Crisp)</span>
@@ -1324,23 +1163,23 @@ class FloatingDock {
           <div class="telemetry-grid">
             <div class="telemetry-item" style="grid-column: 1/-1;">
               <span class="telemetry-label">GPU 렌더러</span>
-              <span class="telemetry-val" style="font-size: 10px;">${graphics.webgl.renderer}</span>
+              <span class="telemetry-val" style="font-size: 11px;">${escapeHtml(graphics.webgl.renderer)}</span>
             </div>
             <div class="telemetry-item">
               <span class="telemetry-label">GPU 벤더</span>
-              <span class="telemetry-val" style="font-size: 10px;">${graphics.webgl.vendor}</span>
+              <span class="telemetry-val" style="font-size: 11px;">${escapeHtml(graphics.webgl.vendor)}</span>
             </div>
             <div class="telemetry-item">
               <span class="telemetry-label">최대 텍스처 크기</span>
-              <span class="telemetry-val">${graphics.webgl.maxTextureSize} px</span>
+              <span class="telemetry-val">${escapeHtml(graphics.webgl.maxTextureSize)} px</span>
             </div>
             <div class="telemetry-item">
               <span class="telemetry-label">지원 확장 수</span>
-              <span class="telemetry-val">${graphics.webgl.extensionsCount}개</span>
+              <span class="telemetry-val">${escapeHtml(graphics.webgl.extensionsCount)}개</span>
             </div>
             <div class="telemetry-item">
               <span class="telemetry-label">안티앨리어싱 (AA)</span>
-              <span class="telemetry-val">${graphics.webgl.antialias}</span>
+              <span class="telemetry-val">${escapeHtml(graphics.webgl.antialias)}</span>
             </div>
           </div>
         ` : ''}
@@ -1350,26 +1189,26 @@ class FloatingDock {
         <div class="telemetry-grid">
           <div class="telemetry-item">
             <span class="telemetry-label">viewBox</span>
-            <span class="telemetry-val">${graphics.viewBox}</span>
+            <span class="telemetry-val">${escapeHtml(graphics.viewBox)}</span>
           </div>
           <div class="telemetry-item">
             <span class="telemetry-label">표시 크기</span>
-            <span class="telemetry-val">${graphics.displaySize}</span>
+            <span class="telemetry-val">${escapeHtml(graphics.displaySize)}</span>
           </div>
           <div class="telemetry-item">
             <span class="telemetry-label">패스 (Paths) 개수</span>
-            <span class="telemetry-val">${graphics.pathsCount}개</span>
+            <span class="telemetry-val">${escapeHtml(graphics.pathsCount)}개</span>
           </div>
           <div class="telemetry-item">
             <span class="telemetry-label">기본 도형 (Shapes)</span>
-            <span class="telemetry-val">${graphics.shapesCount}개</span>
+            <span class="telemetry-val">${escapeHtml(graphics.shapesCount)}개</span>
           </div>
         </div>
       `;
     }
 
     container.innerHTML = `
-      <div class="section-title">그래픽 요소 심층 분석 (&lt;${graphics.type}&gt;)</div>
+      <div class="section-title">그래픽 요소 심층 분석 (&lt;${escapeHtml(graphics.type)}&gt;)</div>
       ${detailsHtml}
     `;
   }
@@ -1388,13 +1227,13 @@ class FloatingDock {
     const gridGutter = this.overlayCanvas?.gridConfig?.gutter || 20;
 
     container.innerHTML = `
-      <div class="section-title">접근성 및 편의 도구 (Power Tools)</div>
+      <div class="section-title">페이지 도구</div>
 
       <!-- W3C Tab Order Flow Visualizer (v4.0.0) -->
       <div class="tool-banner" style="margin-bottom: 8px;">
         <div>
-          <div class="tool-meta-title">W3C 키보드 탭 순서 흐름 (Tab Order)</div>
-          <div class="tool-meta-desc">포커스 순번 넘버 배지 및 탭 이동 흐름선 시각화</div>
+          <div class="tool-meta-title">키보드 탐색 순서</div>
+          <div class="tool-meta-desc">페이지 일부 요소의 포커스 순서를 표시합니다.</div>
         </div>
         <button class="toggle-switch-btn ${isTabOrderOn ? 'active' : ''}" id="toggleTabOrderBtn">
           ${isTabOrderOn ? 'ON' : 'OFF'}
@@ -1404,8 +1243,8 @@ class FloatingDock {
       <!-- Precision Crosshair Cursor & Live Coordinates (v4.0.0 2.5px 50% opacity) -->
       <div class="tool-banner" style="margin-bottom: 8px;">
         <div>
-          <div class="tool-meta-title">정밀 십자선 커서 & 좌표 (Alt + C)</div>
-          <div class="tool-meta-desc">2.5px 두께 50% 반투명 헤어라인 및 실시간 (X, Y) 픽셀 좌표</div>
+          <div class="tool-meta-title">정밀 십자선과 좌표</div>
+          <div class="tool-meta-desc">커서 위치와 정렬 기준선을 확인합니다.</div>
         </div>
         <button class="toggle-switch-btn ${isCursorOn ? 'active' : ''}" id="toggleCursorBtn">
           ${isCursorOn ? 'ON' : 'OFF'}
@@ -1415,7 +1254,7 @@ class FloatingDock {
       <!-- Instant Zoom In / Zoom Out (v4.0.0 Alt++, Alt--, Alt+0) -->
       <div class="tool-banner" style="margin-bottom: 8px;">
         <div style="flex: 1; padding-right: 10px;">
-          <div class="tool-meta-title">인스턴트 줌 (Alt + / - / 0)</div>
+          <div class="tool-meta-title">페이지 확대 / 축소</div>
           <div class="tool-meta-desc">
             마우스 커서 중심 확대/축소 및 원복
           </div>
@@ -1430,8 +1269,8 @@ class FloatingDock {
       <!-- Copy & Right-Click Unblocker -->
       <div class="tool-banner">
         <div>
-          <div class="tool-meta-title">복사 & 우클릭 차단 해제 (Alt + U)</div>
-          <div class="tool-meta-desc">user-select 및 우클릭/드래그 방지 스크립트 무력화</div>
+          <div class="tool-meta-title">선택과 우클릭 허용</div>
+          <div class="tool-meta-desc">일부 텍스트 선택·우클릭 제한을 완화합니다.</div>
         </div>
         <button class="toggle-switch-btn ${isUnblocked ? 'active' : ''}" id="toggleUnblockBtn">
           ${isUnblocked ? '해제됨 (Active)' : '해제하기'}
@@ -1441,21 +1280,21 @@ class FloatingDock {
       <!-- DOM & Script Freeze -->
       <div class="tool-banner" style="margin-top: 8px;">
         <div>
-          <div class="tool-meta-title">스크립트 & 툴팁 프리징 (Freeze)</div>
-          <div class="tool-meta-desc">마우스를 떼면 사라지는 툴팁/드롭다운 고정</div>
+          <div class="tool-meta-title">화면 고정</div>
+          <div class="tool-meta-desc">일부 움직임과 마우스 이벤트를 일시 중지합니다.</div>
         </div>
         <button class="toggle-switch-btn ${isFrozen ? 'active freeze' : ''}" id="toggleFreezeBtn">
           ${isFrozen ? '고정됨 (Frozen)' : '화면 멈추기'}
         </button>
       </div>
 
-      <div class="section-title" style="margin-top: 14px;">피그마 커스텀 그리드 설정</div>
+      <div class="section-title" style="margin-top: 14px;">그리드 설정</div>
 
       <!-- Responsive Grid Toggle -->
       <div class="tool-banner">
         <div>
           <div class="tool-meta-title">반응형 컬럼 그리드 표시</div>
-          <div class="tool-meta-desc">Figma 레이아웃 컬럼 가이드라인</div>
+          <div class="tool-meta-desc">컬럼 간격과 정렬을 확인합니다.</div>
         </div>
         <button class="toggle-switch-btn ${isGridOn ? 'active' : ''}" id="toggleGridToolBtn">
           ${isGridOn ? 'ON' : 'OFF'}
@@ -1575,352 +1414,143 @@ class FloatingDock {
   // TAB 6: Code Export & CSS De-minifier (v4.0.0 React & Asset Downloader)
   // ==========================================
   renderCodeTab(container) {
-    const el = this.tweaker.getElement();
-    const converted = el ? TailwindConverter.convert(el) : null;
-    const reactComponent = (el && typeof ReactExporter !== 'undefined') ? ReactExporter.generateComponent(el) : null;
-
+    const el = this.tweaker?.getElement();
+    const converted = el && typeof TailwindConverter !== 'undefined' ? TailwindConverter.convert(el) : null;
+    const component = el && this.reactExporter ? this.reactExporter.generateComponent(el) : '';
     container.innerHTML = `
-      <div class="section-title">스마트 코드 추출 (Smart Code)</div>
-      ${converted ? `
-        <!-- React JSX Component Card (v4.0.0) -->
-        <div class="code-card" style="margin-bottom: 8px;">
-          <div class="code-header">
-            <span class="code-lang-tag">React (JSX) Component</span>
-            <button class="copy-mini-btn" id="copyReactBtn">JSX 복사</button>
-          </div>
-          <pre class="code-content">${(reactComponent || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
-        </div>
-
-        <!-- Tailwind CSS Card -->
-        <div class="code-card" style="margin-bottom: 8px;">
-          <div class="code-header">
-            <span class="code-lang-tag">Tailwind CSS Classes</span>
-            <button class="copy-mini-btn" id="copyTailwindBtn">복사</button>
-          </div>
-          <pre class="code-content">${converted.tailwind || '(추출된 유틸리티 없음)'}</pre>
-        </div>
-
-        <!-- Clean CSS Rules Card -->
-        <div class="code-card" style="margin-bottom: 8px;">
-          <div class="code-header">
-            <span class="code-lang-tag">Clean CSS</span>
-            <button class="copy-mini-btn" id="copyCssBtn">복사</button>
-          </div>
-          <pre class="code-content">${converted.cleanCss}</pre>
-        </div>
-
-        <!-- One-click Asset Downloader (v4.0.0) -->
-        <button class="btn-secondary-action" id="btnDownloadAssets" style="margin-bottom: 12px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          요소 및 하위 에셋 일괄 다운로드 (SVG/IMG)
-        </button>
-      ` : `
-        <div style="text-align: center; padding: 12px; color: #9CA3AF; font-size: 11px;">
-          요소를 선택하면 React JSX, Tailwind 및 Clean CSS 코드가 생성됩니다.
-        </div>
-      `}
-
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px;">
-        <span class="section-title" style="margin: 0;">난독화 해제된 사이트 CSS</span>
-        <button class="section-reset-btn" id="loadSiteCssBtn">스타일시트 불러오기</button>
-      </div>
-      <div class="search-input-box" style="margin-top: 6px;">
-        <input type="text" class="site-search-input" id="cssSearchInput" placeholder="클래스, 셀렉터 또는 속성 검색...">
-      </div>
-      <div id="cssSheetsList" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; margin-top: 6px;">
-        <div style="text-align: center; padding: 12px; color: #6B7280; font-size: 11px;">
-          '스타일시트 불러오기'를 누르면 사이트의 번들 CSS를 미화하여 표시합니다.
-        </div>
-      </div>
+      <details class="studio-section" data-section="palette" open><summary><span>사이트 팔레트</span><small>Colors & fonts</small></summary><div class="section-content"><p class="muted-copy">페이지 일부 요소와 접근 가능한 CSS에서 자주 쓰는 색상을 찾습니다.</p><button class="btn-secondary-action" id="scanPaletteBtn">팔레트 스캔</button><div class="palette-results" id="paletteResults" aria-live="polite"></div></div></details>
+      ${converted ? `<details class="studio-section" data-section="element-code" open><summary><span>선택한 요소의 코드</span><small>Export</small></summary><div class="section-content"><p class="muted-copy">계산된 스타일을 바탕으로 만든 시작용 코드입니다. 동작과 반응형 규칙은 직접 확인해주세요.</p>
+        ${component ? `<div class="code-card"><div class="code-header"><span class="code-lang-tag">React JSX</span><button class="copy-mini-btn" id="copyReactBtn">복사</button></div><pre class="code-content" tabindex="0">${escapeHtml(component.slice(0, 20000))}</pre>${component.length > 20000 ? '<p class="muted-copy">미리보기 일부 표시 · 복사하면 전체 코드를 가져옵니다.</p>' : ''}</div>` : ''}
+        <div class="code-card"><div class="code-header"><span class="code-lang-tag">Tailwind CSS</span><button class="copy-mini-btn" id="copyTailwindBtn">복사</button></div><pre class="code-content" tabindex="0">${escapeHtml(converted.tailwind || '추출된 유틸리티가 없습니다.')}</pre></div>
+        <div class="code-card"><div class="code-header"><span class="code-lang-tag">CSS</span><button class="copy-mini-btn" id="copyCssBtn">복사</button></div><pre class="code-content" tabindex="0">${escapeHtml(converted.cleanCss)}</pre></div>
+        <button class="btn-secondary-action" id="btnDownloadAssets">요소 안의 이미지 · SVG 저장</button>
+      </div></details>` : '<div class="empty-state"><div class="empty-title">요소를 코드로 가져오세요.</div><p class="empty-desc">페이지의 요소를 선택하면 CSS, Tailwind 클래스와 React JSX를 확인할 수 있습니다.</p></div>'}
+      <details class="studio-section" data-section="stylesheets"><summary><span>사이트 스타일시트</span><small>CSS explorer</small></summary><div class="section-content"><button class="btn-secondary-action" id="loadSiteCssBtn" ${this.cssScanPending ? 'disabled' : ''}>${this.cssScanPending ? '스타일시트 확인 중…' : '스타일시트 불러오기'}</button><input type="search" class="site-search-input" id="cssSearchInput" placeholder="클래스, 셀렉터, 속성 검색" aria-label="스타일시트 검색"><div class="stylesheet-results" id="cssSheetsList"><p class="muted-copy">접근 가능한 스타일시트의 CSS를 읽기 좋게 정리합니다.</p></div></div></details>
     `;
+    this.renderPalette(container.querySelector('#paletteResults'));
+    container.querySelector('#scanPaletteBtn').addEventListener('click', event => this.performAction(event.currentTarget, async () => {
+      if (typeof PaletteExtractor === 'undefined') throw new Error('팔레트 도구를 불러올 수 없습니다.');
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      this.extractedPalette = PaletteExtractor.extract();
+      this.renderPalette(container.querySelector('#paletteResults'));
+      this.showToast('페이지 색상 샘플을 추출했습니다. 색상을 클릭하면 복사됩니다.');
+    }, '색상 확인 중…'));
+    container.querySelector('#copyReactBtn')?.addEventListener('click', () => this.copyText(component, 'React JSX를 복사했습니다.'));
+    container.querySelector('#copyTailwindBtn')?.addEventListener('click', () => this.copyText(converted.tailwind, 'Tailwind 클래스를 복사했습니다.'));
+    container.querySelector('#copyCssBtn')?.addEventListener('click', () => this.copyText(converted.cleanCss, 'CSS를 복사했습니다.'));
+    container.querySelector('#btnDownloadAssets')?.addEventListener('click', event => this.performAction(event.currentTarget, async () => {
+      if (!this.reactExporter) throw new Error('에셋 내보내기 도구를 불러올 수 없습니다.');
+      const count = await this.reactExporter.downloadAllAssets(el);
+      this.showToast(count ? `${count}개 에셋의 다운로드를 요청했습니다.` : '이 요소 안에 저장할 이미지나 SVG가 없습니다.', count ? 'success' : 'info');
+    }, '에셋 확인 중…'));
+    container.querySelector('#loadSiteCssBtn').addEventListener('click', event => this.performAction(event.currentTarget, async () => {
+      if (typeof CssBeautifier === 'undefined') throw new Error('CSS 도구를 불러올 수 없습니다.');
+      this.cssScanPending = true;
+      const list = container.querySelector('#cssSheetsList');
+      list.textContent = '스타일시트를 읽고 있습니다…';
+      try {
+        this.siteStylesheets = await CssBeautifier.extractSiteStylesheets();
+        this.displayFilteredCss(list, '');
+      } catch (error) { list.textContent = '스타일시트를 불러오지 못했습니다. 다시 시도해주세요.'; throw error; }
+      finally { this.cssScanPending = false; }
+    }, '스타일시트 확인 중…'));
+    container.querySelector('#cssSearchInput').addEventListener('input', event => this.displayFilteredCss(container.querySelector('#cssSheetsList'), event.target.value.trim()));
+    if (this.siteStylesheets?.length) this.displayFilteredCss(container.querySelector('#cssSheetsList'), '');
+  }
 
-    if (converted) {
-      container.querySelector('#copyReactBtn')?.addEventListener('click', () => {
-        if (reactComponent) {
-          navigator.clipboard.writeText(reactComponent).then(() => this.showToast('React 컴포넌트 코드가 복사되었습니다.'));
-        }
-      });
-      container.querySelector('#copyTailwindBtn')?.addEventListener('click', () => {
-        navigator.clipboard.writeText(converted.tailwind).then(() => this.showToast('Tailwind 클래스가 복사되었습니다.'));
-      });
-      container.querySelector('#copyCssBtn')?.addEventListener('click', () => {
-        navigator.clipboard.writeText(converted.cleanCss).then(() => this.showToast('Clean CSS가 복사되었습니다.'));
-      });
-      container.querySelector('#btnDownloadAssets')?.addEventListener('click', async () => {
-        if (typeof ReactExporter !== 'undefined') {
-          const count = await ReactExporter.downloadAllAssets(el);
-          this.showToast(`${count}개의 에셋 다운로드를 시작했습니다.`);
-        }
-      });
-    }
-
-    container.querySelector('#loadSiteCssBtn').addEventListener('click', async () => {
-      const listContainer = container.querySelector('#cssSheetsList');
-      listContainer.innerHTML = `<div style="text-align: center; padding: 12px; color: #E11D48;">스타일시트 파싱 및 난독화 해제 중...</div>`;
-      this.siteStylesheets = await CssBeautifier.extractSiteStylesheets();
-      this.displayFilteredCss(listContainer, '');
-    });
-
-    const searchInput = container.querySelector('#cssSearchInput');
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase().trim();
-      const listContainer = container.querySelector('#cssSheetsList');
-      this.displayFilteredCss(listContainer, query);
-    });
-
-    if (this.siteStylesheets && this.siteStylesheets.length > 0) {
-      this.displayFilteredCss(container.querySelector('#cssSheetsList'), '');
-    }
+  renderPalette(container) {
+    if (!container) return;
+    if (!this.extractedPalette) { container.innerHTML = '<p class="muted-copy">스캔한 색상을 클릭하면 HEX 값을 복사합니다.</p>'; return; }
+    const colors = (this.extractedPalette.colors || []).filter(color => /^#[\da-f]{6}$/i.test(color.hex)).slice(0, 32);
+    const fonts = (this.extractedPalette.fonts || []).slice(0, 8);
+    container.innerHTML = `${colors.length ? `<div class="palette-grid">${colors.map(color => `<button class="palette-item" data-palette-color="${color.hex}" title="${color.hex} 복사" aria-label="${color.hex} 색상 복사"><span class="palette-swatch" style="background:${color.hex}"></span><span class="palette-hex">${color.hex}</span></button>`).join('')}</div>` : '<p class="muted-copy">추출할 수 있는 색상이 없습니다.</p>'}${fonts.length ? `<div class="palette-fonts">${fonts.map(font => `<span class="al-badge">${escapeHtml(font.family)}</span>`).join('')}</div>` : ''}<p class="muted-copy">${this.extractedPalette.sampledElements !== undefined ? `${Number(this.extractedPalette.sampledElements)}개 요소 샘플` : '페이지 일부 요소 샘플'}${this.extractedPalette.truncated ? ' · 검사 범위 제한에 도달했습니다.' : ''} · 프레임과 Shadow DOM은 포함하지 않습니다.</p>`;
+    container.querySelectorAll('[data-palette-color]').forEach(button => button.addEventListener('click', () => this.copyText(button.dataset.paletteColor, `${button.dataset.paletteColor} 색상을 복사했습니다.`)));
   }
 
   displayFilteredCss(container, query) {
-    if (!this.siteStylesheets || this.siteStylesheets.length === 0) {
-      container.innerHTML = `<div style="text-align: center; padding: 12px; color: #9CA3AF;">추출된 스타일시트가 없습니다.</div>`;
-      return;
-    }
-
+    if (!this.siteStylesheets?.length) { container.innerHTML = '<p class="muted-copy">추출된 스타일시트가 없습니다.</p>'; return; }
+    const normalized = String(query).toLowerCase();
     let html = '';
-    this.siteStylesheets.forEach((sheet, idx) => {
-      let content = sheet.css;
-      if (query) {
+    this.siteStylesheets.slice(0, 50).forEach((sheet, index) => {
+      let content = String(sheet.css || '');
+      if (normalized) {
         const lines = content.split('\n');
-        const matched = [];
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i].toLowerCase().includes(query)) {
-            const start = Math.max(0, i - 2);
-            const end = Math.min(lines.length, i + 6);
-            matched.push(lines.slice(start, end).join('\n'));
-            i = end;
-          }
+        const matches = [];
+        let length = 0;
+        for (let line = 0; line < lines.length && length < 24000; line++) {
+          if (!lines[line].toLowerCase().includes(normalized)) continue;
+          const end = Math.min(lines.length, line + 6);
+          const snippet = lines.slice(Math.max(0, line - 2), end).join('\n');
+          matches.push(snippet); length += snippet.length; line = end - 1;
         }
-        content = matched.join('\n\n/* ----- 일치 결과 ----- */\n\n');
+        content = matches.join('\n\n/* 다음 결과 */\n\n');
         if (!content) return;
       }
-
-      html += `
-        <div class="code-card">
-          <div class="code-header">
-            <span class="code-lang-tag">${sheet.source}</span>
-            <button class="copy-mini-btn" data-copy-idx="${idx}">복사</button>
-          </div>
-          <pre class="code-content">${content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
-        </div>
-      `;
+      const truncated = content.length > 24000;
+      html += `<div class="code-card"><div class="code-header"><span class="code-lang-tag" title="${escapeHtml(sheet.source)}">${escapeHtml(sheet.source)}</span><button class="copy-mini-btn" data-copy-idx="${index}">전체 복사</button></div><pre class="code-content" tabindex="0">${escapeHtml(content.slice(0, 24000))}</pre>${truncated ? '<p class="muted-copy preview-note">미리보기는 일부만 표시됩니다. 전체 복사를 이용하세요.</p>' : ''}</div>`;
     });
-
-    container.innerHTML = html || `<div style="text-align: center; padding: 12px; color: #6B7280;">'${query}'에 일치하는 결과가 없습니다.</div>`;
-
-    container.querySelectorAll('[data-copy-idx]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt(btn.dataset.copyIdx, 10);
-        const code = this.siteStylesheets[idx]?.css || '';
-        navigator.clipboard.writeText(code).then(() => this.showToast('스타일시트가 복사되었습니다.'));
-      });
-    });
+    container.innerHTML = html || `<p class="muted-copy">“${escapeHtml(query)}”에 일치하는 결과가 없습니다.</p>`;
+    if (this.siteStylesheets.length > 50) container.insertAdjacentHTML('beforeend', '<p class="muted-copy">처음 50개 스타일시트를 표시하고 있습니다.</p>');
+    container.querySelectorAll('[data-copy-idx]').forEach(button => button.addEventListener('click', () => this.copyText(this.siteStylesheets[Number(button.dataset.copyIdx)]?.css || '', '스타일시트 전체를 복사했습니다.')));
   }
 
   // ==========================================
   // TAB 7: Settings & Shortcut Customization (v4.0.0)
   // ==========================================
   renderSettingsTab(container) {
-    const shortcuts = this.shortcutManager ? this.shortcutManager.getShortcuts() : {
-      toggleInspector: 'alt+s',
-      toggleEditMode: 'alt+e',
-      instantZoomIn: 'alt+=',
-      instantZoomOut: 'alt+-',
-      resetZoom: 'alt+0',
-      toggleGrid: 'alt+g',
-      togglePrecisionCursor: 'alt+c',
-      toggleTabOrder: 'alt+t'
-    };
-
-    const actionLabels = {
-      toggleInspector: '인스펙터 토글 (Alt + S)',
-      toggleEditMode: '검사 / 편집 모드 전환 (Alt + E)',
-      instantZoomIn: '인스턴트 줌인 (Alt + +)',
-      instantZoomOut: '인스턴트 줌아웃 (Alt + -)',
-      resetZoom: '줌 배율 초기화 (Alt + 0)',
-      toggleGrid: '반응형 그리드 토글 (Alt + G)',
-      togglePrecisionCursor: '정밀 십자선 커서 토글 (Alt + C)',
-      toggleTabOrder: 'W3C 탭 순서 시각화 토글 (Alt + T)'
-    };
-
-    const curVer = this.updateGuardian ? this.updateGuardian.currentVersion : '4.0.3';
-    const curDisplayVer = typeof UpdateGuardian !== 'undefined' ? UpdateGuardian.formatDisplayVersion(curVer) : 'v4.0.3.';
-
+    const shortcuts = this.shortcutManager?.getShortcuts() || { toggleScratcher: 'Alt+S', toggleMode: 'Alt+E', zoomIn: 'Alt+=', zoomOut: 'Alt+-', zoomReset: 'Alt+0', toggleGrid: 'Alt+G', toggleCursor: 'Alt+C', toggleFreeze: 'Alt+F', toggleUnblock: 'Alt+U', toggleTabOrder: 'Alt+T' };
+    const labels = { toggleScratcher: '스튜디오 켜기 / 끄기', toggleMode: '검사 / 편집 전환', zoomIn: '화면 확대', zoomOut: '화면 축소', zoomReset: '배율 초기화', toggleGrid: '컬럼 그리드', toggleCursor: '정밀 십자선', toggleFreeze: '화면 고정', toggleUnblock: '선택 / 우클릭 허용', toggleTabOrder: '키보드 탐색 순서' };
+    const version = this.version || this.updateGuardian?.currentVersion || '4.1.0';
     container.innerHTML = `
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        
-        <!-- 1. Brand Identity & Strict Dot Version Standard -->
-        <div class="brand-identity-card">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <span class="section-title" style="margin: 0;">브랜드 아이덴티티 & 규격</span>
-            <span class="version-standard-badge">${curDisplayVer}</span>
-          </div>
-          
-          <div class="brand-color-row">
-            <div class="brand-color-swatch" title="공식 브랜드 컬러: #E11D48"></div>
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span class="brand-color-name">공식 브랜드 컬러</span>
-                <span class="brand-color-code">#E11D48 (Studio Crimson)</span>
-              </div>
-              <span style="font-size: 10px; color: #64748B;">UI 액센트, 선택 하이라이트 및 룰러에 일관되게 적용</span>
-            </div>
-          </div>
-
-          <div style="font-size: 10.5px; color: #475569; background: #FFFFFF; border: 1px solid #E2E8F0; padding: 6px 8px; border-radius: 4px; line-height: 1.5;">
-            <strong>버전 표기 표준 체계:</strong> 사용자 노출 인터페이스 및 문서에서는 반드시 <strong>'vX.Y.Z.'</strong>처럼 끝에 마침표(dot)를 포함하는 표준 규격을 엄격 준수합니다.
-          </div>
-        </div>
-
-        <!-- 2. GitHub Releases Auto-Detection & One-Click Update Guardian -->
-        <div class="update-guardian-card">
-          <div class="update-status-row">
-            <span class="section-title" style="margin: 0;">GitHub 릴리즈 자동 감지 & 업데이트</span>
-            <span class="update-status-badge up-to-date" id="settingsUpdateBadge">최신 버전 확인 완료</span>
-          </div>
-
-          <div id="settingsUpdateDetail" style="font-size: 11px; color: #475569; line-height: 1.5;">
-            GitHub 원격 릴리즈 저장소를 감지하여 새 버전 배포 시 1초 만에 알림을 제공하고 원클릭 다운로드를 지원합니다.
-          </div>
-
-          <div style="display: flex; gap: 6px;">
-            <button class="btn-primary-action" id="btnCheckUpdateNow" style="flex: 1; height: 30px; font-size: 11px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right: 4px;">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-              </svg>
-              지금 업데이트 확인
-            </button>
-            <button class="btn-secondary-action" id="btnOpenReleasesPage" style="width: auto; padding: 0 10px; height: 30px; font-size: 11px;">
-              릴리즈 목록
-            </button>
-          </div>
-
-          <div id="settingsUpdateBox" style="display: none; background: #FFF1F2; border: 1px solid #FECDD3; border-radius: 6px; padding: 10px; flex-direction: column; gap: 6px;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <span style="font-size: 11px; font-weight: 700; color: #9F1239;" id="settingsNewVerTitle">새 버전 발견</span>
-              <span class="dock-badge" id="settingsNewVerBadge" style="background: #E11D48; color: #fff;">v4.0.3.</span>
-            </div>
-            <p style="font-size: 10.5px; color: #475569;" id="settingsNewVerNotes">새로운 기능과 안정성 개선이 포함되어 있습니다.</p>
-            <button class="btn-primary-action" id="btnOneClickUpdate" style="height: 32px; font-size: 11px; background: #E11D48;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right: 4px;">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-              원클릭 ZIP 다운로드 & 업데이트
-            </button>
-          </div>
-        </div>
-
-        <!-- 3. Shortcuts Settings Table -->
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <span class="section-title" style="margin: 0;">단축키 커스텀 설정</span>
-            <span style="font-size: 10px; color: #64748B;">키 입력 시 자동 저장</span>
-          </div>
-
-          <table class="shortcut-table">
-            <thead>
-              <tr>
-                <th>기능명</th>
-                <th style="text-align: right;">단축키</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${Object.entries(shortcuts).map(([action, key]) => `
-                <tr>
-                  <td>
-                    <div style="font-weight: 600; color: #1E293B;">${actionLabels[action] || action}</div>
-                  </td>
-                  <td style="text-align: right;">
-                    <input type="text" class="shortcut-input" data-action="${action}" value="${key}" placeholder="단축키 입력">
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-
-          <button class="shortcut-reset-btn" id="btnResetShortcuts">
-            모든 단축키를 기본값으로 되돌리기
-          </button>
-        </div>
-
-      </div>
+      <div class="studio-about"><div class="about-heading"><strong>Style Scratcher</strong><span>v${escapeHtml(version)}</span></div><p>웹을 더 가까이.<br>작은 디테일을 발견하고, 직접 다듬어보세요.</p><span class="about-license">Open source · Apache-2.0</span></div>
+      <details class="studio-section" data-section="shortcuts" open><summary><span>페이지 단축키</span><small>Keyboard</small></summary><div class="section-content"><p class="muted-copy">예: Alt+K · 이 사이트에 저장됩니다. 입력 후 Tab을 누르면 적용합니다.</p><table class="shortcut-table"><thead><tr><th>기능</th><th>단축키</th></tr></thead><tbody>${Object.entries(shortcuts).map(([action, key]) => `<tr><td>${escapeHtml(labels[action] || action)}</td><td><input class="shortcut-input" type="text" data-action="${escapeHtml(action)}" value="${escapeHtml(key)}" aria-label="${escapeHtml(labels[action] || action)} 단축키" spellcheck="false" ${this.shortcutManager ? '' : 'disabled'}></td></tr>`).join('')}</tbody></table><button class="shortcut-reset-btn" id="btnResetShortcuts" ${this.shortcutManager ? '' : 'disabled'}>기본 단축키로 되돌리기</button></div></details>
+      <details class="studio-section" data-section="updates"><summary><span>업데이트</span><small>Releases</small></summary><div class="section-content"><div class="update-status-row"><span>현재 v${escapeHtml(version)}</span><span class="update-status-badge" id="settingsUpdateBadge">아직 확인하지 않음</span></div><p class="muted-copy" id="settingsUpdateDetail">GitHub의 공개 릴리즈에서 새 버전을 확인합니다.</p><div class="btn-group"><button class="btn-primary-action" id="btnCheckUpdateNow" ${this.updateGuardian ? '' : 'disabled'}>업데이트 확인</button><button class="btn-secondary-action" id="btnOpenReleasesPage">릴리즈 목록</button></div><div class="update-download" id="settingsUpdateBox" hidden><strong id="settingsNewVerTitle"></strong><span class="dock-badge" id="settingsNewVerBadge"></span><p class="muted-copy" id="settingsNewVerNotes"></p><button class="btn-primary-action" id="btnOneClickUpdate">ZIP 다운로드</button><p class="muted-copy">압축을 해제해 설치 폴더를 교체하고 Chrome 확장 프로그램 화면에서 새로고침하세요.</p></div></div></details>
     `;
-
-    // Shortcut events
-    container.querySelectorAll('.shortcut-input').forEach(input => {
-      input.addEventListener('change', (e) => {
-        const act = input.dataset.action;
-        const val = e.target.value.trim();
-        if (this.shortcutManager && val) {
-          this.shortcutManager.setShortcut(act, val);
-          this.showToast(`'${actionLabels[act] || act}' 단축키가 '${val}'(으)로 변경되었습니다.`);
-        }
-      });
-    });
-
-    container.querySelector('#btnResetShortcuts')?.addEventListener('click', () => {
-      if (this.shortcutManager) {
-        this.shortcutManager.resetToDefaults();
-        this.showToast('모든 단축키가 기본값으로 복원되었습니다.');
-        this.renderCurrentTab();
+    const normalize = value => value.toLowerCase().replace(/\s+/g, '');
+    container.querySelectorAll('.shortcut-input').forEach(input => input.addEventListener('change', event => {
+      const action = input.dataset.action;
+      const value = event.target.value.trim();
+      if (!/^(?:(?:alt|ctrl|control|shift|meta|cmd)\+)+[a-z0-9=\-]$/i.test(value.replace(/\s+/g, ''))) {
+        input.setAttribute('aria-invalid', 'true'); this.showToast('Alt+K처럼 보조 키와 문자·숫자를 입력해주세요.', 'error'); return;
       }
-    });
-
-    // Update Guardian Events in Settings Tab
-    const badge = container.querySelector('#settingsUpdateBadge');
-    const updateBox = container.querySelector('#settingsUpdateBox');
-    const btnCheck = container.querySelector('#btnCheckUpdateNow');
-    const btnOpenReleases = container.querySelector('#btnOpenReleasesPage');
-    const btnOneClick = container.querySelector('#btnOneClickUpdate');
-
-    btnOpenReleases?.addEventListener('click', () => {
-      window.open('https://github.com/hslcrb/style-scrather/releases', '_blank');
-    });
-
-    btnCheck?.addEventListener('click', async () => {
-      if (!this.updateGuardian) return;
-      btnCheck.disabled = true;
-      btnCheck.textContent = '업데이트 확인 중...';
+      const duplicate = Object.entries(this.shortcutManager?.getShortcuts() || {}).some(([other, key]) => other !== action && normalize(key) === normalize(value));
+      if (duplicate) { input.setAttribute('aria-invalid', 'true'); this.showToast('다른 기능에서 사용하는 단축키입니다. 다른 조합을 입력해주세요.', 'error'); return; }
+      this.shortcutManager?.setShortcut(action, value);
+      input.removeAttribute('aria-invalid');
+      this.showToast('현재 사이트에 단축키를 저장했습니다.');
+    }));
+    container.querySelector('#btnResetShortcuts').addEventListener('click', () => { this.shortcutManager?.resetToDefaults(); this.renderCurrentTab(); this.showToast('기본 단축키로 되돌렸습니다.'); });
+    container.querySelector('#btnOpenReleasesPage').addEventListener('click', () => window.open('https://github.com/hslcrb/style-scrather/releases', '_blank', 'noopener,noreferrer'));
+    const updateState = result => {
+      if (!result || result.success === false) throw new Error('릴리즈를 확인하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      const badge = container.querySelector('#settingsUpdateBadge');
+      const box = container.querySelector('#settingsUpdateBox');
+      badge.className = `update-status-badge ${result.hasUpdate ? 'has-update' : 'up-to-date'}`;
+      badge.textContent = result.hasUpdate ? '새 버전 있음' : '새 릴리즈 없음';
+      box.hidden = !result.hasUpdate;
+      if (result.hasUpdate) {
+        container.querySelector('#settingsNewVerTitle').textContent = result.releaseTitle || '새 버전';
+        container.querySelector('#settingsNewVerBadge').textContent = result.latestDisplayVersion;
+        const notes = result.releaseNotes || '릴리즈 목록에서 변경 사항을 확인하세요.';
+        container.querySelector('#settingsNewVerNotes').textContent = notes.length > 200 ? `${notes.slice(0, 200)}…` : notes;
+        container.querySelector('#btnOneClickUpdate').onclick = event => this.performAction(event.currentTarget, async () => {
+          await this.updateGuardian.triggerDownload(result.zipUrl, `style-scrather-${String(result.latestDisplayVersion).replace(/\.+$/, '')}.zip`);
+          this.showToast('ZIP 다운로드를 요청했습니다. 설치 후 확장 프로그램을 다시 불러오세요.');
+        }, '받는 중…');
+      }
+    };
+    if (this.updateGuardian?.lastResult?.success !== false && this.updateGuardian?.lastResult) updateState(this.updateGuardian.lastResult);
+    container.querySelector('#btnCheckUpdateNow').addEventListener('click', event => this.performAction(event.currentTarget, async () => {
+      const badge = container.querySelector('#settingsUpdateBadge');
+      badge.className = 'update-status-badge'; badge.textContent = '확인 중…';
       try {
-        const res = await this.updateGuardian.checkForUpdate(true);
-        btnCheck.disabled = false;
-        btnCheck.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right: 4px;"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>지금 업데이트 확인`;
-
-        if (res.hasUpdate) {
-          badge.className = 'update-status-badge has-update';
-          badge.textContent = `새 버전 ${res.latestDisplayVersion} 출시`;
-          updateBox.style.display = 'flex';
-          container.querySelector('#settingsNewVerTitle').textContent = res.releaseTitle || `새 버전 ${res.latestDisplayVersion}`;
-          container.querySelector('#settingsNewVerBadge').textContent = res.latestDisplayVersion;
-          container.querySelector('#settingsNewVerNotes').textContent = res.releaseNotes ? res.releaseNotes.slice(0, 140) + '...' : '새로운 업데이트를 확인하세요.';
-          
-          btnOneClick.onclick = () => {
-            this.updateGuardian.triggerDownload(res.zipUrl, `style-scrather-${res.latestDisplayVersion.replace(/\\.+$/, '')}.zip`);
-            this.showToast(`${res.latestDisplayVersion} ZIP 다운로드가 시작되었습니다.`);
-          };
-          this.showToast(`신규 버전 ${res.latestDisplayVersion}이 발견되었습니다!`);
-        } else {
-          badge.className = 'update-status-badge up-to-date';
-          badge.textContent = '최신 버전 유지 중';
-          updateBox.style.display = 'none';
-          this.showToast(`현재 최신 버전(${curDisplayVer})을 사용 중입니다.`);
-        }
-      } catch (err) {
-        btnCheck.disabled = false;
-        btnCheck.textContent = '지금 업데이트 확인';
-        this.showToast('업데이트 확인 실패: 네트워크 상태를 확인하세요.');
-      }
-    });
+        const result = await this.updateGuardian.checkForUpdate(true);
+        updateState(result);
+        this.showToast(result.hasUpdate ? '새 버전을 확인했습니다.' : '현재 버전보다 새로운 릴리즈가 없습니다.');
+      } catch (error) { badge.textContent = '확인하지 못함'; throw error; }
+    }, '확인 중…'));
   }
+
 }
 
 if (typeof window !== 'undefined') {

@@ -73,7 +73,79 @@ const server = http.createServer((request, response) => {
       assert.equal(await page.locator('#retryPanelBtn').count(), 0, `${tab} renders successfully`);
       assert.equal(await page.locator('#dockBody').evaluate(el => el.scrollWidth <= el.clientWidth + 1), true, `${tab} does not overflow horizontally`);
     }
+    // Adversarial page strings must stay inside text and attribute values.
+    const hostile = '</textarea><img data-hostile="injected" src="invalid">';
+    await page.evaluate(hostile => {
+      document.querySelector('#target').textContent = hostile;
+      document.querySelector('#target').className = 'long-selector-'.repeat(35) + '" data-hostile="class';
+      dock.switchTab('fonts');
+    }, hostile);
+    assert.equal(await page.locator('#fontStudioTextArea').inputValue(), hostile);
+    assert.equal(await page.locator('[data-hostile]').count(), 0);
+    await page.evaluate(() => dock.switchTab('assets'));
+    assert.equal(await page.locator('#liveTextarea').inputValue(), hostile);
+    assert.equal(await page.locator('[data-hostile]').count(), 0);
+    await page.evaluate(hostile => {
+      document.querySelector('#target').textContent = 'Explore the collection';
+      document.querySelector('#target').className = 'product-action primary-action';
+      dock.siteStylesheets = [{ source: hostile, css: 'p::before { content: "&lt;"; }' }];
+      dock.switchTab('code');
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async () => { throw new Error('Permission denied'); } } });
+    }, hostile);
+    await page.locator('#scanPaletteBtn').click();
+    await page.locator('.palette-item').first().waitFor();
+    assert.ok(await page.locator('.palette-item').count() > 0, 'Palette scan produces real colors');
+    await page.locator('.palette-item').first().click();
+    await page.waitForFunction(() => document.querySelector('#style-scratcher-host').shadowRoot.querySelector('#toastMsg').textContent.includes('클립보드 권한'));
+    await page.locator('#dockBody').evaluate(el => { el.scrollTop = 0; });
+    await page.locator('.scratcher-dock').screenshot({ animations: 'disabled', path: path.join(screenshots, 'studio-palette.png') });
+    await page.locator('details[data-section="stylesheets"] summary').click();
+    await page.locator('#cssSearchInput').fill(hostile);
+    assert.equal(await page.locator('[data-hostile]').count(), 0, 'CSS query remains plain text');
+    await page.locator('#cssSearchInput').fill('');
+    assert.equal(await page.locator('#cssSheetsList .code-content').textContent(), 'p::before { content: "&lt;"; }');
+    await page.evaluate(() => { CssBeautifier.extractSiteStylesheets = async () => { throw new Error('offline'); }; });
+    await page.locator('#loadSiteCssBtn').click();
+    assert.equal(await page.locator('#loadSiteCssBtn').isEnabled(), true);
+    assert.match(await page.locator('#cssSheetsList').textContent(), /불러오지 못했습니다/);
+    await page.evaluate(() => { dock.fontStudio.extractWebFonts = async () => { throw new Error('offline'); }; dock.switchTab('fonts'); });
+    await page.locator('#btnExtractWebFonts').click();
+    assert.equal(await page.locator('#btnExtractWebFonts').isEnabled(), true);
+    assert.match(await page.locator('#webFontsList').textContent(), /불러오지 못했습니다/);
+    await page.evaluate(() => { dock.fontStudio.createTextOutlines = () => { throw new Error('200자 이하의 텍스트를 선택해주세요.'); }; });
+    await page.locator('#btnCreateOutlines').click();
+    await page.waitForFunction(() => document.querySelector('#style-scratcher-host').shadowRoot.querySelector('#toastMsg').textContent.includes('200자'));
+    assert.equal(await page.locator('#btnCreateOutlines').isEnabled(), true);
+    await page.evaluate(() => {
+      dock.fontStudio.harvestGlyphs = async (family, progress) => {
+        progress(100);
+        return { measurementOnly: true, coverageDetermined: false, coveragePct: null, supportedCount: null, measuredCount: 2, totalGlyphs: 2, glyphs: [{ char: 'A', code: 65, width: 16, fallbackWidth: 15, supported: null }, { char: '가', code: 44032, width: 24, fallbackWidth: 24, supported: null }] };
+      };
+    });
+    await page.locator('details[data-section="glyphs"] summary').click();
+    await page.locator('#btnStartHarvest').click();
+    assert.match(await page.locator('#glyphStatusBadge').textContent(), /2개 폭 측정/);
+    const measurementDownload = page.waitForEvent('download');
+    await page.locator('#btnExportGlyphData').click();
+    const measurementFile = await measurementDownload;
+    const measurements = JSON.parse(fs.readFileSync(await measurementFile.path(), 'utf8'));
+    assert.equal(measurements.coverageDetermined, false);
+    assert.equal(measurements.measuredCount, 2);
+    assert.equal(measurements.glyphs[0].pathData, undefined);
+    await page.evaluate(() => { dock.updateGuardian.checkForUpdate = async () => ({ success: false, hasUpdate: false }); dock.switchTab('settings'); });
+    assert.match(await page.locator('#settingsUpdateBadge').textContent(), /아직 확인하지 않음/);
+    await page.locator('details[data-section="updates"] summary').click();
+    await page.locator('#btnCheckUpdateNow').click();
+    assert.equal(await page.locator('#settingsUpdateBadge').textContent(), '확인하지 못함');
+    assert.equal(await page.locator('#btnCheckUpdateNow').isEnabled(), true);
+    await page.locator('.scratcher-dock').screenshot({ animations: 'disabled', path: path.join(screenshots, 'studio-settings-error.png') });
+    await page.evaluate(() => dock.switchTab('motion'));
+    await page.locator('#moreToolsBtn').click();
+    assert.equal(await page.locator('#moreToolsMenu [data-tab="motion"]').evaluate(el => el.getRootNode().activeElement === el), true, 'Menu opens on the selected tool');
+    await page.keyboard.press('Escape');
     await page.evaluate(() => dock.switchTab('inspector'));
+    assert.equal(await page.locator('#radiusSlider').evaluate(slider => { slider.value = '31'; slider.dispatchEvent(new Event('input', { bubbles: true })); return slider === slider.getRootNode().querySelector('#radiusSlider'); }), true, 'Live range input keeps its DOM node during a drag');
+    assert.equal(await page.locator('#target').evaluate(el => el.style.borderTopLeftRadius), '31px');
     await page.locator('#moveDockBtn').focus();
     const before = await page.locator('.scratcher-dock').boundingBox();
     await page.keyboard.press('ArrowLeft');
@@ -95,6 +167,6 @@ const server = http.createServer((request, response) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     assert.equal(await page.locator('.scratcher-dock').evaluate(el => getComputedStyle(el).transitionDuration), '0s');
     assert.deepEqual(errors, []);
-    console.log(JSON.stringify({ result: 'passed', checks: '10 panels at desktop and 320px, keyboard tabs/menu/drag, minimize, live editing, disclosure persistence, reduced motion', screenshots }, null, 2));
+    console.log(JSON.stringify({ result: 'passed', checks: '10 panels at desktop and 320px; keyboard tabs/menu/drag; minimize; live editing; persistent disclosures; hostile text; real palette scan; clipboard, font, CSS and update failures; reduced motion', screenshots }, null, 2));
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => server.close());

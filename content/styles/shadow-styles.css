@@ -207,6 +207,12 @@ input[aria-invalid="true"] { border-color: var(--ss-crimson); background: #fff1f
 .telemetry-label { color: var(--ss-muted); font-size: 10px; }.telemetry-val { color: var(--ss-ink); font-size: 12px; font-weight: 600; overflow-wrap: anywhere; }
 .font-prop-card .tweak-control-group { justify-content: flex-start; }
 .font-select-field { max-width: 225px; }
+.field-label { font-size: 11px; font-weight: 600; color: var(--ss-muted); }
+.font-results, .stylesheet-results { display: flex; flex-direction: column; gap: 8px; }
+.font-result { display: flex; align-items: center; gap: 8px; padding: 10px; background: #fff; border: 1px solid var(--ss-line); border-radius: 8px; }
+.font-result-meta { flex: 1; min-width: 0; }.font-result-meta strong { display: block; font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }.font-result-meta small { display: block; color: var(--ss-muted); font-size: 10px; overflow-wrap: anywhere; }.font-result-actions { display: flex; gap: 4px; }
+.preview-note { padding: 8px 12px; }
+.studio-about { border: 1px solid #fff; background: linear-gradient(135deg, #fff, #fff6fa); border-radius: 13px; padding: 16px; }.about-heading { display: flex; justify-content: space-between; gap: 8px; }.about-heading strong { font-size: 14px; letter-spacing: -.3px; }.about-heading > span { font-size: 10px; color: var(--ss-muted); }.studio-about p { color: var(--ss-muted); font-size: 11px; line-height: 1.9; margin-top: 10px; }.about-license { display: block; color: #9b6277; font-size: 9px; margin-top: 15px; }.update-download { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; border-top: 1px solid var(--ss-line); padding-top: 13px; }.update-download > strong { font-size: 12px; overflow-wrap: anywhere; }
 .live-text-area { width: 100%; min-height: 90px; resize: vertical; border: 1px solid var(--ss-line); border-radius: 8px; padding: 10px; background: #fff; color: var(--ss-ink); font-size: 12px; line-height: 1.7; }
 .editable-active-badge { font-size: 10px; color: #47775d; display: flex; gap: 6px; }
 .glyph-harvest-box { background: #fff7fab3; }.glyph-progress-bar-container { height: 5px; background: #e8dce3; border-radius: 4px; overflow: hidden; }.glyph-progress-bar-fill { height: 100%; width: 0; background: var(--ss-crimson); border-radius: inherit; transition: width .2s ease; }

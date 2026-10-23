@@ -87,3 +87,54 @@ test('a newer toast cancels the old dismissal timer', () => {
   assert.equal(toast.dataset.kind, 'error');
   assert.equal(classes.has('show'), true);
 });
+
+function panel() {
+  return { innerHTML: '', querySelectorAll: () => [], querySelector: () => ({ addEventListener() {}, style: {} }) };
+}
+
+test('stylesheet source labels and search text render as text', () => {
+  const { Dock } = load();
+  const dock = Object.create(Dock.prototype);
+  const view = panel();
+  dock.siteStylesheets = [{ source: '<img data-hostile="source">', css: 'p::before { content: "&lt;"; }' }];
+  dock.displayFilteredCss(view, '');
+  assert.equal(view.innerHTML.includes('<img data-hostile'), false);
+  assert.ok(view.innerHTML.includes('&amp;lt;'), 'literal entities must not change the displayed CSS');
+  dock.displayFilteredCss(view, '<img data-hostile="search">');
+  assert.equal(view.innerHTML.includes('<img data-hostile'), false);
+});
+
+test('font editor escapes selected page text and font names', () => {
+  const payload = '</textarea><img data-hostile="text">';
+  const { Dock } = load({ window: { getComputedStyle: () => ({ fontFamily: 'Inter', fontSize: '16px', fontWeight: '400' }) }, FontStudio: { CURATED_FONTS: [{ name: '<img data-hostile="font">', google: false }] } });
+  const dock = Object.create(Dock.prototype);
+  dock.tweaker = { getElement: () => ({ innerText: payload }) };
+  dock.fontStudio = { CURATED_FONTS: [{ name: '<img data-hostile="font">', google: false }] };
+  dock.extractedFonts = [];
+  const view = panel();
+  dock.renderFontsTab(view);
+  assert.equal(view.innerHTML.includes('<img data-hostile'), false);
+  assert.ok(view.innerHTML.includes('&lt;/textarea&gt;'));
+});
+
+test('asset editor escapes textarea and attribute values from the page', () => {
+  const payload = '</textarea><img data-hostile="asset">';
+  const { Dock } = load({ AssetEditor: { identifyType: () => 'image', getText: () => payload, getImageSrc: () => 'https://example.com/" data-hostile="url', getSvgInfo: () => null } });
+  const dock = Object.create(Dock.prototype);
+  dock.tweaker = { getElement: () => ({ tagName: 'IMG', isContentEditable: false }) };
+  const view = panel();
+  dock.renderAssetsTab(view);
+  assert.equal(view.innerHTML.includes('<img data-hostile'), false);
+  assert.equal(view.innerHTML.includes('" data-hostile="url'), false);
+});
+
+test('motion panel includes both animations and transitions on one element', () => {
+  const { Dock } = load({ MotionInspector: { parseCubicBezier: () => [0, 0, 1, 1], renderBezierSvg: () => '<svg></svg>' } });
+  const dock = Object.create(Dock.prototype);
+  dock.tweaker = { getElement: () => ({}) };
+  dock.motionInspector = { playbackRate: 1, isPaused: false, inspect: () => ({ animations: [{ name: 'fade-animation', timing: 'ease', duration: '1s', iteration: 1 }], transitions: [{ property: 'opacity-transition', timing: 'ease', duration: '1s' }] }) };
+  const view = panel();
+  dock.renderMotionTab(view);
+  assert.ok(view.innerHTML.includes('fade-animation'));
+  assert.ok(view.innerHTML.includes('opacity-transition'));
+});
