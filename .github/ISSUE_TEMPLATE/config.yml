@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 보안 취약점 비공개 제보
+    url: https://github.com/hslcrb/style-scrather/security/advisories/new
+    about: SECURITY.md의 비공개 제보 절차를 확인해주세요.

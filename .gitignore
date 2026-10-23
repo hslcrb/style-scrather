@@ -30,3 +30,12 @@ Thumbs.db
 *.crx
 style-scrather-*.zip
 
+# Local builds and verification evidence
+dist/
+test-results/
+playwright-report/
+.worktrees/
+.env
+.env.*
+!.env.example
+
