@@ -1,4 +1,4 @@
-// Style Scratcher v4.0.3. - Content Script Orchestrator
+// Style Scratcher v4.1.0. - Content Script Orchestrator
 
 (function () {
   // Prevent multiple injections
@@ -123,7 +123,7 @@
 
     isInitialized = true;
 
-    console.log('[Style Scratcher v4.0.3.] Initialized with True Vector Outliner, WebFont Downloader & SVG Font Builder.');
+    console.log('[Style Scratcher] Studio initialized on demand.');
   }
 
   function selectElement(element) {

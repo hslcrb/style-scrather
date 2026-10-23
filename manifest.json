@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Style Scratcher - 피그마 스타일 웹 인스펙터 & CSS 튜너",
   "short_name": "StyleScratcher",
-  "version": "4.0.3",
-  "description": "디자이너와 개발자를 위한 화이트 미니멀 피그마 감성 웹 인스펙터 & 에디트 스튜디오 v4.0.3. 끝 마침표 버전 체계(vX.Y.Z.) 및 브랜드 컬러(#E11D48) 확립, 서브픽셀 마칭스퀘어 트루 벡터 글리프 아웃라이너, 웹폰트 바이너리 다운로더, W3C SVG 폰트 빌더, 병렬 글리프 실측 수확기, 깃허브 릴리즈 자동 감지, 2줄 탭 네비게이션, 벡터 SVG 아이콘, 검사/편집 모드 분리, 디바이스 목업, React JSX 추출.",
+  "version": "4.1.0",
+  "description": "웹 페이지의 레이아웃·색상·타이포그래피를 검사하고 CSS를 실험하는 디자인 도구. 필요할 때 열리는 리퀴드 스튜디오에서 측정, 편집, 내보내기를 한곳에.",
   "permissions": [
     "activeTab",
     "storage",

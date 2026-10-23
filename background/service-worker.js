@@ -1,4 +1,4 @@
-// Style Scratcher v4.0.3. - Background Service Worker (Manifest V3)
+// Style Scratcher v4.1.0. - Background Service Worker (Manifest V3)
 
 const CONTENT_SCRIPTS = chrome.runtime.getManifest().content_scripts
   .flatMap(entry => entry.js || []);
@@ -105,7 +105,7 @@ async function fetchFontData(urlString) {
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('[Style Scratcher v4.0.3.] Extension installed successfully.');
+  console.log(`[Style Scratcher ${chrome.runtime.getManifest().version}] Extension installed.`);
 });
 
 // Command shortcut listener (e.g. Alt+S)
