@@ -1,19 +1,21 @@
-// Style Scratcher v4.0.3. - Automated Verification Test Suite
+// Engine compatibility checks retained from the original suite.
+// Real DOM, lifecycle, async failures and UI are covered by behavioral/browser suites.
 
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const vm = require('vm');
 
-console.log('🧪 [Style Scratcher v4.0.3.] Running Comprehensive Verification Test Suite...\n');
+async function main() {
+console.log('Style Scratcher — engine compatibility checks\n');
 
-// 1. Verify Manifest V3 & Version 4.0.3
-console.log('1. Verifying manifest.json v4.0.3....');
+// 1. Verify the actual package/manifest contract.
+console.log('1. Verifying the manifest and package version...');
 const manifestPath = path.join(__dirname, '..', 'manifest.json');
 assert(fs.existsSync(manifestPath), 'manifest.json must exist');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 assert.strictEqual(manifest.manifest_version, 3, 'Manifest version must be 3');
-assert.strictEqual(manifest.version, '4.0.3', 'Extension version must be 4.0.3');
+assert.strictEqual(manifest.version, require('../package.json').version, 'Package and manifest versions must match');
 assert(manifest.action && manifest.action.default_popup, 'Popup must be declared');
 assert(manifest.content_scripts && manifest.content_scripts.length > 0, 'Content scripts must be declared');
 
@@ -35,7 +37,7 @@ const expectedScripts = [
 expectedScripts.forEach(s => {
   assert(scripts.includes(s), `${s} must be in manifest.json content_scripts`);
 });
-console.log('   ✅ manifest.json is valid Manifest V3 (v4.0.3) with all required content scripts.\n');
+console.log(`   Manifest V3 v${manifest.version}: required content scripts present.\n`);
 
 // 2. Test ModeManager (Inspect Mode vs Edit Studio Mode, Multi-select, DOM Reordering)
 console.log('2. Testing ModeManager (Mode Switching, Multi-Select, DOM Operations)...');
@@ -168,40 +170,10 @@ dm.toggleOrientation();
 assert.strictEqual(dm.isLandscape, false, 'Orientation should toggle back to portrait');
 console.log('   ✅ DeviceMockup passed all device presets (TV 16:9, Desktop, iPad, iPhone, Galaxy) and scale.\n');
 
-// 4. Test TabOrderVisualizer (W3C Sequential Keyboard Navigation)
-console.log('4. Testing TabOrderVisualizer (W3C Tab Order Flow)...');
-const TabOrderVisualizer = require('../content/tab-order-visualizer.js');
-const tov = new TabOrderVisualizer();
-
-// Test focusable element scoring & ordering
-const btn1 = new MockDomNode('button');
-btn1.tabIndex = 2;
-const btn2 = new MockDomNode('input');
-btn2.tabIndex = 1;
-const link1 = new MockDomNode('a');
-link1.tabIndex = 0;
-
-const mockDoc = {
-  querySelectorAll: () => [btn1, btn2, link1]
-};
-
-// Test getFocusableElements logic
-const elements = [btn1, btn2, link1];
-elements.sort((a, b) => {
-  const aIdx = a.tabIndex || 0;
-  const bIdx = b.tabIndex || 0;
-  if (aIdx > 0 && bIdx > 0) return aIdx - bIdx;
-  if (aIdx > 0) return -1;
-  if (bIdx > 0) return 1;
-  return 0;
-});
-assert.strictEqual(elements[0], btn2, 'tabIndex=1 should come first');
-assert.strictEqual(elements[1], btn1, 'tabIndex=2 should come second');
-assert.strictEqual(elements[2], link1, 'tabIndex=0 should come last');
-console.log('   ✅ TabOrderVisualizer verified W3C positive tabindex and sequential tab flow.\n');
+// Actual focus ordering is exercised in runtime-engines.test.js.
 
 // 5. Test FontStudio (AutoLayout Detection, Google Fonts, WebFont Harvester, SVG Outliner)
-console.log('5. Testing FontStudio (Hug/Fill/Fixed Autolayout & Parallel Harvester)...');
+console.log('4. Testing FontStudio (Hug/Fill/Fixed Autolayout & Parallel Harvester)...');
 const FontStudio = require('../content/font-studio.js');
 
 assert(Array.isArray(FontStudio.CURATED_FONTS), 'Curated fonts must be an array');
@@ -242,28 +214,11 @@ const sizingFixed = FontStudio.detectAutolayoutSizing(childFixed);
 assert.strictEqual(sizingFixed.widthSizing, 'Fixed', 'Explicit 240px must detect as Fixed');
 assert.strictEqual(sizingFixed.heightFixed || sizingFixed.heightSizing, 'Fixed', 'Explicit 64px must detect as Fixed');
 
-// Test Parallel Glyph Harvester (Batching without blocking)
-(async () => {
-  let progressReported = false;
-  const harvestResult = await FontStudio.harvestGlyphs('Inter', (pct, done, total) => {
-    progressReported = true;
-    assert(pct >= 0 && pct <= 100);
-    assert(done <= total);
-  });
-  assert(progressReported, 'Progress callback should be executed');
-  assert(harvestResult.totalGlyphs > 100, 'Should harvest both Hangul and Latin syllables');
-  assert.strictEqual(harvestResult.fontFamily, 'Inter');
-  console.log(`   ✅ Glyph Harvester successfully batch-scanned ${harvestResult.totalGlyphs} glyphs non-blocking.`);
-})();
-
-// Test SVG Text Outlining (True Vector Outlines & Curves)
+// A DOM-less environment cannot provide real glyph measurements or outlines.
+await assert.rejects(() => FontStudio.harvestGlyphs('Inter'), /Canvas 2D/);
 const textEl = new MockDomNode('p');
 textEl.innerText = 'Style Scratcher Studio';
-const outlines = FontStudio.createTextOutlines(textEl);
-assert(outlines && outlines.svg, 'Outlines must return SVG vector string');
-assert(outlines.svg.includes('<svg'), 'Output must be valid SVG');
-assert(outlines.svg.includes('Style Scratcher Studio'), 'SVG must contain vectorized text');
-assert(outlines.pathData && outlines.pathData.startsWith('M'), 'Outlines must contain vector pathData');
+assert.throws(() => FontStudio.createTextOutlines(textEl), /Canvas 2D/);
 
 // Test W3C SVG Font Builder
 const testGlyphs = [
@@ -274,10 +229,10 @@ const svgFont = FontStudio.buildSvgFont('StudioFont', testGlyphs);
 assert(svgFont.includes('<font id="StudioFont"'), 'SVG Font must include font tag with id');
 assert(svgFont.includes('<glyph unicode="&#x0041;"'), 'SVG Font must include Latin glyph');
 assert(svgFont.includes('<glyph unicode="&#xAC00;"'), 'SVG Font must include Hangul glyph');
-console.log('   ✅ FontStudio AutoLayout (Hug/Fill/Fixed), True SVG Outliner & W3C SVG Font Builder verified.\n');
+console.log('   FontStudio layout, unsupported-Canvas errors and supplied-path SVG serialization passed.\n');
 
 // 6. Test ContextHud (Smart Alternating Right-Click State Machine)
-console.log('6. Testing ContextHud (Smart Alternating Right-Click HUD)...');
+console.log('5. Testing ContextHud (Smart Alternating Right-Click HUD)...');
 const ContextHud = require('../content/context-hud.js');
 let hudActionTriggered = null;
 const hud = new ContextHud(null, (action) => {
@@ -319,7 +274,7 @@ assert.strictEqual(hud.state, 'READY_FOR_HUD', 'State must reset to READY_FOR_HU
 console.log('   ✅ ContextHud verified smart ping-pong alternating context menu state machine.\n');
 
 // 7. Test ShortcutManager (Alt++ / Alt+- / Alt+0 / Alt+E & Custom Persistence)
-console.log('7. Testing ShortcutManager (Custom Shortcuts & Defaults)...');
+console.log('6. Testing ShortcutManager (Custom Shortcuts & Defaults)...');
 const ShortcutManager = require('../content/shortcut-manager.js');
 
 // Mock localStorage
@@ -357,7 +312,7 @@ assert.strictEqual(sm.getShortcut('toggleEditMode').toLowerCase(), 'alt+e', 'Res
 console.log('   ✅ ShortcutManager passed Alt key matching, custom remapping, and resetToDefaults.\n');
 
 // 8. Test ReactExporter (Clean JSX & Tailwind Conversion)
-console.log('8. Testing ReactExporter (React JSX & Tailwind Exporter)...');
+console.log('7. Testing ReactExporter (React JSX & Tailwind Exporter)...');
 const ReactExporter = require('../content/react-exporter.js');
 
 const cardEl = new MockDomNode('button');
@@ -373,16 +328,10 @@ assert(jsx.includes('Confirm'), 'Must retain inner text');
 assert(jsx.includes('className='), 'Must include Tailwind CSS className');
 console.log('   ✅ ReactExporter passed clean JSX component generation with Tailwind classes.\n');
 
-// 9. Test PrecisionCursor (2.5px Thickness and 50% Opacity)
-console.log('9. Verifying PrecisionCursor 2.5px thickness and 50% opacity...');
-const precisionCode = fs.readFileSync(path.join(__dirname, '..', 'content', 'precision-cursor.js'), 'utf8');
-assert(precisionCode.includes('height: 2.5px'), 'Horizontal hairline must be 2.5px thick');
-assert(precisionCode.includes('width: 2.5px'), 'Vertical hairline must be 2.5px thick');
-assert(precisionCode.includes('rgba(37, 99, 235, 0.5)'), 'Hairline must have 50% opacity (0.5)');
-console.log('   ✅ PrecisionCursor verified with 2.5px lines and 50% opacity.\n');
+// Cursor escaping, activation and listener cleanup are behavioral regression cases.
 
 // 10. Test InstantZoom (Step Zooming Alt++ / Alt+- / Alt+0)
-console.log('10. Testing InstantZoom (Alt Step Zooming & 100% Reset)...');
+console.log('8. Testing InstantZoom (Alt Step Zooming & 100% Reset)...');
 const InstantZoom = require('../content/instant-zoom.js');
 const zoomBody = new MockDomNode('body');
 const zoom = new InstantZoom();
@@ -400,7 +349,7 @@ assert.strictEqual(zoom.currentScale, 1.0, 'resetZoom should return to 1.0');
 console.log('   ✅ InstantZoom passed step zooming and reset.\n');
 
 // 11. Test Custom Grid Configuration in OverlayCanvas
-console.log('11. Testing Custom Grid in OverlayCanvas...');
+console.log('9. Testing Custom Grid in OverlayCanvas...');
 const OverlayCanvas = require('../content/overlay-canvas.js');
 const oc = new OverlayCanvas({ appendChild: () => {} });
 assert.strictEqual(oc.gridConfig.columns, 12);
@@ -410,8 +359,8 @@ assert.strictEqual(oc.gridConfig.gutter, 24);
 assert.strictEqual(oc.gridConfig.color, '#3B82F6');
 console.log('   ✅ OverlayCanvas passed custom grid configuration (16 cols, 24px gutter).\n');
 
-// 12. Project Files Completeness for v4.0.3.
-console.log('12. Verifying File Completeness for v4.0.3....');
+// 12. Runtime files and preserved release history.
+console.log('10. Verifying runtime files and release history...');
 const v4Files = [
   'manifest.json',
   'content/mode-manager.js',
@@ -453,46 +402,11 @@ const v4Files = [
 v4Files.forEach(rel => {
   const full = path.join(__dirname, '..', rel);
   assert(fs.existsSync(full), `File ${rel} must exist`);
-  console.log(`   ✅ Found ${rel}`);
+
 });
 
-// 13. Verify v4.0.1 Innovations: 2-Row Tabs, Zero Unicode Emojis, Red Studio Theme
-console.log('\n13. Verifying v4.0.1 Innovations (2-Row Tabs, Zero Emojis, Red Theme)...');
-const shadowCss = fs.readFileSync(path.join(__dirname, '..', 'content/styles/shadow-styles.css'), 'utf8');
-const dockJs = fs.readFileSync(path.join(__dirname, '..', 'content/components/floating-dock.js'), 'utf8');
-const hudJs = fs.readFileSync(path.join(__dirname, '..', 'content/context-hud.js'), 'utf8');
-const mockupJs = fs.readFileSync(path.join(__dirname, '..', 'content/device-mockup.js'), 'utf8');
-const popupCss = fs.readFileSync(path.join(__dirname, '..', 'popup/popup.css'), 'utf8');
-const popupHtml = fs.readFileSync(path.join(__dirname, '..', 'popup/popup.html'), 'utf8');
-
-// Check 2-Row Grid layout
-assert(shadowCss.includes('grid-template-columns: repeat(5, 1fr)'), 'shadow-styles.css must have 5-column 2-row grid for dock tabs');
-assert(!dockJs.includes('style="overflow-x: auto; scrollbar-width: none;"'), 'dockTabs must not have hidden overflow-x inline style');
-
-// Check 10 tabs declared
-const expectedTabs = ['inspector', 'mockup', 'fonts', 'assets', 'interaction', 'motion', 'graphics', 'tools', 'code', 'settings'];
-expectedTabs.forEach(t => {
-  assert(dockJs.includes(`data-tab="${t}"`), `dock must include tab: ${t}`);
-});
-console.log('   ✅ 2-Row Grid Tab navigation verified: All 10 tabs (including settings) cleanly displayed.');
-
-// Check Zero Unicode Emojis in UI components
-const emojiRegex = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu;
-const dockEmojis = dockJs.match(emojiRegex);
-const hudEmojis = hudJs.match(emojiRegex);
-const mockupEmojis = mockupJs.match(emojiRegex);
-assert(!dockEmojis || dockEmojis.length === 0, `floating-dock.js must have 0 emojis, found: ${dockEmojis}`);
-assert(!hudEmojis || hudEmojis.length === 0, `context-hud.js must have 0 emojis, found: ${hudEmojis}`);
-assert(!mockupEmojis || mockupEmojis.length === 0, `device-mockup.js must have 0 emojis, found: ${mockupEmojis}`);
-console.log('   ✅ Zero Unicode Emojis verified: All UI icons converted to professional inline SVGs.');
-
-// Check Red Theme Primary Accent (#E11D48)
-assert(shadowCss.includes('#E11D48'), 'shadow-styles.css must use #E11D48 red theme primary');
-assert(popupCss.includes('#E11D48'), 'popup.css must use #E11D48 red theme primary');
-console.log('   ✅ Red Studio Theme verified: Primary accent #E11D48 active across dock, canvas & popup.');
-
-// 14. Verify v4.0.3. Innovations: Strict Dot Version Standard & Update Guardian
-console.log('\n14. Verifying v4.0.3. Innovations (Strict Dot Version Standard & Update Guardian)...');
+// Studio layout and all ten panels are tested through behavior, not CSS text matching.
+console.log('11. Testing release version parsing and comparison...');
 const UpdateGuardian = require('../content/update-guardian.js');
 
 // Test UpdateGuardian version parsing & comparison
@@ -505,11 +419,7 @@ assert.strictEqual(UpdateGuardian.formatDisplayVersion('4.0.3'), 'v4.0.3.');
 assert.strictEqual(UpdateGuardian.formatDisplayVersion('v1.1.1.'), 'v1.1.1.');
 console.log('   ✅ UpdateGuardian module verified: Semantic version parser and comparison accurate.');
 
-// Test strict dot version standard in UI (vX.Y.Z.)
-assert(dockJs.includes('<span class="dock-badge">v4.0.3.</span>'), 'floating-dock.js must have dock badge with trailing dot (v4.0.3.)');
-assert(popupHtml.includes('v4.0.3.'), 'popup.html must have footer version with trailing dot (v4.0.3.)');
-assert(dockJs.includes('#E11D48 (Studio Crimson)'), 'floating-dock.js must explicitly specify brand color in settings');
-assert(dockJs.includes('버전 표기 표준 체계'), 'floating-dock.js must explicitly specify dot version standard in settings');
-console.log('   ✅ Strict Dot Version Standard (v4.0.3.) & Brand Color (#E11D48) verified across UI.');
+console.log('\nEngine compatibility checks passed.');
+}
 
-console.log('\n🎉 ALL 14 VERIFICATION TEST PHASES FOR v4.0.3. PASSED 100% BRILLIANTLY!');
+main().catch(error => { console.error(error); process.exitCode = 1; });
