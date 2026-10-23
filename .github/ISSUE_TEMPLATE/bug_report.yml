@@ -1,0 +1,36 @@
+name: Bug report / 오류 제보
+description: 재현할 수 있는 동작 오류를 알려주세요.
+title: "[Bug] "
+body:
+  - type: input
+    id: version
+    attributes:
+      label: 확장 버전 또는 커밋
+      placeholder: v4.1.0. / commit SHA
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 브라우저 버전과 운영체제
+      placeholder: Chrome 156 / Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 재현 절차
+      description: 일반 공개 페이지나 최소 HTML 예제를 사용해주세요. 개인 정보는 지워주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대한 결과와 실제 결과
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 스크린샷 또는 오류 메시지
+      description: 계정, 토큰, 개인 페이지 내용은 포함하지 마세요.
