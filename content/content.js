@@ -117,7 +117,7 @@
     // Smart Alternating Context Menu HUD (v4.0.0)
     if (typeof ContextHud !== 'undefined') {
       contextHud = new ContextHud(shadowRoot, (action, targetEl) => {
-        handleHudAction(action, targetEl);
+        return handleHudAction(action, targetEl);
       });
     }
 
@@ -126,49 +126,68 @@
     console.log('[Style Scratcher v4.0.3.] Initialized with True Vector Outliner, WebFont Downloader & SVG Font Builder.');
   }
 
-  function handleHudAction(action, targetEl) {
-    if (!targetEl) return;
+  function selectElement(element) {
+    modeManager?.select(element);
+    styleTweaker.setElement(element);
+    overlayCanvas.setSelectedElement(element);
+    floatingDock?.updateElement();
+  }
 
-    if (action === 'inspect') {
-      modeManager?.setMode('inspect');
-      styleTweaker.setElement(targetEl);
-      overlayCanvas.setSelectedElement(targetEl);
-      floatingDock.switchTab('inspector');
-    } else if (action === 'edit') {
-      modeManager?.setMode('edit');
-      modeManager?.select(targetEl);
-      styleTweaker.setElement(targetEl);
-      overlayCanvas.setSelectedElement(targetEl);
-      floatingDock.switchTab('inspector');
-    } else if (action === 'font') {
-      styleTweaker.setElement(targetEl);
-      overlayCanvas.setSelectedElement(targetEl);
-      floatingDock.switchTab('fonts');
-    } else if (action === 'mockup') {
-      deviceMockup?.toggle(true);
-      floatingDock.switchTab('mockup');
-    } else if (action === 'taborder') {
-      tabOrderVisualizer?.toggle();
-    } else if (action === 'copyReact') {
-      if (typeof ReactExporter !== 'undefined') {
-        const jsx = ReactExporter.generateComponent(targetEl);
-        navigator.clipboard.writeText(jsx).then(() => {
-          floatingDock?.showToast('React JSX 컴포넌트가 복사되었습니다.');
-        });
-      }
-    } else if (action === 'copyCss') {
-      const comp = window.getComputedStyle(targetEl);
-      const css = `/* Style Scratcher CSS */\nwidth: ${comp.width};\nheight: ${comp.height};\ncolor: ${comp.color};\nbackground: ${comp.backgroundColor};`;
-      navigator.clipboard.writeText(css).then(() => {
-        floatingDock?.showToast('Clean CSS가 복사되었습니다.');
-      });
-    } else if (action === 'delete') {
-      if (modeManager?.removeElement(targetEl)) {
-        styleTweaker.setElement(null);
-        overlayCanvas.setSelectedElement(null);
+  async function copyText(text, message) {
+    if (!navigator.clipboard?.writeText) throw new Error('이 페이지에서 클립보드를 사용할 수 없습니다.');
+    await navigator.clipboard.writeText(text);
+    floatingDock?.showToast(message);
+  }
+
+  async function handleHudAction(action, targetEl) {
+    if (!isActive || !targetEl) return;
+    const aliases = { 'copy-react': 'copyReact', 'copy-css': 'copyCss' };
+    action = aliases[action] || action;
+    try {
+      if (action === 'inspect' || action === 'edit') {
+        modeManager?.setMode(action);
+        selectElement(targetEl);
+        floatingDock.switchTab('inspector');
+      } else if (action === 'font') {
+        selectElement(targetEl);
+        floatingDock.switchTab('fonts');
+      } else if (action === 'mockup') {
+        deviceMockup?.toggle(true);
+        floatingDock.switchTab('mockup');
+      } else if (action === 'taborder') {
+        tabOrderVisualizer?.toggle();
+      } else if (action === 'copyReact') {
+        await copyText(ReactExporter.generateComponent(targetEl), 'React JSX 컴포넌트가 복사되었습니다.');
+      } else if (action === 'copyCss') {
+        const comp = window.getComputedStyle(targetEl);
+        const css = `/* Style Scratcher CSS */\nwidth: ${comp.width};\nheight: ${comp.height};\ncolor: ${comp.color};\nbackground: ${comp.backgroundColor};`;
+        await copyText(css, 'CSS가 복사되었습니다.');
+      } else if (action === 'copy-tailwind') {
+        await copyText(TailwindConverter.convert(targetEl).tailwind, 'Tailwind CSS가 복사되었습니다.');
+      } else if (action === 'outlines') {
+        const output = FontStudio.createTextOutlines(targetEl);
+        if (!output?.svg) throw new Error('아웃라인으로 변환할 텍스트가 없습니다.');
+        await copyText(output.svg, '텍스트 아웃라인 SVG가 복사되었습니다.');
+      } else if (action === 'edit-text') {
+        modeManager?.setMode('edit');
+        selectElement(targetEl);
+        const editable = AssetEditor.toggleContentEditable(targetEl);
+        floatingDock.switchTab('assets');
+        floatingDock.showToast(editable ? '직접 타이핑 모드가 켜졌습니다.' : '직접 타이핑 모드가 꺼졌습니다.');
+      } else if (action === 'download-asset') {
+        if (!ReactExporter.downloadAsset(targetEl)) throw new Error('다운로드할 이미지나 SVG를 찾지 못했습니다.');
+      } else if (action === 'move-up' || action === 'move-down') {
+        const moved = action === 'move-up' ? modeManager?.moveUp(targetEl) : modeManager?.moveDown(targetEl);
+        if (moved) selectElement(targetEl);
+      } else if (action === 'duplicate') {
+        const clone = modeManager?.duplicate(targetEl);
+        if (clone) selectElement(clone);
+      } else if (action === 'delete' && modeManager?.removeElement(targetEl)) {
+        selectElement(null);
         floatingDock?.showToast('요소가 삭제되었습니다.');
-        floatingDock?.updateElement();
       }
+    } catch (error) {
+      floatingDock?.showToast(`작업 실패: ${error.message}`);
     }
   }
 
@@ -192,6 +211,8 @@
       pageController?.toggleFreeze(false);
       pageController?.toggleUnblock(false);
       motionInspector?.reset?.();
+      interactionDetector?.reset?.();
+      if (typeof AssetEditor !== 'undefined') AssetEditor.restoreContentEditable?.();
       modeManager?.clearSelection();
       overlayCanvas.setSelectedElement(null);
       overlayCanvas.setHoverElement(null);
@@ -218,7 +239,7 @@
     listen('mousemove', (e) => {
       if (!isActive) return;
 
-      if (hostContainer && hostContainer.contains(e.target)) return;
+      if (e.target === hostContainer || e.composedPath?.().includes(hostContainer)) return;
 
       const target = document.elementFromPoint(e.clientX, e.clientY);
       if (!target || target === hostContainer || hostContainer.contains(target)) return;
@@ -232,7 +253,7 @@
     listen('click', (e) => {
       if (!isActive) return;
 
-      if (hostContainer && (e.target === hostContainer || hostContainer.contains(e.target))) {
+      if (e.target === hostContainer || e.composedPath?.().includes(hostContainer)) {
         return;
       }
 
@@ -326,6 +347,20 @@
           return;
         }
 
+        if (shortcutManager.matchKey(e, 'toggleFreeze')) {
+          e.preventDefault();
+          pageController?.toggleFreeze();
+          floatingDock?.renderCurrentTab();
+          return;
+        }
+
+        if (shortcutManager.matchKey(e, 'toggleUnblock')) {
+          e.preventDefault();
+          pageController?.toggleUnblock();
+          floatingDock?.renderCurrentTab();
+          return;
+        }
+
         if (shortcutManager.matchKey(e, 'toggleTabOrder')) {
           e.preventDefault();
           if (tabOrderVisualizer) {
@@ -335,6 +370,12 @@
           }
           return;
         }
+      }
+
+      if (e.altKey && !e.ctrlKey && !e.metaKey && ['ArrowUp', 'ArrowDown'].includes(e.key) && modeManager?.getPrimaryElement()) {
+        e.preventDefault();
+        handleHudAction(e.key === 'ArrowUp' ? 'move-up' : 'move-down', modeManager.getPrimaryElement());
+        return;
       }
 
       // Escape to Deselect / Unlock

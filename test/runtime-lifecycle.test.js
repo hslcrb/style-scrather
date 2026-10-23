@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '../content/content.js'), 'utf8');
 
-function runtime() {
+function runtime(extras = {}) {
   const listeners = new Map();
   const constructed = [];
   const nodes = [];
@@ -44,7 +44,7 @@ function runtime() {
       switchTab(name) { this.tab = name; }
       clearSelection() { this.selectionCleared = true; }
       updateElement() {}
-      showToast() {}
+      showToast(message) { this.lastToast = message; }
       resetZoom() { this.reset = true; }
       toggleUnblock(value) { this.isUnblocked = value; }
       toggleFreeze(value) { this.isFrozen = value; }
@@ -77,6 +77,7 @@ function runtime() {
     'TabOrderVisualizer', 'ShortcutManager', 'StyleTweaker', 'FloatingDock', 'ContextHud', 'UpdateGuardian']) {
     context[name] = engine(name);
   }
+  Object.assign(context, extras);
   vm.runInNewContext(source, context);
   return {
     window, constructed, nodes, document,
@@ -146,4 +147,25 @@ test('grid and tab actions activate on demand and return truthful state', () => 
   assert.equal(tab.success, true);
   assert.equal(tab.isActive, true);
   assert.equal(page.window.StyleScratcher.getDock().tab, 'fonts');
+});
+
+test('the emitted copy-react HUD action reaches the exporter and clipboard', async () => {
+  const copied = [];
+  const page = runtime({
+    ReactExporter: { generateComponent: () => '<Fixture />' },
+    navigator: { clipboard: { writeText: async text => copied.push(text) } }
+  });
+  page.request({ type: 'OPEN_TAB' });
+  await page.window.StyleScratcher.getContextHud().args[1]('copy-react', {});
+  assert.deepEqual(copied, ['<Fixture />']);
+});
+
+test('clipboard denial from a HUD action is handled with feedback', async () => {
+  const page = runtime({
+    ReactExporter: { generateComponent: () => '<Fixture />' },
+    navigator: { clipboard: { writeText: async () => { throw new Error('Permission denied'); } } }
+  });
+  page.request({ type: 'OPEN_TAB' });
+  await page.window.StyleScratcher.getContextHud().args[1]('copy-react', {});
+  assert.match(page.window.StyleScratcher.getDock().lastToast || '', /Permission denied/);
 });
