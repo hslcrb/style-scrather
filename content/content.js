@@ -5,7 +5,9 @@
   if (window.__STYLE_SCRATCHER_INITIALIZED__) return;
   window.__STYLE_SCRATCHER_INITIALIZED__ = true;
 
-  let isActive = true;
+  let isActive = false;
+  let isInitialized = false;
+  const activeListeners = [];
   let shadowRoot = null;
   let hostContainer = null;
   let overlayCanvas = null;
@@ -30,6 +32,7 @@
   let isSafeMode = true;
 
   function initStyleScratcher() {
+    if (isInitialized) return;
     // 1. Create Shadow DOM Host
     hostContainer = document.createElement('div');
     hostContainer.id = 'style-scratcher-host';
@@ -62,7 +65,7 @@
     interactionDetector = new InteractionDetector();
     pageController = new PageController();
     motionInspector = new MotionInspector();
-    instantZoom = typeof InstantZoom !== 'undefined' ? new InstantZoom() : null;
+    instantZoom = typeof InstantZoom !== 'undefined' ? new InstantZoom({ active: false, manageShortcuts: false }) : null;
     precisionCursor = typeof PrecisionCursor !== 'undefined' ? new PrecisionCursor(shadowRoot) : null;
 
     overlayCanvas = new OverlayCanvas(shadowRoot, unitConverter);
@@ -83,6 +86,10 @@
       }
     });
 
+    const currentVersion = typeof chrome !== 'undefined' && chrome.runtime?.getManifest
+      ? chrome.runtime.getManifest().version : '4.1.0';
+    updateGuardian = typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion }) : null;
+
     floatingDock = new FloatingDock(shadowRoot, {
       tweaker: styleTweaker,
       overlayCanvas: overlayCanvas,
@@ -98,7 +105,7 @@
       tabOrderVisualizer: tabOrderVisualizer,
       shortcutManager: shortcutManager,
       reactExporter: typeof ReactExporter !== 'undefined' ? ReactExporter : null,
-      updateGuardian: typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion: '4.0.3' }) : null,
+      updateGuardian: updateGuardian,
       isSafeMode: isSafeMode,
       onToggleSafeMode: (state) => {
         isSafeMode = state;
@@ -114,8 +121,7 @@
       });
     }
 
-    // 4. Attach Window/Document Listeners
-    attachEventListeners();
+    isInitialized = true;
 
     console.log('[Style Scratcher v4.0.3.] Initialized with True Vector Outliner, WebFont Downloader & SVG Font Builder.');
   }
@@ -167,26 +173,48 @@
   }
 
   function toggleInspector(state) {
-    isActive = state !== undefined ? state : !isActive;
+    const next = state !== undefined ? !!state : !isActive;
+    if (next === isActive) return isActive;
+    if (next) initStyleScratcher();
+    isActive = next;
+    overlayCanvas?.setActive?.(isActive);
+    instantZoom?.setActive?.(isActive);
+    contextHud?.setActive?.(isActive);
+    floatingDock?.setActive?.(isActive);
     if (!isActive) {
-      overlayCanvas.clear();
+      activeListeners.splice(0).forEach(({ type, listener, options }) => {
+        window.removeEventListener(type, listener, options);
+      });
+      isAltPressed = false;
+      precisionCursor?.toggle(false);
+      tabOrderVisualizer?.toggle(false);
+      deviceMockup?.toggle(false);
+      pageController?.toggleFreeze(false);
+      pageController?.toggleUnblock(false);
+      modeManager?.clearSelection();
       overlayCanvas.setSelectedElement(null);
       overlayCanvas.setHoverElement(null);
+      overlayCanvas.clear();
       styleTweaker.setElement(null);
-      if (floatingDock && floatingDock.container) {
-        floatingDock.container.classList.add('hidden');
-      }
+      if (hostContainer) hostContainer.style.display = 'none';
+      floatingDock?.container?.classList.add('hidden');
     } else {
-      if (floatingDock && floatingDock.container) {
-        floatingDock.container.classList.remove('hidden');
-      }
+      if (hostContainer) hostContainer.style.display = '';
+      floatingDock?.container?.classList.remove('hidden');
+      attachEventListeners();
+      overlayCanvas.render();
     }
     return isActive;
   }
 
+  function listen(type, listener, options) {
+    window.addEventListener(type, listener, options);
+    activeListeners.push({ type, listener, options });
+  }
+
   function attachEventListeners() {
     // Mouse Move for Inspector Hover
-    window.addEventListener('mousemove', (e) => {
+    listen('mousemove', (e) => {
       if (!isActive) return;
 
       if (hostContainer && hostContainer.contains(e.target)) return;
@@ -200,7 +228,7 @@
     }, { passive: true });
 
     // Click to Select & Lock Element (with Edit Studio Multi-Select Shift+Click)
-    window.addEventListener('click', (e) => {
+    listen('click', (e) => {
       if (!isActive) return;
 
       if (hostContainer && (e.target === hostContainer || hostContainer.contains(e.target))) {
@@ -235,9 +263,10 @@
     }, true);
 
     // Keyboard Shortcuts (Managed by ShortcutManager v4.0.0)
-    window.addEventListener('keydown', (e) => {
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
+    listen('keydown', (e) => {
+      if (!isActive) return;
+      const activeEl = shadowRoot?.activeElement || document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT' || activeEl.isContentEditable)) {
         return;
       }
 
@@ -323,7 +352,7 @@
       }
     });
 
-    window.addEventListener('keyup', (e) => {
+    listen('keyup', (e) => {
       if (e.key === 'Alt') {
         isAltPressed = false;
         overlayCanvas.render();
@@ -331,47 +360,44 @@
     });
 
     // Window Resize / Scroll
-    window.addEventListener('scroll', () => {
+    listen('scroll', () => {
       if (isActive) overlayCanvas.render();
     }, { passive: true });
 
-    window.addEventListener('resize', () => {
+    listen('resize', () => {
       if (isActive) overlayCanvas.render();
     }, { passive: true });
   }
 
-  // Listen for Messages from Extension Background or Popup
+  function getState() {
+    return { isActive, isGridActive: overlayCanvas ? overlayCanvas.isGridVisible : false };
+  }
+
+  // Merely probing the receiver must not create any UI or event handlers.
   if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.type === 'TOGGLE_SCRATCHER') {
-        const state = toggleInspector();
-        sendResponse({ isActive: state, isGridActive: overlayCanvas.isGridVisible });
-      } else if (request.type === 'TOGGLE_GRID') {
-        const gridState = overlayCanvas.toggleGrid();
-        sendResponse({ isActive: isActive, isGridActive: gridState });
-      } else if (request.type === 'OPEN_TAB') {
-        if (!isActive) toggleInspector(true);
-        if (floatingDock) floatingDock.switchTab(request.tabName || 'inspector');
-        sendResponse({ success: true });
-      } else if (request.type === 'GET_STATE') {
-        sendResponse({
-          isActive: isActive,
-          isGridActive: overlayCanvas ? overlayCanvas.isGridVisible : false
-        });
+      if (!request || !['TOGGLE_SCRATCHER', 'TOGGLE_GRID', 'OPEN_TAB', 'GET_STATE'].includes(request.type)) return false;
+      try {
+        if (request.type === 'TOGGLE_SCRATCHER') {
+          toggleInspector();
+        } else if (request.type === 'TOGGLE_GRID') {
+          toggleInspector(true);
+          overlayCanvas.toggleGrid();
+        } else if (request.type === 'OPEN_TAB') {
+          toggleInspector(true);
+          floatingDock.switchTab(request.tabName || 'inspector');
+        }
+        sendResponse({ success: true, ...getState() });
+      } catch (error) {
+        sendResponse({ success: false, error: error.message, ...getState() });
       }
-      return true;
+      return false;
     });
-  }
-
-  // Initialize on DOM Ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initStyleScratcher);
-  } else {
-    initStyleScratcher();
   }
 
   window.StyleScratcher = {
     toggle: toggleInspector,
+    getState,
     getCanvas: () => overlayCanvas,
     getTweaker: () => styleTweaker,
     getDock: () => floatingDock,
