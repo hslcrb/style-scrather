@@ -96,3 +96,34 @@ test('status version comes from manifest', async () => {
   const result = await worker().request({ type: 'GET_STATUS' });
   assert.equal(result.version, manifest.version);
 });
+
+test('release checks coalesce across callers and persist the cache across workers', async () => {
+  let fetches = 0;
+  const cache = {};
+  const options = {
+    fetch: async () => { fetches++; return new Response(JSON.stringify({ tag_name: 'v9.0.0', assets: [] })); },
+    chrome: { storage: { local: {
+      get: async key => ({ [key]: cache[key] }),
+      set: async value => Object.assign(cache, value)
+    } } }
+  };
+  const service = worker(options);
+  const results = await Promise.all(Array.from({ length: 10 }, () => service.request({ type: 'GET_LATEST_RELEASE' })));
+  assert.ok(results.every(result => result?.success));
+  assert.equal(fetches, 1);
+  await service.request({ type: 'GET_LATEST_RELEASE', forceRefresh: true });
+  assert.equal(fetches, 1, 'forced refreshes still respect the one-minute request floor');
+  const restarted = worker(options);
+  assert.equal((await restarted.request({ type: 'GET_LATEST_RELEASE' })).release.tag_name, 'v9.0.0');
+  assert.equal(fetches, 1);
+});
+
+test('failed release checks are briefly cached instead of repeated per page', async () => {
+  let fetches = 0;
+  const service = worker({ fetch: async () => { fetches++; return new Response('', { status: 429 }); } });
+  const result = await service.request({ type: 'GET_LATEST_RELEASE' });
+  assert.equal(result?.success, false);
+  assert.match(result.error, /429/);
+  await service.request({ type: 'GET_LATEST_RELEASE' });
+  assert.equal(fetches, 1);
+});

@@ -6,11 +6,12 @@ if (typeof window !== 'undefined' && window.UpdateGuardian) return;
 class UpdateGuardian {
   constructor(options = {}) {
     this.repo = options.repo || 'hslcrb/style-scrather';
-    this.currentVersion = options.currentVersion || '4.0.2';
+    this.currentVersion = options.currentVersion || (typeof chrome !== 'undefined' && chrome.runtime?.getManifest?.().version) || '4.1.0';
     this.apiUrl = `https://api.github.com/repos/${this.repo}/releases/latest`;
-    this.cacheKey = 'style_scrather_update_cache';
     this.cacheTtlMs = 1000 * 60 * 30; // 30 minutes cache
     this.lastResult = null;
+    this.lastCheckedAt = 0;
+    this.inFlight = null;
   }
 
   /**
@@ -49,42 +50,46 @@ class UpdateGuardian {
    * @param {boolean} forceRefresh - Ignore cache if true
    * @returns {Promise<Object>} Update info
    */
-  async checkForUpdate(forceRefresh = false) {
+  checkForUpdate(forceRefresh = false) {
+    if (this.inFlight) return this.inFlight;
+    const ttl = forceRefresh ? 60000 : (this.lastResult?.success ? this.cacheTtlMs : 5 * 60000);
+    if (this.lastResult && Date.now() - this.lastCheckedAt < ttl) return Promise.resolve(this.lastResult);
+    this.inFlight = this.fetchUpdate(forceRefresh).then(result => {
+      this.lastResult = result;
+      this.lastCheckedAt = Date.now();
+      return result;
+    }).finally(() => { this.inFlight = null; });
+    return this.inFlight;
+  }
+
+  async fetchUpdate(forceRefresh) {
     try {
-      // Check cache if not forcing refresh
-      if (!forceRefresh && typeof localStorage !== 'undefined') {
-        const cached = localStorage.getItem(this.cacheKey);
-        if (cached) {
-          try {
-            const parsed = JSON.parse(cached);
-            if (Date.now() - parsed.timestamp < this.cacheTtlMs) {
-              this.lastResult = parsed.data;
-              return parsed.data;
-            }
-          } catch (e) {
-            // ignore cache parse error
-          }
+      let release;
+      if (this.repo === 'hslcrb/style-scrather' && typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+        const response = await chrome.runtime.sendMessage({ type: 'GET_LATEST_RELEASE', forceRefresh });
+        if (!response?.success) throw new Error(response?.error || 'Update service unavailable.');
+        release = response.release;
+      } else {
+        // Standalone demo fallback; the extension uses its shared service-worker cache.
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+        try {
+          const response = await fetch(this.apiUrl, {
+            headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal, credentials: 'omit'
+          });
+          if (!response.ok) throw new Error(`GitHub API error: HTTP ${response.status}`);
+          release = await response.json();
+        } finally {
+          clearTimeout(timeout);
         }
       }
-
-      const response = await fetch(this.apiUrl, {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`GitHub API error: HTTP ${response.status}`);
-      }
-
-      const release = await response.json();
       const latestTag = release.tag_name || '';
       const hasUpdate = UpdateGuardian.isNewer(latestTag, this.currentVersion);
 
       // Find zip asset if available
       let zipUrl = '';
       if (release.assets && Array.isArray(release.assets)) {
-        const zipAsset = release.assets.find(a => a.name.endsWith('.zip'));
+        const zipAsset = release.assets.find(a => typeof a.name === 'string' && a.name.endsWith('.zip'));
         if (zipAsset) zipUrl = zipAsset.browser_download_url;
       }
       if (!zipUrl && release.zipball_url) {
@@ -106,16 +111,6 @@ class UpdateGuardian {
       };
 
       this.lastResult = result;
-
-      // Save to cache
-      if (typeof localStorage !== 'undefined') {
-        try {
-          localStorage.setItem(this.cacheKey, JSON.stringify({
-            timestamp: Date.now(),
-            data: result
-          }));
-        } catch (e) {}
-      }
 
       return result;
     } catch (err) {

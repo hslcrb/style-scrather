@@ -3,6 +3,49 @@
 const CONTENT_SCRIPTS = chrome.runtime.getManifest().content_scripts
   .flatMap(entry => entry.js || []);
 const MAX_FONT_BYTES = 16 * 1024 * 1024;
+const RELEASE_CACHE_KEY = 'style_scratcher_release_v1';
+let releaseCache = null;
+let releaseRequest = null;
+
+function getLatestRelease(forceRefresh = false) {
+  if (releaseRequest) return releaseRequest;
+  releaseRequest = (async () => {
+    if (!releaseCache) {
+      try { releaseCache = (await chrome.storage?.local?.get(RELEASE_CACHE_KEY))?.[RELEASE_CACHE_KEY]; } catch {}
+    }
+    const ttl = forceRefresh ? 60000 : (releaseCache?.result?.success ? 30 * 60000 : 5 * 60000);
+    if (releaseCache?.result && Date.now() - releaseCache.timestamp >= 0 && Date.now() - releaseCache.timestamp < ttl) {
+      return releaseCache.result;
+    }
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    let result;
+    try {
+      const response = await fetch('https://api.github.com/repos/hslcrb/style-scrather/releases/latest', {
+        headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal, credentials: 'omit'
+      });
+      if (!response.ok) throw new Error(`GitHub API error: HTTP ${response.status}`);
+      const release = await response.json();
+      if (typeof release.tag_name !== 'string') throw new Error('Invalid GitHub release response.');
+      result = { success: true, release: {
+        tag_name: release.tag_name.slice(0, 100), name: String(release.name || '').slice(0, 300),
+        body: String(release.body || '').slice(0, 12000), html_url: release.html_url,
+        zipball_url: release.zipball_url, published_at: release.published_at,
+        assets: Array.isArray(release.assets) ? release.assets.slice(0, 50).map(asset => ({
+          name: String(asset.name || '').slice(0, 300), browser_download_url: asset.browser_download_url
+        })) : []
+      } };
+    } catch (error) {
+      result = { success: false, error: error.message };
+    } finally {
+      clearTimeout(timeout);
+    }
+    releaseCache = { timestamp: Date.now(), result };
+    try { await chrome.storage?.local?.set({ [RELEASE_CACHE_KEY]: releaseCache }); } catch {}
+    return result;
+  })().finally(() => { releaseRequest = null; });
+  return releaseRequest;
+}
 
 async function fetchFontData(urlString) {
   const url = new URL(urlString);
@@ -97,6 +140,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const version = chrome.runtime.getManifest().version;
     sendResponse({ success: true, version, displayVersion: `v${version}.` });
     return false;
+  }
+
+  if (message.type === 'GET_LATEST_RELEASE') {
+    getLatestRelease(message.forceRefresh === true).then(sendResponse);
+    return true;
   }
 
   // Background CORS-free font resource fetcher
