@@ -616,6 +616,7 @@ class FloatingDock {
           await studio.applyFont(el, select.value);
           this.overlayCanvas?.render();
           this.showToast(`${select.value} 글꼴을 적용했습니다.`);
+          if (this.currentTab === 'fonts') this.renderCurrentTab();
         } catch (error) { this.showToast(`글꼴 적용 실패: ${error.message}`, 'error'); }
         finally { select.disabled = false; }
       });
@@ -655,13 +656,17 @@ class FloatingDock {
       if (!studio) throw new Error('폰트 도구를 불러올 수 없습니다.');
       this.harvestPending = true;
       const badge = container.querySelector('#glyphStatusBadge');
+      const progressBar = container.querySelector('#glyphProgressBar');
+      const progress = container.querySelector('#glyphProgress');
+      const selected = this.tweaker?.getElement();
+      const measuredFamily = selected ? window.getComputedStyle(selected).fontFamily.replace(/['"]/g, '').split(',')[0].trim() : family;
       try {
-        const output = await studio.harvestGlyphs(family, percent => {
-          container.querySelector('#glyphProgressBar').style.width = `${percent}%`;
-          container.querySelector('#glyphProgress').setAttribute('aria-valuenow', String(percent));
+        const output = await studio.harvestGlyphs(measuredFamily, percent => {
+          progressBar.style.width = `${percent}%`;
+          progress.setAttribute('aria-valuenow', String(percent));
           badge.textContent = `${percent}% 측정 중`;
         });
-        this.harvestResult = { family, value: output };
+        this.harvestResult = { family: measuredFamily, value: output };
         this.showToast(`${output.measuredCount ?? output.glyphs.length}개 문자의 폭을 측정했습니다.`);
       } finally { this.harvestPending = false; if (this.currentTab === 'fonts') this.renderCurrentTab(); }
     }, '문자 폭 측정 중…'));

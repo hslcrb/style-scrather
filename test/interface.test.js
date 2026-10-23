@@ -169,3 +169,44 @@ test('the code panel downloads the selected asset and reports absent or failed a
     else assert.equal(notices[0][1], 'info');
   }
 });
+
+test('glyph measurement reads the current font and survives a panel switch', async () => {
+  let currentFamily = 'serif';
+  const { Dock } = load({ window: { getComputedStyle: () => ({ fontFamily: currentFamily, fontSize: '16px', fontWeight: '400' }) } });
+  const dock = Object.create(Dock.prototype);
+  const controls = new Map();
+  let panelReplaced = false, measuredFamily, refreshes = 0;
+  const view = {
+    innerHTML: '', querySelectorAll: () => [],
+    querySelector(selector) {
+      if (panelReplaced) return null;
+      if (!controls.has(selector)) controls.set(selector, { ...control(), style: {}, value: 'System Default', addEventListener(name, listener) { this[name] = listener; } });
+      return controls.get(selector);
+    }
+  };
+  dock.tweaker = { getElement: () => ({ innerText: 'Text' }) };
+  dock.currentTab = 'fonts';
+  dock.renderCurrentTab = () => { refreshes++; };
+  dock.showToast = () => {};
+  dock.fontStudio = {
+    CURATED_FONTS: [],
+    async applyFont() { currentFamily = 'sans-serif'; },
+    async harvestGlyphs(family, progress) {
+      measuredFamily = family;
+      panelReplaced = true;
+      dock.currentTab = 'code';
+      progress(50);
+      return { measuredCount: 1, glyphs: [{ char: 'A', width: 9 }] };
+    }
+  };
+  dock.renderFontsTab(view);
+  const select = controls.get('#fontFamilySelect');
+  await select.change({ target: select });
+  assert.equal(refreshes, 1, 'font labels refresh after applying a new family');
+  const button = controls.get('#btnStartHarvest');
+  await button.click({ currentTarget: button });
+  assert.equal(measuredFamily, 'sans-serif');
+  assert.equal(dock.harvestResult.family, 'sans-serif');
+  assert.equal(dock.harvestPending, false);
+  assert.equal(button.disabled, false);
+});
