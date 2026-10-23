@@ -16,6 +16,12 @@ test('preview server serves public pages and blocks repository traversal', async
   fs.writeFileSync(path.join(root, 'icons/mark.svg'), '<svg/>');
   fs.writeFileSync(path.join(root, '.git/config'), 'private config');
   fs.writeFileSync(path.join(root, 'package.json'), '{"private":true}');
+  fs.mkdirSync(path.join(root, 'website/.private'));
+  fs.writeFileSync(path.join(root, 'website/.private/token'), 'private token');
+  fs.symlinkSync('../.git/config', path.join(root, 'website/public.txt'));
+  fs.symlinkSync('../package.json', path.join(root, 'website/package-link.json'));
+  fs.symlinkSync('.private/token', path.join(root, 'website/token.txt'));
+  fs.symlinkSync('site.css', path.join(root, 'website/theme.css'));
   const server = createServer({ root });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   t.after(async () => {
@@ -41,5 +47,9 @@ test('preview server serves public pages and blocks repository traversal', async
     assert.ok((await request(url)).status >= 400, `must reject ${url}`);
   }
   assert.equal((await request('/package.json')).status, 404);
+  for (const url of ['/public.txt', '/website/public.txt', '/package-link.json', '/token.txt']) {
+    assert.equal((await request(url)).status, 403, `must reject private symlink ${url}`);
+  }
+  assert.equal((await request('/theme.css')).body, 'body{color:red}');
   assert.equal((await request('/', 'POST')).status, 405);
 });

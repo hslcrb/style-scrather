@@ -29,9 +29,10 @@ function createServer({ root = path.resolve(__dirname, '..') } = {}) {
     if (/[\u0000-\u001f\\]/.test(pathname)) return reply(400, 'Invalid path');
     const parts = pathname.split('/').filter(Boolean);
     if (parts.some(part => part.startsWith('.'))) return reply(403, 'Forbidden');
-    const base = PUBLIC_ROOTS.has(parts[0]) ? realRoot : path.join(realRoot, 'website');
-    let candidate = path.resolve(base, ...parts);
-    if (!candidate.startsWith(`${realRoot}${path.sep}`)) return reply(403, 'Forbidden');
+    const explicitRoot = PUBLIC_ROOTS.has(parts[0]);
+    const publicRoot = path.join(realRoot, explicitRoot ? parts[0] : 'website');
+    let candidate = path.resolve(publicRoot, ...(explicitRoot ? parts.slice(1) : parts));
+    if (candidate !== publicRoot && !candidate.startsWith(`${publicRoot}${path.sep}`)) return reply(403, 'Forbidden');
     try {
       let stat = await fs.promises.stat(candidate);
       if (stat.isDirectory()) {
@@ -44,7 +45,11 @@ function createServer({ root = path.resolve(__dirname, '..') } = {}) {
       }
       if (!stat.isFile()) return reply(404, 'Not found');
       const realFile = await fs.promises.realpath(candidate);
-      if (!realFile.startsWith(`${realRoot}${path.sep}`)) return reply(403, 'Forbidden');
+      // A public-looking symlink must not expose repository metadata or private files.
+      if (!realFile.startsWith(`${publicRoot}${path.sep}`) ||
+          path.relative(publicRoot, realFile).split(path.sep).some(part => part.startsWith('.'))) {
+        return reply(403, 'Forbidden');
+      }
       res.writeHead(200, {
         'Content-Type': MIME[path.extname(realFile).toLowerCase()] || 'application/octet-stream',
         'Content-Length': stat.size, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'
