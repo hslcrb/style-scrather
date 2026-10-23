@@ -1,4 +1,8 @@
-// Style Scratcher v4.0.3. - Floating Dock Component (White Minimal Studio UI)
+// Style Scratcher — Liquid Studio. Safe to inject more than once.
+(() => {
+if (typeof window !== 'undefined' && window.FloatingDock) return;
+
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
 
 class FloatingDock {
   constructor(shadowRoot, options = {}) {
@@ -11,687 +15,469 @@ class FloatingDock {
     this.motionInspector = options.motionInspector || (typeof MotionInspector !== 'undefined' ? new MotionInspector() : null);
     this.instantZoom = options.instantZoom || (typeof InstantZoom !== 'undefined' ? new InstantZoom() : null);
     this.precisionCursor = options.precisionCursor || (typeof PrecisionCursor !== 'undefined' ? new PrecisionCursor(this.shadowRoot) : null);
-
-    // v4.0.0 Modules
     this.modeManager = options.modeManager || (typeof ModeManager !== 'undefined' ? new ModeManager({ shadowRoot }) : null);
     this.deviceMockup = options.deviceMockup || (typeof DeviceMockup !== 'undefined' ? new DeviceMockup(this.shadowRoot) : null);
     this.fontStudio = options.fontStudio || (typeof FontStudio !== 'undefined' ? FontStudio : null);
     this.tabOrderVisualizer = options.tabOrderVisualizer || (typeof TabOrderVisualizer !== 'undefined' ? new TabOrderVisualizer(this.shadowRoot) : null);
     this.shortcutManager = options.shortcutManager || (typeof ShortcutManager !== 'undefined' ? new ShortcutManager() : null);
     this.reactExporter = options.reactExporter || (typeof ReactExporter !== 'undefined' ? ReactExporter : null);
-    this.updateGuardian = options.updateGuardian || (typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion: '4.0.3' }) : null);
-
+    this.version = typeof chrome !== 'undefined' && chrome.runtime?.getManifest ? chrome.runtime.getManifest().version : '4.1.0';
+    this.updateGuardian = options.updateGuardian || (typeof UpdateGuardian !== 'undefined' ? new UpdateGuardian({ currentVersion: this.version }) : null);
     this.isSafeMode = options.isSafeMode !== undefined ? options.isSafeMode : true;
     this.onToggleSafeMode = options.onToggleSafeMode || (() => {});
     this.onToggleInspector = options.onToggleInspector || (() => {});
-    
-    this.container = null;
     this.currentTab = 'inspector';
     this.isMinimized = false;
     this.siteStylesheets = [];
     this.extractedPalette = null;
     this.extractedFonts = [];
-
+    this.tabNames = { inspector: '검사', fonts: '타이포', assets: '에셋', code: '코드', mockup: '디바이스', interaction: '인터랙션', motion: '모션', graphics: '그래픽', tools: '페이지 도구', settings: '설정' };
+    this.disclosureState = new Map();
     this.initDOM();
     this.initDrag();
     this.initUpdateChecker();
   }
 
   initDOM() {
-    this.container = document.createElement('div');
+    this.container = document.createElement('section');
     this.container.className = 'scratcher-dock';
+    this.container.setAttribute('aria-label', 'Style Scratcher 스튜디오');
+    this.container.setAttribute('lang', 'ko');
     this.container.innerHTML = `
-      <!-- Header / Drag Handle -->
-      <div class="dock-header" id="dockHeader">
+      <header class="dock-header" id="dockHeader">
         <div class="dock-brand">
-          <div class="dock-logo">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="9" y1="3" x2="9" y2="21"></line>
-              <line x1="3" y1="9" x2="21" y2="9"></line>
-            </svg>
-          </div>
-          <span class="dock-title">Style Scratcher</span>
-          <span class="dock-badge">v4.0.3.</span>
+          <div class="dock-logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3M12 7v10M7 12h10"/><circle cx="12" cy="12" r="2.3"/></svg></div>
+          <div><span class="dock-title">Style Scratcher</span><span class="dock-subtitle">LIQUID STUDIO <span class="dock-version">v${escapeHtml(this.version)}</span></span></div>
         </div>
-
-        <!-- Mode Switcher (Inspect vs Edit Studio) -->
-        <div class="mode-switch-group" id="modeSwitchGroup">
-          <button class="mode-switch-btn ${!this.modeManager || this.modeManager.getMode() === 'inspect' ? 'active' : ''}" id="btnModeInspect" title="검사 모드: 거리 측정 및 스타일 분석">검사</button>
-          <button class="mode-switch-btn ${this.modeManager && this.modeManager.getMode() === 'edit' ? 'active' : ''}" id="btnModeEdit" title="편집 모드: DOM 순서 이동 및 폰트/텍스트 편집">편집</button>
-        </div>
-
         <div class="dock-controls">
-          <button class="icon-btn" id="minimizeBtn" title="최소화/펼치기">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
-          <button class="icon-btn" id="closeDockBtn" title="닫기 (Alt+S)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
+          <button class="icon-btn" id="moveDockBtn" title="드래그 또는 방향키로 위치 이동 · Home으로 원위치" aria-label="스튜디오 위치 이동. 방향키로 이동, Home으로 원위치"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M3 12h18m-9-9-3 3m3-3 3 3m-3 15-3-3m3 3 3-3M3 12l3-3m-3 3 3 3m15-3-3-3m3 3-3 3"/></svg></button>
+          <button class="icon-btn" id="minimizeBtn" title="스튜디오 접기" aria-label="스튜디오 접기" aria-expanded="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/></svg></button>
+          <button class="icon-btn" id="closeDockBtn" title="스튜디오 종료 (Alt + S)" aria-label="스튜디오 종료"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
         </div>
+      </header>
+      <div class="dock-workspace-bar">
+        <div class="mode-switch-group" aria-label="작업 모드">
+          <button class="mode-switch-btn" id="btnModeInspect" aria-pressed="true">검사</button>
+          <button class="mode-switch-btn" id="btnModeEdit" aria-pressed="false">편집</button>
+        </div>
+        <span class="workspace-note"><i></i>현재 페이지에서 작업 중</span>
       </div>
-
-      <!-- Auto Update Notification Banner (v4.0.2.) -->
-      <div class="dock-update-banner" id="dockUpdateBanner" style="display: none;"></div>
-
-      <!-- Navigation Tabs (v4.0.2. Comprehensive Suite) -->
-      <div class="dock-tabs" id="dockTabs">
-        <button class="tab-btn active" data-tab="inspector">인스펙터</button>
-        <button class="tab-btn" data-tab="mockup">목업</button>
-        <button class="tab-btn" data-tab="fonts">폰트</button>
-        <button class="tab-btn" data-tab="assets">에셋</button>
-        <button class="tab-btn" data-tab="interaction">인터랙션</button>
-        <button class="tab-btn" data-tab="motion">모션</button>
-        <button class="tab-btn" data-tab="graphics">WebGL</button>
-        <button class="tab-btn" data-tab="tools">도구</button>
-        <button class="tab-btn" data-tab="code">코드</button>
-        <button class="tab-btn" data-tab="settings">설정</button>
-      </div>
-
-      <!-- Tab Content Body -->
-      <div class="dock-body" id="dockBody">
-        <!-- Dynamic Content Injected Here -->
-      </div>
-
-      <!-- Toast Container -->
-      <div class="scratcher-toast" id="scratcherToast">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-        <span id="toastMsg">클립보드에 복사되었습니다.</span>
-      </div>
+      <div class="dock-update-banner" id="dockUpdateBanner" hidden></div>
+      <nav class="dock-navigation" aria-label="스튜디오 패널">
+        <div class="dock-tabs" id="dockTabs" role="tablist" aria-label="주요 도구">
+          <button class="tab-btn active" data-tab="inspector" id="tab-inspector" role="tab" aria-selected="true" aria-controls="dockBody">검사</button>
+          <button class="tab-btn" data-tab="fonts" id="tab-fonts" role="tab" aria-selected="false" aria-controls="dockBody" tabindex="-1">타이포</button>
+          <button class="tab-btn" data-tab="assets" id="tab-assets" role="tab" aria-selected="false" aria-controls="dockBody" tabindex="-1">에셋</button>
+          <button class="tab-btn" data-tab="code" id="tab-code" role="tab" aria-selected="false" aria-controls="dockBody" tabindex="-1">코드</button>
+        </div>
+        <button class="more-tools-btn" id="moreToolsBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="moreToolsMenu"><span id="moreToolsLabel">더 보기</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="more-tools-menu" id="moreToolsMenu" role="menu" aria-label="전문 도구" hidden>
+          <span class="menu-heading" aria-hidden="true">EXPLORE THE DETAILS</span>
+          <button data-tab="mockup" role="menuitemradio" aria-checked="false"><span>디바이스 목업</span><small>뷰포트와 방향</small></button>
+          <button data-tab="interaction" role="menuitemradio" aria-checked="false"><span>인터랙션</span><small>이벤트와 상태</small></button>
+          <button data-tab="motion" role="menuitemradio" aria-checked="false"><span>모션</span><small>재생 속도와 곡선</small></button>
+          <button data-tab="graphics" role="menuitemradio" aria-checked="false"><span>그래픽</span><small>Canvas · SVG · WebGL</small></button>
+          <button data-tab="tools" role="menuitemradio" aria-checked="false"><span>페이지 도구</span><small>그리드 · 줌 · 접근성</small></button>
+          <button data-tab="settings" role="menuitemradio" aria-checked="false"><span>설정</span><small>단축키와 업데이트</small></button>
+        </div>
+      </nav>
+      <div class="dock-panel-heading"><span id="panelEyebrow">ELEMENT INSPECTOR</span><span id="panelName">검사</span></div>
+      <div class="dock-body" id="dockBody" role="tabpanel" aria-labelledby="tab-inspector" tabindex="0"></div>
+      <footer class="dock-footer"><span><i></i>편집 내용은 현재 페이지에만 적용됩니다.</span><kbd>Esc <span>선택 해제</span></kbd></footer>
+      <div class="scratcher-toast" id="scratcherToast" role="status" aria-live="polite" aria-atomic="true"><span class="toast-dot" aria-hidden="true"></span><span id="toastMsg"></span></div>
+      <span class="sr-only" id="dockAnnounce" role="status" aria-live="polite"></span>
     `;
-
     this.shadowRoot.appendChild(this.container);
-
-    // Bind Mode Switcher
-    const btnInspect = this.container.querySelector('#btnModeInspect');
-    const btnEdit = this.container.querySelector('#btnModeEdit');
-
-    btnInspect?.addEventListener('click', () => {
-      btnInspect.classList.add('active');
-      btnEdit.classList.remove('active');
-      this.modeManager?.setMode('inspect');
-      this.showToast('검사 모드 (Inspect Mode)로 전환되었습니다.');
+    ['Inspect', 'Edit'].forEach(mode => this.container.querySelector(`#btnMode${mode}`).addEventListener('click', () => {
+      this.modeManager?.setMode(mode.toLowerCase());
       this.renderCurrentTab();
-    });
-
-    btnEdit?.addEventListener('click', () => {
-      btnEdit.classList.add('active');
-      btnInspect.classList.remove('active');
-      this.modeManager?.setMode('edit');
-      this.showToast('편집 모드 (Edit Studio Mode)로 전환되었습니다.');
-      this.renderCurrentTab();
-    });
-
-    // Bind Tab switching
-    const tabBtns = this.container.querySelectorAll('.tab-btn');
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.switchTab(btn.dataset.tab);
-      });
-    });
-
-    // Minimize & Close Buttons
+      this.showToast(mode === 'Edit' ? '편집 모드 · 선택한 요소를 수정할 수 있습니다.' : '검사 모드로 전환했습니다.');
+    }));
+    this.container.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => {
+      this.switchTab(button.dataset.tab);
+      if (button.closest('#moreToolsMenu')) this.toggleToolsMenu(false, true);
+    }));
+    this.container.querySelector('#moreToolsBtn').addEventListener('click', () => this.toggleToolsMenu());
     this.container.querySelector('#minimizeBtn').addEventListener('click', () => this.toggleMinimize());
     this.container.querySelector('#closeDockBtn').addEventListener('click', () => this.onToggleInspector());
-
-    // Render Initial Tab
+    this.container.addEventListener('keydown', event => this.handleNavigationKey(event));
+    document.addEventListener('pointerdown', event => {
+      if (!event.composedPath().includes(this.container)) this.toggleToolsMenu(false);
+    }, true);
+    this.container.addEventListener('focusout', () => {
+      queueMicrotask(() => {
+        const focus = this.shadowRoot.activeElement;
+        if (!focus?.closest('.dock-navigation')) this.toggleToolsMenu(false);
+      });
+    });
     this.renderCurrentTab();
   }
 
+  toggleToolsMenu(force, restoreFocus = false) {
+    const menu = this.container.querySelector('#moreToolsMenu');
+    const button = this.container.querySelector('#moreToolsBtn');
+    const open = force === undefined ? menu.hidden : force;
+    menu.hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+    if (open) (menu.querySelector('button[aria-checked="true"]') || menu.querySelector('button'))?.focus();
+    else if (restoreFocus) button.focus();
+  }
 
-  showToast(message) {
+  handleNavigationKey(event) {
+    const target = event.target;
+    if (target.closest('#moreToolsMenu')) {
+      const buttons = Array.from(this.container.querySelectorAll('#moreToolsMenu button'));
+      const current = buttons.indexOf(target);
+      let next;
+      if (event.key === 'ArrowDown') next = (current + 1) % buttons.length;
+      if (event.key === 'ArrowUp') next = (current + buttons.length - 1) % buttons.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = buttons.length - 1;
+      if (next !== undefined) { event.preventDefault(); event.stopPropagation(); buttons[next].focus(); }
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); this.toggleToolsMenu(false, true); }
+      if (event.key === 'Tab') this.toggleToolsMenu(false, true);
+      return;
+    }
+    if (target.id === 'moreToolsBtn' && ['ArrowDown', 'ArrowUp'].includes(event.key)) {
+      event.preventDefault(); this.toggleToolsMenu(true); return;
+    }
+    if (event.key === 'Escape' && !this.container.querySelector('#moreToolsMenu').hidden) {
+      event.preventDefault(); event.stopPropagation(); this.toggleToolsMenu(false, true); return;
+    }
+    if (target.getAttribute('role') === 'tab') {
+      const tabs = Array.from(this.container.querySelectorAll('[role="tab"]'));
+      const current = tabs.indexOf(target);
+      let next;
+      if (event.key === 'ArrowRight') next = (current + 1) % tabs.length;
+      if (event.key === 'ArrowLeft') next = (current + tabs.length - 1) % tabs.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = tabs.length - 1;
+      if (next !== undefined) { event.preventDefault(); event.stopPropagation(); this.switchTab(tabs[next].dataset.tab); tabs[next].focus(); }
+    }
+  }
+
+  showToast(message, kind = 'success') {
     const toast = this.container.querySelector('#scratcherToast');
-    const msg = this.container.querySelector('#toastMsg');
-    msg.textContent = message;
+    this.container.querySelector('#toastMsg').textContent = message;
+    toast.dataset.kind = kind;
     toast.classList.add('show');
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 2000);
+    clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => toast.classList.remove('show'), kind === 'error' ? 5500 : 3200);
+  }
+
+  async copyText(text, message = '클립보드에 복사했습니다.') {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('clipboard-unavailable');
+      await navigator.clipboard.writeText(String(text));
+      this.showToast(message);
+      return true;
+    } catch {
+      this.showToast('복사하지 못했습니다. 브라우저의 클립보드 권한을 확인하거나 코드를 직접 선택해 복사해주세요.', 'error');
+      return false;
+    }
+  }
+
+  async performAction(button, action, label = '처리 중…') {
+    if (button?.disabled) return;
+    const original = button?.innerHTML;
+    if (button) { button.disabled = true; button.setAttribute('aria-busy', 'true'); button.textContent = label; }
+    try { return await action(); }
+    catch (error) { this.showToast(`작업을 완료하지 못했습니다. ${error?.message || '다시 시도해주세요.'}`, 'error'); }
+    finally { if (button) { button.disabled = false; button.removeAttribute('aria-busy'); button.innerHTML = original; } }
   }
 
   switchTab(tabName) {
+    if (!Object.hasOwn(this.tabNames, tabName)) return false;
+    const changed = this.currentTab !== tabName;
     this.currentTab = tabName;
-    const tabBtns = this.container.querySelectorAll('.tab-btn');
-    tabBtns.forEach(b => {
-      if (b.dataset.tab === tabName) b.classList.add('active');
-      else b.classList.remove('active');
+    if (this.isMinimized) this.toggleMinimize();
+    this.container.querySelectorAll('[data-tab]').forEach(button => {
+      const active = button.dataset.tab === tabName;
+      button.classList.toggle('active', active);
+      if (button.getAttribute('role') === 'tab') {
+        button.setAttribute('aria-selected', String(active));
+        button.tabIndex = active ? 0 : -1;
+      } else button.setAttribute('aria-checked', String(active));
     });
-    this.renderCurrentTab();
+    const mainTab = this.container.querySelector(`#tab-${tabName}`);
+    const more = this.container.querySelector('#moreToolsBtn');
+    more.classList.toggle('active', !mainTab);
+    this.container.querySelector('#moreToolsLabel').textContent = mainTab ? '더 보기' : this.tabNames[tabName];
+    this.container.querySelector('#dockBody').setAttribute('aria-labelledby', mainTab ? mainTab.id : 'moreToolsBtn');
+    if (!mainTab) this.container.querySelector('[role="tab"]').tabIndex = 0;
+    this.renderCurrentTab(!changed);
+    if (changed) this.container.querySelector('#dockBody').scrollTop = 0;
+    return true;
   }
 
   toggleMinimize() {
     this.isMinimized = !this.isMinimized;
-    const tabs = this.container.querySelector('#dockTabs');
-    const body = this.container.querySelector('#dockBody');
-    if (this.isMinimized) {
-      tabs.style.display = 'none';
-      body.style.display = 'none';
-      this.container.classList.add('minimized');
-    } else {
-      tabs.style.display = 'grid';
-      body.style.display = 'flex';
-      this.container.classList.remove('minimized');
-    }
+    this.toggleToolsMenu(false);
+    this.container.classList.toggle('minimized', this.isMinimized);
+    const button = this.container.querySelector('#minimizeBtn');
+    button.setAttribute('aria-expanded', String(!this.isMinimized));
+    button.setAttribute('aria-label', this.isMinimized ? '스튜디오 펼치기' : '스튜디오 접기');
+    button.title = this.isMinimized ? '스튜디오 펼치기' : '스튜디오 접기';
+    this.clampPosition();
   }
 
-  
   initUpdateChecker() {
     if (!this.updateGuardian) return;
     setTimeout(async () => {
       try {
         const update = await this.updateGuardian.checkForUpdate();
-        if (update && update.hasUpdate) {
-          this.showUpdateBanner(update);
-        }
-      } catch (err) {
-        // silent catch
-      }
+        if (update?.hasUpdate) this.showUpdateBanner(update);
+      } catch { /* A manual retry remains available in Settings. */ }
     }, 1500);
   }
 
   showUpdateBanner(update) {
-    const banner = this.container?.querySelector('#dockUpdateBanner');
-    if (!banner) return;
+    const banner = this.container.querySelector('#dockUpdateBanner');
+    banner.innerHTML = `<span>새 버전 <strong>${escapeHtml(update.latestDisplayVersion)}</strong></span><button class="update-banner-btn" id="btnBannerUpdate">ZIP 받기</button><button class="update-banner-close" id="btnCloseUpdateBanner" aria-label="업데이트 알림 닫기">×</button>`;
+    banner.hidden = false;
+    banner.querySelector('#btnBannerUpdate').addEventListener('click', event => this.performAction(event.currentTarget, async () => {
+      await this.updateGuardian.triggerDownload(update.zipUrl, `style-scrather-${String(update.latestDisplayVersion).replace(/\.+$/, '')}.zip`);
+      this.showToast('ZIP 다운로드를 요청했습니다. 설치 후 확장 프로그램을 다시 불러오세요.');
+    }, '받는 중…'));
+    banner.querySelector('#btnCloseUpdateBanner').addEventListener('click', () => { banner.hidden = true; });
+  }
 
-    banner.innerHTML = `
-      <div class="update-banner-info">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-        <span>새 버전 발견: <strong>${update.latestDisplayVersion}</strong></span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 4px;">
-        <button class="update-banner-btn" id="btnBannerUpdate">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          원클릭 업데이트
-        </button>
-        <button class="update-banner-close" id="btnCloseUpdateBanner" title="닫기">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
-      </div>
-    `;
-    banner.style.display = 'flex';
-
-    banner.querySelector('#btnBannerUpdate')?.addEventListener('click', () => {
-      this.updateGuardian.triggerDownload(update.zipUrl, `style-scrather-${update.latestDisplayVersion.replace(/\.+$/, '')}.zip`);
-      this.showToast(`${update.latestDisplayVersion} ZIP 다운로드가 시작되었습니다.`);
-    });
-
-    banner.querySelector('#btnCloseUpdateBanner')?.addEventListener('click', () => {
-      banner.style.display = 'none';
-    });
+  clampPosition(left, top) {
+    const rect = this.container.getBoundingClientRect();
+    const inset = 12;
+    const x = Math.max(inset, Math.min(left ?? rect.left, window.innerWidth - rect.width - inset));
+    const y = Math.max(inset, Math.min(top ?? rect.top, window.innerHeight - rect.height - inset));
+    this.container.style.left = `${x}px`;
+    this.container.style.top = `${y}px`;
+    this.container.style.right = 'auto';
   }
 
   initDrag() {
     const header = this.container.querySelector('#dockHeader');
-    let isDragging = false;
-    let startX, startY, initialLeft, initialTop;
-
-    header.addEventListener('mousedown', (e) => {
-      if (e.target.closest('button')) return;
-      isDragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
+    let drag = null;
+    header.addEventListener('pointerdown', event => {
+      if (event.button !== 0 || (event.target.closest('button') && !event.target.closest('#moveDockBtn'))) return;
       const rect = this.container.getBoundingClientRect();
-      initialLeft = rect.left;
-      initialTop = rect.top;
-
-      this.container.style.right = 'auto';
-      this.container.style.left = `${initialLeft}px`;
-      this.container.style.top = `${initialTop}px`;
-
-      const onMouseMove = (moveEvt) => {
-        if (!isDragging) return;
-        const dx = moveEvt.clientX - startX;
-        const dy = moveEvt.clientY - startY;
-        const newLeft = Math.max(10, Math.min(window.innerWidth - this.container.offsetWidth - 10, initialLeft + dx));
-        const newTop = Math.max(10, Math.min(window.innerHeight - 50, initialTop + dy));
-        this.container.style.left = `${newLeft}px`;
-        this.container.style.top = `${newTop}px`;
-      };
-
-      const onMouseUp = () => {
-        isDragging = false;
-        window.removeEventListener('mousemove', onMouseMove);
-        window.removeEventListener('mouseup', onMouseUp);
-      };
-
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
+      drag = { x: event.clientX, y: event.clientY, left: rect.left, top: rect.top };
+      header.setPointerCapture(event.pointerId);
+      this.container.classList.add('dragging');
+      event.preventDefault();
     });
+    header.addEventListener('pointermove', event => {
+      if (drag) this.clampPosition(drag.left + event.clientX - drag.x, drag.top + event.clientY - drag.y);
+    });
+    const stop = () => { drag = null; this.container.classList.remove('dragging'); };
+    header.addEventListener('pointerup', stop);
+    header.addEventListener('pointercancel', stop);
+    header.addEventListener('lostpointercapture', stop);
+    this.container.querySelector('#moveDockBtn').addEventListener('keydown', event => {
+      const step = event.shiftKey ? 8 : 32;
+      const directions = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+      if (event.key === 'Home') {
+        event.preventDefault(); this.clampPosition(window.innerWidth - this.container.offsetWidth - 20, 20);
+      } else if (directions[event.key]) {
+        event.preventDefault(); event.stopPropagation();
+        const rect = this.container.getBoundingClientRect();
+        this.clampPosition(rect.left + directions[event.key][0], rect.top + directions[event.key][1]);
+      } else return;
+      const rect = this.container.getBoundingClientRect();
+      this.container.querySelector('#dockAnnounce').textContent = `스튜디오 위치: 가로 ${Math.round(rect.left)}, 세로 ${Math.round(rect.top)} 픽셀`;
+    });
+    window.addEventListener('resize', () => this.clampPosition());
   }
 
-  updateElement() {
-    this.renderCurrentTab();
-  }
+  updateElement() { if (!this.isUpdatingControl) this.renderCurrentTab(); }
 
-  renderCurrentTab() {
+  renderCurrentTab(preserveFocus = true) {
     const body = this.container.querySelector('#dockBody');
-    if (!body) return;
-
-    if (this.currentTab === 'inspector') {
-      this.renderInspectorTab(body);
-    } else if (this.currentTab === 'mockup') {
-      this.renderMockupTab(body);
-    } else if (this.currentTab === 'fonts') {
-      this.renderFontsTab(body);
-    } else if (this.currentTab === 'assets') {
-      this.renderAssetsTab(body);
-    } else if (this.currentTab === 'interaction') {
-      this.renderInteractionTab(body);
-    } else if (this.currentTab === 'motion') {
-      this.renderMotionTab(body);
-    } else if (this.currentTab === 'graphics') {
-      this.renderGraphicsTab(body);
-    } else if (this.currentTab === 'tools') {
-      this.renderToolsTab(body);
-    } else if (this.currentTab === 'code') {
-      this.renderCodeTab(body);
-    } else if (this.currentTab === 'settings') {
-      this.renderSettingsTab(body);
+    const focus = this.shadowRoot.activeElement;
+    const hadFocus = preserveFocus && body.contains(focus);
+    const focusId = hadFocus ? focus.id : null;
+    const focusData = hadFocus && !focusId ? ['unit', 'pseudo', 'speed', 'preset', 'section'].find(name => focus.dataset[name]) : null;
+    const focusValue = focusData ? focus.dataset[focusData] : null;
+    const scrollTop = body.scrollTop;
+    body.querySelectorAll('details[data-section]').forEach(section => this.disclosureState.set(`${this.renderedTab || this.currentTab}:${section.dataset.section}`, section.open));
+    const isEdit = this.modeManager?.getMode() === 'edit';
+    ['Inspect', 'Edit'].forEach(mode => {
+      const button = this.container.querySelector(`#btnMode${mode}`);
+      const active = mode === 'Edit' ? isEdit : !isEdit;
+      button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active));
+    });
+    const headings = { inspector: 'ELEMENT INSPECTOR', fonts: 'TYPOGRAPHY STUDIO', assets: 'CONTENT & ASSETS', code: 'PALETTE & CODE', mockup: 'RESPONSIVE PREVIEW', interaction: 'EVENTS & STATES', motion: 'MOTION STUDY', graphics: 'GRAPHICS INSPECTOR', tools: 'PAGE TOOLKIT', settings: 'YOUR WORKSPACE' };
+    this.container.querySelector('#panelEyebrow').textContent = headings[this.currentTab];
+    this.container.querySelector('#panelName').textContent = this.tabNames[this.currentTab];
+    const renderers = { inspector: 'renderInspectorTab', fonts: 'renderFontsTab', assets: 'renderAssetsTab', code: 'renderCodeTab', mockup: 'renderMockupTab', interaction: 'renderInteractionTab', motion: 'renderMotionTab', graphics: 'renderGraphicsTab', tools: 'renderToolsTab', settings: 'renderSettingsTab' };
+    try {
+      this[renderers[this.currentTab]](body);
+      this.renderedTab = this.currentTab;
+      this.enhanceControls(body);
+    } catch {
+      body.innerHTML = '<div class="empty-state"><div class="empty-title">패널을 불러오지 못했습니다.</div><p class="empty-desc">요소를 다시 선택하거나 패널을 새로 열어주세요.</p><button class="btn-secondary" id="retryPanelBtn">다시 시도</button></div>';
+      body.querySelector('#retryPanelBtn').addEventListener('click', () => this.renderCurrentTab());
     }
+    body.querySelectorAll('details[data-section]').forEach(section => {
+      const key = `${this.currentTab}:${section.dataset.section}`;
+      if (this.disclosureState.has(key)) section.open = this.disclosureState.get(key);
+    });
+    if (hadFocus) {
+      const nextFocus = focusId ? body.querySelector(`#${CSS.escape(focusId)}`) : focusData ? body.querySelector(`[data-${focusData}="${CSS.escape(focusValue)}"]`) : null;
+      (nextFocus || body).focus({ preventScroll: true });
+    }
+    body.scrollTop = scrollTop;
+  }
+
+  enhanceControls(body) {
+    const labels = { safeModeCheckbox: '요소 선택 시 링크 이동 차단', radiusSlider: '모서리 둥글기', radiusInput: '모서리 둥글기 픽셀', tlRadiusInput: '좌상 모서리 픽셀', trRadiusInput: '우상 모서리 픽셀', blRadiusInput: '좌하 모서리 픽셀', brRadiusInput: '우하 모서리 픽셀', paddingSlider: '안쪽 여백', paddingInput: '안쪽 여백 픽셀', bgColorPicker: '배경색 선택', bgHexInput: '배경색 값', textColorPicker: '글자색 선택', textHexInput: '글자색 값', mockupScaleInput: '디바이스 미리보기 배율', fontFamilySelect: '글꼴', fontSizeInput: '글자 크기 픽셀', fontWeightSelect: '글자 굵기', fontStudioTextArea: '선택한 요소의 텍스트', liveTextarea: '선택한 요소의 텍스트', imgUrlInput: '이미지 URL', localFileInput: '로컬 이미지', svgFillPicker: 'SVG 채우기 색 선택', svgFillInput: 'SVG 채우기 값', svgStrokePicker: 'SVG 윤곽 색 선택', svgStrokeInput: 'SVG 윤곽 색 값', svgStrokeWidthSlider: 'SVG 선 두께', svgStrokeWidthInput: 'SVG 선 두께 픽셀', svgXmlTextarea: 'SVG 원본 코드', gridColsSlider: '그리드 컬럼 수', gridGutterSlider: '그리드 간격 픽셀', cssSearchInput: '스타일시트 검색' };
+    body.querySelectorAll('input, select, textarea').forEach(input => {
+      if (!input.getAttribute('aria-label')) input.setAttribute('aria-label', labels[input.id] || input.closest('tr')?.querySelector('td')?.textContent.trim() || input.placeholder || '값');
+    });
+    body.querySelectorAll('button').forEach(button => {
+      button.type = 'button';
+      if (!button.textContent.trim() && button.title) button.setAttribute('aria-label', button.title);
+    });
+    body.querySelectorAll('.toggle-switch-btn, .unit-chip, .pseudo-btn[data-pseudo], .speed-chip, .preset-btn').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.classList.contains('active')));
+      const title = button.closest('.tool-banner')?.querySelector('.tool-meta-title')?.textContent;
+      if (title) button.setAttribute('aria-label', title);
+    });
+    this.container.querySelectorAll('svg').forEach(svg => { if (!svg.getAttribute('role')) svg.setAttribute('aria-hidden', 'true'); });
   }
 
   // ==========================================
   // TAB 1: Inspector & Units
   // ==========================================
   renderInspectorTab(container) {
-    const el = this.tweaker.getElement();
-    if (!el) {
+    const el = this.tweaker?.getElement();
+    if (!el || el.isConnected === false) {
       container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-          </div>
-          <div class="empty-title">검사할 요소를 클릭하세요</div>
-          <div class="empty-desc">웹 페이지의 아무 요소를 클릭하면 피그마처럼 고정되며 단위별 거리, 곡률, 여백을 실시간으로 튜닝할 수 있습니다.</div>
-        </div>
-      `;
+        <div class="inspector-welcome">
+          <div class="welcome-art" aria-hidden="true"><div class="welcome-selection"><span></span><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="m5 3 14 9-7 1-3 7Z"/></svg></div><i class="welcome-orbit"></i></div>
+          <span class="welcome-eyebrow">A LITTLE CURIOSITY GOES A LONG WAY</span>
+          <h2>어떤 스타일이 궁금한가요?</h2>
+          <p>페이지의 요소 위로 마우스를 옮기고,<br>클릭해서 자세히 살펴보세요.</p>
+          <ol class="welcome-steps"><li><span>01</span><div><strong>살펴보기</strong><small>크기와 간격을 한눈에</small></div></li><li><span>02</span><div><strong>선택하기</strong><small>클릭으로 요소 고정</small></div></li><li><span>03</span><div><strong>다듬기</strong><small>색상과 모양을 직접 조절</small></div></li></ol>
+          <div class="welcome-tip"><kbd>Alt</kbd><span>요소 선택 후 누른 채 이동하면 거리를 측정합니다.</span></div>
+        </div>`;
       return;
     }
-
     const computed = window.getComputedStyle(el);
     const rect = el.getBoundingClientRect();
     const tag = el.tagName.toLowerCase();
-    const className = (typeof el.className === 'string' && el.className.trim()) ? `.${el.className.trim().split(/\s+/).join('.')}` : '';
-
-    const currentUnit = this.unitConverter ? this.unitConverter.getUnit() : 'px';
-
-    const currentRadius = parseFloat(computed.borderTopLeftRadius) || 0;
-    const pt = Math.round(parseFloat(computed.paddingTop) || 0);
-    const pr = Math.round(parseFloat(computed.paddingRight) || 0);
-    const pb = Math.round(parseFloat(computed.paddingBottom) || 0);
-    const pl = Math.round(parseFloat(computed.paddingLeft) || 0);
-
-    const mt = Math.round(parseFloat(computed.marginTop) || 0);
-    const mr = Math.round(parseFloat(computed.marginRight) || 0);
-    const mb = Math.round(parseFloat(computed.marginBottom) || 0);
-    const ml = Math.round(parseFloat(computed.marginLeft) || 0);
-
-    const bgHex = TailwindConverter.rgbToHex(computed.backgroundColor);
-    const colorHex = TailwindConverter.rgbToHex(computed.color);
-    const borderHex = TailwindConverter.rgbToHex(computed.borderTopColor);
-    const fontSize = Math.round(parseFloat(computed.fontSize) || 16);
-
-    // Format dimensions in current unit
-    let dimStr = `${Math.round(rect.width)} × ${Math.round(rect.height)} px`;
-    if (this.unitConverter && currentUnit !== 'px') {
-      const wConv = this.unitConverter.convert(rect.width, currentUnit, { element: el });
-      const hConv = this.unitConverter.convert(rect.height, currentUnit, { element: el, isVertical: true });
-      dimStr = `${wConv.formatted} × ${hConv.formatted}`;
+    const classes = typeof el.className === 'string' ? el.className.trim().split(/\s+/).filter(Boolean).map(value => `.${value}`).join(' ') : '';
+    const unit = this.unitConverter?.getUnit() || 'px';
+    const number = property => Math.round(parseFloat(computed[property]) || 0);
+    const radius = number('borderTopLeftRadius');
+    const pt = number('paddingTop'), pr = number('paddingRight'), pb = number('paddingBottom'), pl = number('paddingLeft');
+    const mt = number('marginTop'), mr = number('marginRight'), mb = number('marginBottom'), ml = number('marginLeft');
+    const bg = TailwindConverter.rgbToHex(computed.backgroundColor);
+    const color = TailwindConverter.rgbToHex(computed.color);
+    const validHex = value => /^#[\da-f]{6}$/i.test(value);
+    const bgPicker = validHex(bg) ? bg : '#ffffff';
+    const colorPicker = validHex(color) ? color : '#17151c';
+    let dimensions = `${Math.round(rect.width)} × ${Math.round(rect.height)} px`;
+    if (this.unitConverter && unit !== 'px') {
+      dimensions = `${this.unitConverter.convert(rect.width, unit, { element: el }).formatted} × ${this.unitConverter.convert(rect.height, unit, { element: el, isVertical: true }).formatted}`;
     }
-
-    // Calculate WCAG contrast
-    const contrast = typeof ColorSuite !== 'undefined' ? ColorSuite.getContrastRatio(colorHex, bgHex) : { ratio: 4.5, score: 'AA', passesAA: true };
+    // A transparent or image background cannot be judged from two flat colors.
+    const opaqueColors = validHex(bg) && validHex(color) && !/rgba|transparent/.test(computed.backgroundColor) && !/rgba/.test(computed.color) && computed.backgroundImage === 'none';
+    const contrast = opaqueColors && typeof ColorSuite !== 'undefined' ? ColorSuite.getContrastRatio(color, bg) : null;
     const presets = typeof ColorSuite !== 'undefined' ? ColorSuite.getPresets() : [];
-
-    // Figma AutoLayout Sizing Telemetry (v4.0.0)
-    const autolayout = typeof FontStudio !== 'undefined' && FontStudio.detectAutolayoutSizing
-      ? FontStudio.detectAutolayoutSizing(el)
-      : { widthSizing: 'Fixed', heightSizing: 'Fixed', widthBadge: 'Fixed', heightBadge: 'Fixed' };
-    const isEditMode = this.modeManager && this.modeManager.getMode() === 'edit';
-    const selectedCount = this.modeManager ? this.modeManager.getSelectedElements().length : 1;
-
+    const layout = this.fontStudio?.detectAutolayoutSizing?.(el);
+    const edit = this.modeManager?.getMode() === 'edit';
+    const selected = this.modeManager?.getSelectedElements().length || 1;
     container.innerHTML = `
-      <!-- Safe Mode (Click Invalidation) Toggle Banner -->
-      <div class="safe-mode-banner ${this.isSafeMode ? '' : 'disabled'}">
-        <div>
-          <div class="safe-mode-title">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            안전 검사 모드 (클릭 무효화)
-          </div>
-          <div class="safe-mode-desc">링크/버튼 클릭 시 페이지 이동을 차단하고 요소만 선택합니다.</div>
-        </div>
-        <input type="checkbox" id="safeModeCheckbox" ${this.isSafeMode ? 'checked' : ''} style="cursor: pointer; width: 16px; height: 16px;">
-      </div>
-
-      <!-- Unit Selector Bar -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-        <span class="section-title" style="margin: 0;">측정 단위 (Unit)</span>
-        <span style="font-size: 10px; color: #9CA3AF;">기준: 1rem = ${this.unitConverter?.baseFontSize || 16}px</span>
-      </div>
-      <div class="unit-selector-bar" id="unitSelectorBar">
-        <button class="unit-chip ${currentUnit === 'px' ? 'active' : ''}" data-unit="px">px</button>
-        <button class="unit-chip ${currentUnit === 'rem' ? 'active' : ''}" data-unit="rem">rem</button>
-        <button class="unit-chip ${currentUnit === 'em' ? 'active' : ''}" data-unit="em">em</button>
-        <button class="unit-chip ${currentUnit === '%' ? 'active' : ''}" data-unit="%">%</button>
-        <button class="unit-chip ${currentUnit === 'vw' ? 'active' : ''}" data-unit="vw">vw</button>
-        <button class="unit-chip ${currentUnit === 'vh' ? 'active' : ''}" data-unit="vh">vh</button>
-        <button class="unit-chip ${currentUnit === 'pt' ? 'active' : ''}" data-unit="pt">pt</button>
-      </div>
-
-      <!-- Element Meta Banner -->
       <div class="element-meta-card">
-        <div class="meta-header">
-          <span class="element-tag-pill">&lt;${tag}&gt;</span>
-          <span class="element-dim-badge">${dimStr}</span>
-        </div>
-        ${className ? `<div class="element-classes" title="${className}">${className}</div>` : ''}
-
-        <!-- Figma AutoLayout Hug / Fill / Fixed Telemetry Badges (v4.0.0) -->
-        <div class="autolayout-badge-container">
-          <span class="al-badge al-badge-${autolayout.widthSizing.toLowerCase()}" title="Figma 너비 정책">너비: ${autolayout.widthBadge}</span>
-          <span class="al-badge al-badge-${autolayout.heightSizing.toLowerCase()}" title="Figma 높이 정책">높이: ${autolayout.heightBadge}</span>
-        </div>
-
-        ${isEditMode ? `
-        <!-- Edit Studio Action Bar (v4.0.0) -->
-        <div class="edit-studio-bar" style="margin-top: 8px;">
-          <span style="font-size: 10px; font-weight: 700; color: #E11D48;">편집 모드 (${selectedCount}개 선택)</span>
-          <div class="edit-action-btn-group">
-            <button class="edit-action-btn" id="btnDomMoveUp" title="DOM 상위로 이동">▲ 위로</button>
-            <button class="edit-action-btn" id="btnDomMoveDown" title="DOM 하위로 이동">▼ 아래로</button>
-            <button class="edit-action-btn" id="btnDomDuplicate" title="요소 복제">복제</button>
-            <button class="edit-action-btn" id="btnDomDelete" style="color: #EF4444;" title="요소 삭제">삭제</button>
-          </div>
-        </div>
-        ` : ''}
-
-        <div class="btn-group" style="margin-top: 6px;">
-          <button class="btn-secondary" id="unlockBtn">선택 해제 (Esc)</button>
-          <button class="btn-secondary" id="resetStylesBtn">스타일 초기화</button>
-        </div>
+        <span class="card-eyebrow">SELECTED ELEMENT</span>
+        <div class="meta-header"><span class="element-tag-pill">&lt;${escapeHtml(tag)}&gt;</span><span class="element-dim-badge">${escapeHtml(dimensions)}</span></div>
+        ${classes ? `<div class="element-classes" title="${escapeHtml(classes)}">${escapeHtml(classes)}</div>` : '<span class="element-classes">클래스가 없는 요소</span>'}
+        <div class="btn-group"><button class="btn-secondary" id="unlockBtn">선택 해제 <kbd>Esc</kbd></button><button class="btn-secondary" id="resetStylesBtn">스타일 복원</button></div>
+        ${edit ? `<div class="edit-studio-bar"><span>${selected}개 선택</span><div class="edit-action-btn-group"><button class="edit-action-btn" id="btnDomMoveUp">위로</button><button class="edit-action-btn" id="btnDomMoveDown">아래로</button><button class="edit-action-btn" id="btnDomDuplicate">복제</button><button class="edit-action-btn danger" id="btnDomDelete">삭제</button></div></div>` : ''}
       </div>
-
-      <!-- 1. Border Radius Tweaker -->
-      <div class="tweak-section">
-        <div class="section-title">
-          <span>모서리 둥글기 (Border Radius)</span>
-          <button class="section-reset-btn" id="toggleCornerDetails">4모서리 개별 조절</button>
-        </div>
-        <div class="tweak-row">
-          <span class="tweak-label">전체 곡률</span>
-          <div class="tweak-control-group">
-            <input type="range" class="range-slider" id="radiusSlider" min="0" max="64" value="${currentRadius}">
-            <input type="number" class="num-input" id="radiusInput" min="0" max="100" value="${currentRadius}">
-            <span style="font-size: 10px; color: #6B7280;">px</span>
-          </div>
-        </div>
-
-        <div class="corner-radius-grid" id="cornerDetailsGrid" style="display: none;">
-          <div class="corner-item">
-            <span>좌상 (TL)</span>
-            <input type="number" class="num-input" id="tlRadiusInput" min="0" value="${Math.round(parseFloat(computed.borderTopLeftRadius) || 0)}">
-          </div>
-          <div class="corner-item">
-            <span>우상 (TR)</span>
-            <input type="number" class="num-input" id="trRadiusInput" min="0" value="${Math.round(parseFloat(computed.borderTopRightRadius) || 0)}">
-          </div>
-          <div class="corner-item">
-            <span>좌하 (BL)</span>
-            <input type="number" class="num-input" id="blRadiusInput" min="0" value="${Math.round(parseFloat(computed.borderBottomLeftRadius) || 0)}">
-          </div>
-          <div class="corner-item">
-            <span>우하 (BR)</span>
-            <input type="number" class="num-input" id="brRadiusInput" min="0" value="${Math.round(parseFloat(computed.borderBottomRightRadius) || 0)}">
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. Box Model (Margin & Padding) -->
-      <div class="tweak-section">
-        <div class="section-title">
-          <span>박스 모델 (Margin & Padding)</span>
-        </div>
-        <div class="box-model-diagram">
-          <div class="bm-margin">
-            <span class="bm-label">Margin</span>
-            <span class="bm-val bm-margin-t">${mt}</span>
-            <span class="bm-val bm-margin-b">${mb}</span>
-            <span class="bm-val bm-margin-l">${ml}</span>
-            <span class="bm-val bm-margin-r">${mr}</span>
-
-            <div class="bm-padding">
-              <span class="bm-label">Padding</span>
-              <span class="bm-val bm-padding-t">${pt}</span>
-              <span class="bm-val bm-padding-b">${pb}</span>
-              <span class="bm-val bm-padding-l">${pl}</span>
-              <span class="bm-val bm-padding-r">${pr}</span>
-
-              <div class="bm-content">
-                ${dimStr}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="tweak-row" style="margin-top: 4px;">
-          <span class="tweak-label">Padding 조절</span>
-          <div class="tweak-control-group">
-            <input type="range" class="range-slider" id="paddingSlider" min="0" max="64" value="${pt}">
-            <input type="number" class="num-input" id="paddingInput" min="0" value="${pt}">
-            <span style="font-size: 10px; color: #6B7280;">px</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. Sensory Colors Tweaker -->
-      <div class="color-suite-box">
-        <div class="color-action-bar">
-          <span class="section-title" style="margin: 0;">감각적 컬러 스위트</span>
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <span class="contrast-pill ${contrast.passesAA ? 'pass' : 'fail'}" title="명도 대비율">
-              대비 ${contrast.ratio}:1 [${contrast.score}]
-            </span>
-            <button class="eyedropper-btn" id="eyeDropperBtn">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><path d="M2 22s5-1 8-4l9-9a2.828 2.828 0 0 0-4-4l-9 9c-3 3-4 8-4 8z"></path><path d="M14.5 5.5l4 4"></path></svg>스포이트
-            </button>
-          </div>
-        </div>
-
-        <!-- Presets Row -->
-        <div class="color-presets-row" id="colorPresetsRow">
-          ${presets.map(p => `<div class="preset-color-dot" style="background-color: ${p};" data-color="${p}" title="${p}"></div>`).join('')}
-        </div>
-
-        <div class="tweak-row">
-          <span class="tweak-label">배경색 (Background)</span>
-          <div class="color-picker-group">
-            <div class="color-swatch-wrapper" style="background-color: ${bgHex};">
-              <input type="color" class="native-color-picker" id="bgColorPicker" value="${bgHex.startsWith('#') && bgHex.length === 7 ? bgHex : '#ffffff'}">
-            </div>
-            <input type="text" class="color-hex-input" id="bgHexInput" value="${bgHex}">
-          </div>
-        </div>
-
-        <div class="tweak-row">
-          <span class="tweak-label">텍스트색 (Text Color)</span>
-          <div class="color-picker-group">
-            <div class="color-swatch-wrapper" style="background-color: ${colorHex};">
-              <input type="color" class="native-color-picker" id="textColorPicker" value="${colorHex.startsWith('#') && colorHex.length === 7 ? colorHex : '#000000'}">
-            </div>
-            <input type="text" class="color-hex-input" id="textHexInput" value="${colorHex}">
-          </div>
-        </div>
-      </div>
+      <label class="safe-mode-banner ${this.isSafeMode ? '' : 'disabled'}"><div><span class="safe-mode-title">요소 선택 시 링크 이동 차단</span><span class="safe-mode-desc">검사하는 동안 페이지 이동을 막습니다.</span></div><input type="checkbox" id="safeModeCheckbox" ${this.isSafeMode ? 'checked' : ''}></label>
+      <details class="studio-section" data-section="appearance" open><summary><span>모양과 색상</span><small>Appearance</small></summary><div class="section-content">
+        <div class="tweak-row"><label class="tweak-label" for="radiusInput">둥글기</label><div class="tweak-control-group"><input type="range" class="range-slider" id="radiusSlider" min="0" max="${Math.max(64, radius)}" value="${radius}"><input type="number" class="num-input" id="radiusInput" min="0" max="9999" value="${radius}"><span class="input-unit">px</span></div></div>
+        <button class="section-reset-btn corner-toggle" id="toggleCornerDetails" aria-expanded="false" aria-controls="cornerDetailsGrid">모서리별로 조절</button>
+        <div class="corner-radius-grid" id="cornerDetailsGrid" hidden>${[['tl', '좌상', 'borderTopLeftRadius'], ['tr', '우상', 'borderTopRightRadius'], ['bl', '좌하', 'borderBottomLeftRadius'], ['br', '우하', 'borderBottomRightRadius']].map(([id, title, property]) => `<label class="corner-item"><span>${title}</span><input type="number" class="num-input" id="${id}RadiusInput" min="0" max="9999" value="${number(property)}"></label>`).join('')}</div>
+        <div class="section-divider"></div>
+        <div class="tweak-row"><label class="tweak-label" for="bgHexInput">배경색</label><div class="color-picker-group"><div class="color-swatch-wrapper" style="background-color:${bgPicker}"><input type="color" class="native-color-picker" id="bgColorPicker" value="${bgPicker}"></div><input type="text" class="color-hex-input" id="bgHexInput" value="${escapeHtml(bg)}" spellcheck="false"></div></div>
+        <div class="tweak-row"><label class="tweak-label" for="textHexInput">글자색</label><div class="color-picker-group"><div class="color-swatch-wrapper" style="background-color:${colorPicker}"><input type="color" class="native-color-picker" id="textColorPicker" value="${colorPicker}"></div><input type="text" class="color-hex-input" id="textHexInput" value="${escapeHtml(color)}" spellcheck="false"></div></div>
+        <div class="color-action-bar"><span class="contrast-pill ${contrast ? contrast.passesAA ? 'pass' : 'fail' : ''}" title="단색 전경·배경 기준 참고값">${contrast ? `${contrast.ratio}:1 · ${contrast.score}` : '투명 배경·이미지 대비는 별도 확인'}</span><button class="eyedropper-btn" id="eyeDropperBtn" ${typeof window.EyeDropper === 'undefined' ? 'disabled title="이 환경에서는 스포이트를 사용할 수 없습니다."' : ''}>스포이트</button></div>
+        <div class="color-presets-row" aria-label="배경색 프리셋">${presets.filter(validHex).map(preset => `<button class="preset-color-dot" style="background-color:${preset}" data-color="${preset}" title="배경색 ${preset}" aria-label="배경색 ${preset}"></button>`).join('')}</div>
+      </div></details>
+      <details class="studio-section" data-section="spacing"><summary><span>간격</span><small>Spacing</small></summary><div class="section-content">
+        <div class="box-model-diagram"><div class="bm-margin"><span class="bm-label">MARGIN</span><span class="bm-val bm-margin-t">${mt}</span><span class="bm-val bm-margin-b">${mb}</span><span class="bm-val bm-margin-l">${ml}</span><span class="bm-val bm-margin-r">${mr}</span><div class="bm-padding"><span class="bm-label">PADDING</span><span class="bm-val bm-padding-t">${pt}</span><span class="bm-val bm-padding-b">${pb}</span><span class="bm-val bm-padding-l">${pl}</span><span class="bm-val bm-padding-r">${pr}</span><div class="bm-content">${escapeHtml(dimensions)}</div></div></div></div>
+        <div class="tweak-row"><label class="tweak-label" for="paddingInput">안쪽 여백</label><div class="tweak-control-group"><input type="range" class="range-slider" id="paddingSlider" min="0" max="${Math.max(64, pt)}" value="${pt}"><input type="number" class="num-input" id="paddingInput" min="0" max="9999" value="${pt}"><span class="input-unit">px</span></div></div>
+      </div></details>
+      <details class="studio-section" data-section="measurement"><summary><span>측정 단위와 레이아웃</span><small>Measure</small></summary><div class="section-content"><div class="unit-selector-bar" aria-label="측정 단위">${['px', 'rem', 'em', '%', 'vw', 'vh', 'pt'].map(value => `<button class="unit-chip ${unit === value ? 'active' : ''}" data-unit="${value}">${value}</button>`).join('')}</div><p class="muted-copy">1rem = ${Number(this.unitConverter?.baseFontSize) || 16}px · 편집 값은 px 기준입니다.</p>${layout ? `<div class="autolayout-badge-container"><span class="al-badge">너비 ${escapeHtml(layout.widthBadge)}</span><span class="al-badge">높이 ${escapeHtml(layout.heightBadge)}</span></div>` : ''}</div></details>
     `;
-
-    // Safe Mode Checkbox Event
-    const safeModeCheckbox = container.querySelector('#safeModeCheckbox');
-    safeModeCheckbox.addEventListener('change', (e) => {
-      this.isSafeMode = e.target.checked;
+    const apply = (action, refresh = false) => {
+      this.isUpdatingControl = true;
+      try { action(); } finally { this.isUpdatingControl = false; }
+      this.overlayCanvas?.render();
+      if (refresh) this.renderCurrentTab();
+    };
+    container.querySelector('#safeModeCheckbox').addEventListener('change', event => {
+      this.isSafeMode = event.target.checked;
       this.onToggleSafeMode(this.isSafeMode);
-      this.showToast(this.isSafeMode ? '안전 검사 모드 활성화 (링크 이동 차단)' : '안전 검사 모드 해제');
-      this.renderInspectorTab(container);
+      this.renderCurrentTab();
     });
-
-    // EyeDropper API Event
-    const eyeBtn = container.querySelector('#eyeDropperBtn');
-    eyeBtn.addEventListener('click', async () => {
-      if (typeof ColorSuite !== 'undefined') {
-        const hex = await ColorSuite.pickColorWithEyeDropper();
-        if (hex) {
-          this.tweaker.setColor('background', hex);
-          this.showToast(`추출된 색상 ${hex} 적용 완료`);
-          this.renderInspectorTab(container);
-        }
-      }
-    });
-
-    // Preset Color Dots Event
-    container.querySelectorAll('.preset-color-dot').forEach(dot => {
-      dot.addEventListener('click', () => {
-        const c = dot.dataset.color;
-        this.tweaker.setColor('background', c);
-        this.renderInspectorTab(container);
-      });
-    });
-
-    // Bind Unit Selector Chips
-    container.querySelectorAll('.unit-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const u = chip.dataset.unit;
-        if (this.unitConverter) {
-          this.unitConverter.setUnit(u);
-        }
-        if (this.overlayCanvas) {
-          this.overlayCanvas.setUnit(u);
-        }
-        this.renderInspectorTab(container);
-      });
-    });
-
-    // Bind Reset & Unlock
     container.querySelector('#unlockBtn').addEventListener('click', () => {
-      this.overlayCanvas.setSelectedElement(null);
+      this.modeManager?.clearSelection();
+      this.overlayCanvas?.setSelectedElement(null);
       this.tweaker.setElement(null);
+      this.renderCurrentTab();
     });
-
     container.querySelector('#resetStylesBtn').addEventListener('click', () => {
-      this.tweaker.resetCurrentElement();
-      this.overlayCanvas.render();
-      this.showToast('스타일이 복원되었습니다.');
+      apply(() => this.tweaker.resetCurrentElement(), true);
+      this.showToast('선택한 요소의 스타일을 복원했습니다.');
     });
-
-    // Edit Studio DOM Actions (v4.0.0)
-    container.querySelector('#btnDomMoveUp')?.addEventListener('click', () => {
-      if (this.modeManager && this.modeManager.moveUp(el)) {
-        this.showToast('요소를 위로 이동했습니다.');
-        this.overlayCanvas?.render();
-      }
-    });
-
-    container.querySelector('#btnDomMoveDown')?.addEventListener('click', () => {
-      if (this.modeManager && this.modeManager.moveDown(el)) {
-        this.showToast('요소를 아래로 이동했습니다.');
-        this.overlayCanvas?.render();
-      }
-    });
-
+    ['Up', 'Down'].forEach(direction => container.querySelector(`#btnDomMove${direction}`)?.addEventListener('click', () => {
+      const moved = this.modeManager?.[`move${direction}`](el);
+      this.showToast(moved ? '요소 순서를 변경했습니다.' : '이 방향으로 더 이동할 수 없습니다.', moved ? 'success' : 'info');
+      this.overlayCanvas?.render();
+    }));
     container.querySelector('#btnDomDuplicate')?.addEventListener('click', () => {
-      if (this.modeManager) {
-        const dup = this.modeManager.duplicateElement(el);
-        if (dup) {
-          this.showToast('요소가 복제되었습니다.');
-          this.tweaker.setElement(dup);
-          this.renderCurrentTab();
-        }
-      }
+      const duplicate = this.modeManager?.duplicateElement(el);
+      if (duplicate) { this.modeManager.select(duplicate); this.overlayCanvas?.setSelectedElement(duplicate); this.tweaker.setElement(duplicate); this.renderCurrentTab(); this.showToast('요소를 복제했습니다.'); }
     });
-
     container.querySelector('#btnDomDelete')?.addEventListener('click', () => {
-      if (this.modeManager && this.modeManager.removeElement(el)) {
-        this.showToast('요소가 삭제되었습니다.');
-        this.tweaker.setElement(null);
-        this.renderCurrentTab();
-      }
+      if (this.modeManager?.removeElement(el)) { this.modeManager.clearSelection(); this.overlayCanvas?.setSelectedElement(null); this.tweaker.setElement(null); this.renderCurrentTab(); this.showToast('요소를 삭제했습니다. 페이지를 새로고침하면 복원됩니다.'); }
     });
-
-    // Radius Slider & Input
-    const rSlider = container.querySelector('#radiusSlider');
-    const rInput = container.querySelector('#radiusInput');
-    const updateRadius = (val) => {
-      rSlider.value = val;
-      rInput.value = val;
-      this.tweaker.setUnifiedRadius(val);
-      this.overlayCanvas.render();
+    const bindNumber = (sliderId, inputId, setter) => {
+      const slider = container.querySelector(`#${sliderId}`), input = container.querySelector(`#${inputId}`);
+      const update = value => { const number = Math.max(0, Math.min(9999, Number(value) || 0)); slider.max = Math.max(Number(slider.max), number); slider.value = number; input.value = number; apply(() => setter(number)); };
+      slider.addEventListener('input', event => update(event.target.value));
+      slider.addEventListener('change', () => this.renderCurrentTab());
+      input.addEventListener('change', event => { update(event.target.value); this.renderCurrentTab(); });
     };
-    rSlider.addEventListener('input', (e) => updateRadius(e.target.value));
-    rInput.addEventListener('change', (e) => updateRadius(e.target.value));
-
-    // Corner toggle
-    const cornerToggleBtn = container.querySelector('#toggleCornerDetails');
-    const cornerGrid = container.querySelector('#cornerDetailsGrid');
-    cornerToggleBtn.addEventListener('click', () => {
-      const isHidden = cornerGrid.style.display === 'none';
-      cornerGrid.style.display = isHidden ? 'grid' : 'none';
-      cornerToggleBtn.textContent = isHidden ? '간편 조절' : '4모서리 개별 조절';
+    bindNumber('radiusSlider', 'radiusInput', value => this.tweaker.setUnifiedRadius(value));
+    bindNumber('paddingSlider', 'paddingInput', value => this.tweaker.setPadding('all', value));
+    container.querySelector('#toggleCornerDetails').addEventListener('click', event => {
+      const grid = container.querySelector('#cornerDetailsGrid');
+      grid.hidden = !grid.hidden;
+      event.currentTarget.setAttribute('aria-expanded', String(!grid.hidden));
     });
-
-    ['tl', 'tr', 'bl', 'br'].forEach(corner => {
-      const input = container.querySelector(`#${corner}RadiusInput`);
-      if (input) {
-        input.addEventListener('input', (e) => {
-          this.tweaker.setCornerRadius(corner, parseFloat(e.target.value) || 0);
-          this.overlayCanvas.render();
-        });
-      }
-    });
-
-    // Padding Slider & Input
-    const pSlider = container.querySelector('#paddingSlider');
-    const pInput = container.querySelector('#paddingInput');
-    pSlider.addEventListener('input', (e) => {
-      pInput.value = e.target.value;
-      this.tweaker.setPadding('all', e.target.value);
-      this.overlayCanvas.render();
-    });
-    pInput.addEventListener('change', (e) => {
-      pSlider.value = e.target.value;
-      this.tweaker.setPadding('all', e.target.value);
-      this.overlayCanvas.render();
-    });
-
-    // Colors
-    const bindColor = (pickerId, inputId, type) => {
-      const picker = container.querySelector(`#${pickerId}`);
-      const input = container.querySelector(`#${inputId}`);
-      picker.addEventListener('input', (e) => {
-        input.value = e.target.value;
-        picker.parentElement.style.backgroundColor = e.target.value;
-        this.tweaker.setColor(type, e.target.value);
+    ['tl', 'tr', 'bl', 'br'].forEach(corner => container.querySelector(`#${corner}RadiusInput`).addEventListener('change', event => apply(() => this.tweaker.setCornerRadius(corner, Math.max(0, Math.min(9999, Number(event.target.value) || 0))))));
+    [['bgColorPicker', 'bgHexInput', 'background'], ['textColorPicker', 'textHexInput', 'text']].forEach(([pickerId, inputId, type]) => {
+      const picker = container.querySelector(`#${pickerId}`), input = container.querySelector(`#${inputId}`);
+      picker.addEventListener('input', event => { input.value = event.target.value; picker.parentElement.style.backgroundColor = event.target.value; apply(() => this.tweaker.setColor(type, event.target.value)); });
+      picker.addEventListener('change', () => this.renderCurrentTab());
+      input.addEventListener('change', event => {
+        const value = event.target.value.trim();
+        if (!CSS.supports('color', value)) { input.setAttribute('aria-invalid', 'true'); this.showToast('올바른 색상 값을 입력해주세요. 예: #E11D48 또는 rgb(225, 29, 72)', 'error'); return; }
+        apply(() => this.tweaker.setColor(type, value), true);
       });
-      input.addEventListener('change', (e) => {
-        picker.value = e.target.value;
-        picker.parentElement.style.backgroundColor = e.target.value;
-        this.tweaker.setColor(type, e.target.value);
-      });
-    };
-    bindColor('bgColorPicker', 'bgHexInput', 'background');
-    bindColor('textColorPicker', 'textHexInput', 'text');
+    });
+    container.querySelector('#eyeDropperBtn').addEventListener('click', event => this.performAction(event.currentTarget, async () => {
+      const hex = await ColorSuite.pickColorWithEyeDropper();
+      if (hex) { apply(() => this.tweaker.setColor('background', hex), true); this.showToast(`${hex} 배경색을 적용했습니다.`); }
+    }, '색상 선택…'));
+    container.querySelectorAll('[data-color]').forEach(button => button.addEventListener('click', () => apply(() => this.tweaker.setColor('background', button.dataset.color), true)));
+    container.querySelectorAll('[data-unit]').forEach(button => button.addEventListener('click', () => {
+      this.unitConverter?.setUnit(button.dataset.unit);
+      this.overlayCanvas?.setUnit(button.dataset.unit);
+      this.renderCurrentTab();
+    }));
   }
 
   // ==========================================
@@ -759,7 +545,7 @@ class FloatingDock {
       if (this.deviceMockup) {
         const active = this.deviceMockup.toggle();
         this.showToast(active ? '디바이스 목업 시뮬레이터가 열렸습니다.' : '시뮬레이터가 닫혔습니다.');
-        this.renderMockupTab(container);
+        this.renderCurrentTab();
       }
     });
 
@@ -770,7 +556,7 @@ class FloatingDock {
           this.deviceMockup.setPreset(preset);
           if (!this.deviceMockup.isActive) this.deviceMockup.toggle(true);
           this.showToast(`${preset.toUpperCase()} 프리셋이 적용되었습니다.`);
-          this.renderMockupTab(container);
+          this.renderCurrentTab();
         }
       });
     });
@@ -778,7 +564,7 @@ class FloatingDock {
     container.querySelector('#btnMockupRotate')?.addEventListener('click', () => {
       if (this.deviceMockup) {
         this.deviceMockup.toggleOrientation();
-        this.renderMockupTab(container);
+        this.renderCurrentTab();
       }
     });
 
@@ -1202,7 +988,7 @@ class FloatingDock {
       if (typeof AssetEditor !== 'undefined') {
         const active = AssetEditor.toggleContentEditable(el);
         this.showToast(active ? '요소 직접 타이핑 모드가 활성화되었습니다.' : '직접 타이핑 모드가 비활성화되었습니다.');
-        this.renderAssetsTab(container);
+        this.renderCurrentTab();
       }
     });
 
@@ -1298,7 +1084,7 @@ class FloatingDock {
           if (replaced) {
             this.showToast('SVG XML이 성공적으로 업데이트되었습니다.');
             this.tweaker.setElement(replaced);
-            this.renderAssetsTab(container);
+            this.renderCurrentTab();
           } else {
             this.showToast('SVG XML 파싱에 실패했습니다. 올바른 XML 문법인지 확인하세요.');
           }
@@ -1374,7 +1160,7 @@ class FloatingDock {
     container.querySelector('#clearPseudoBtn').addEventListener('click', () => {
       if (this.interactionDetector) {
         this.interactionDetector.clearForcedPseudos(el);
-        this.renderInteractionTab(container);
+        this.renderCurrentTab();
       }
     });
   }
@@ -1463,7 +1249,7 @@ class FloatingDock {
         if (this.motionInspector) {
           this.motionInspector.setPlaybackRate(rate);
         }
-        this.renderMotionTab(container);
+        this.renderCurrentTab();
       });
     });
 
@@ -1471,7 +1257,7 @@ class FloatingDock {
       if (this.motionInspector) {
         this.motionInspector.togglePause();
       }
-      this.renderMotionTab(container);
+      this.renderCurrentTab();
     });
   }
 
@@ -1711,7 +1497,7 @@ class FloatingDock {
       if (this.tabOrderVisualizer) {
         const active = this.tabOrderVisualizer.toggle();
         this.showToast(active ? 'W3C 탭 순서 흐름이 시각화되었습니다.' : '탭 순서 시각화가 꺼졌습니다.');
-        this.renderToolsTab(container);
+        this.renderCurrentTab();
       }
     });
 
@@ -1720,7 +1506,7 @@ class FloatingDock {
       if (this.precisionCursor) {
         const active = this.precisionCursor.toggle();
         this.showToast(active ? '정밀 십자선 커서가 활성화되었습니다.' : '십자선 커서가 비활성화되었습니다.');
-        this.renderToolsTab(container);
+        this.renderCurrentTab();
       }
     });
 
@@ -1739,7 +1525,7 @@ class FloatingDock {
       if (this.pageController) {
         const active = this.pageController.toggleUnblock();
         this.showToast(active ? '복사 및 우클릭 제한이 해제되었습니다.' : '복사 제한이 복구되었습니다.');
-        this.renderToolsTab(container);
+        this.renderCurrentTab();
       }
     });
 
@@ -1747,21 +1533,21 @@ class FloatingDock {
       if (this.pageController) {
         const frozen = this.pageController.toggleFreeze();
         this.showToast(frozen ? '화면 인터랙션이 프리징되었습니다.' : '프리징이 해제되었습니다.');
-        this.renderToolsTab(container);
+        this.renderCurrentTab();
       }
     });
 
     container.querySelector('#toggleGridToolBtn').addEventListener('click', () => {
       if (this.overlayCanvas) {
         this.overlayCanvas.toggleGrid();
-        this.renderToolsTab(container);
+        this.renderCurrentTab();
       }
     });
 
     container.querySelector('#toggleBaseToolBtn').addEventListener('click', () => {
       if (this.overlayCanvas) {
         this.overlayCanvas.toggleBaseline();
-        this.renderToolsTab(container);
+        this.renderCurrentTab();
       }
     });
 
@@ -2085,7 +1871,7 @@ class FloatingDock {
       if (this.shortcutManager) {
         this.shortcutManager.resetToDefaults();
         this.showToast('모든 단축키가 기본값으로 복원되었습니다.');
-        this.renderSettingsTab(container);
+        this.renderCurrentTab();
       }
     });
 
@@ -2143,3 +1929,5 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = FloatingDock;
 }
+
+})();
