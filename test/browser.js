@@ -21,7 +21,7 @@ async function main() {
   try {
     context = await chromium.launchPersistentContext(profile, {
       ...(process.env.CHROMIUM_EXECUTABLE ? { executablePath: process.env.CHROMIUM_EXECUTABLE } : { channel: 'chromium' }),
-      headless: true, viewport: { width: 1440, height: 1000 },
+      headless: true, acceptDownloads: true, viewport: { width: 1440, height: 1000 },
       args: ['--no-sandbox', `--disable-extensions-except=${root}`, `--load-extension=${root}`],
       ignoreDefaultArgs: ['--disable-extensions']
     });
@@ -37,7 +37,7 @@ async function main() {
     const inspect = async (action, value) => {
       const results = await worker.evaluate(async ({ id, action, value }) => chrome.scripting.executeScript({
         target: { tabId: id }, args: [action, value ?? null],
-        func: (action, value) => {
+        func: async (action, value) => {
           const app = window.StyleScratcher;
           if (action === 'selected') return app.getTweaker()?.getElement()?.id;
           if (action === 'tab') { app.getDock().switchTab(value); return app.getDock().currentTab; }
@@ -53,8 +53,73 @@ async function main() {
           }
           if (action === 'paints') return window.__scratcherPaints;
           if (action === 'clear-count') { window.__scratcherPaints = 0; return 0; }
-          if (action === 'no-motion') return !app.getInstantZoom()?.isZoomed && !app.getPageController()?.isFrozen;
-          if (action === 'export') return { css: app.getTweaker().getComputed().fontSize, jsx: ReactExporter.generateComponent(app.getTweaker().getElement()) };
+          if (action === 'font-result') return { pending: app.getDock().harvestPending, result: app.getDock().harvestResult, family: getComputedStyle(app.getTweaker().getElement()).fontFamily.replace(/['"]/g, '').split(',')[0].trim() };
+          if (action === 'select-image') {
+            const el = document.createElement('img');
+            el.id = 'download-fixture'; el.src = new URL('/icons/icon48.png', location.href).href;
+            document.querySelector('main').append(el);
+            await el.decode();
+            app.getTweaker().setElement(el); app.getDock().switchTab('code');
+          }
+          if (action === 'remove-image') document.getElementById('download-fixture')?.remove();
+          if (action === 'outlines') {
+            const run = (text, options = {}, family) => {
+              const el = document.createElement('span'); el.style.cssText = 'font:32px sans-serif'; el.textContent = text;
+              if (family) el.style.fontFamily = JSON.stringify(family);
+              document.body.append(el);
+              const outline = FontStudio.createTextOutlines(el, options); el.remove();
+              const xml = new DOMParser().parseFromString(outline.svg, 'image/svg+xml');
+              return { width: outline.width, height: outline.height, path: outline.pathData, loops: outline.loopsCount,
+                valid: !xml.querySelector('parsererror'), scripts: xml.querySelectorAll('script').length,
+                paths: xml.querySelectorAll('path').length, attributes: xml.querySelector('path')?.getAttributeNames().sort() };
+            };
+            return [run('A & B <tag> -- \u0001 \uD800'), run('Ag', {}, '--><script>bad</script><!--'), run('W', { color: 'red" onload="alert(1)' })];
+          }
+          if (action === 'restore-modes') {
+            app.toggle(true);
+            const target = document.getElementById('sample-title');
+            const body = document.body, originalStyle = body.getAttribute('style');
+            body.style.setProperty('transform', 'translate(0px, 0px)', 'important');
+            body.style.setProperty('transform-origin', '20% 30%', 'important');
+            body.style.setProperty('transition', 'color 0.2s', 'important');
+            const styles = () => ['transform', 'transform-origin', 'transition'].map(name => [name, body.style.getPropertyValue(name), body.style.getPropertyPriority(name)]);
+            const before = styles();
+            const running = target.animate([{ opacity: 0.8 }, { opacity: 1 }], { duration: 60000, iterations: Infinity });
+            const paused = target.animate([{ opacity: 0.9 }, { opacity: 1 }], { duration: 60000, iterations: Infinity });
+            running.playbackRate = 1.5; paused.playbackRate = 0.75; paused.pause();
+            await Promise.all([running.ready, paused.ready]);
+            const sentinel = () => {};
+            const previousCopy = document.oncopy;
+            document.oncopy = sentinel;
+            const events = { copy: 0, mouseout: 0 };
+            const count = event => { events[event.type]++; };
+            for (const name of Object.keys(events)) target.addEventListener(name, count);
+            const fire = () => { for (const name of Object.keys(events)) target.dispatchEvent(new Event(name, { bubbles: true, cancelable: true })); };
+            const zoom = app.getInstantZoom(), controller = app.getPageController();
+            const cursor = app.getPrecisionCursor(), tabs = app.getTabOrderVisualizer();
+            zoom.zoomIn(); controller.toggleFreeze(true); controller.toggleUnblock(true); cursor.toggle(true); tabs.toggle(true);
+            app.getCanvas().toggleGrid(true); app.getCanvas().toggleBaseline(true);
+            fire();
+            const active = { zoomed: zoom.isZoomed, frozen: controller.isFrozen, unblocked: controller.isUnblocked, cursor: cursor.isActive, tabs: tabs.isActive, running: running.playState, events: { ...events } };
+            app.toggle(false);
+            fire();
+            const after = { styles: styles(), zoomed: zoom.isZoomed, scale: zoom.currentScale, zoomListeners: zoom.listeners.length,
+              frozen: controller.isFrozen, unblocked: controller.isUnblocked, freezeListeners: controller.freezeListeners.length, unblockListeners: controller.activeListeners.length,
+              handlers: controller.originalHandlers.length, pausedAnimations: controller.pausedAnimations.length, unblockStyle: !!document.getElementById('style-scratcher-unblocker'),
+              cursor: cursor.isActive, cursorDisplay: cursor.overlay.style.display, tabs: tabs.isActive, tabDisplay: tabs.container.style.display, tabFrame: tabs.frameId,
+              running: running.playState, paused: paused.playState, copyRestored: document.oncopy === sentinel, events: { ...events }, grid: app.getState().isGridActive, baseline: app.getCanvas().isBaselineVisible };
+            for (const name of Object.keys(events)) target.removeEventListener(name, count);
+            document.oncopy = previousCopy;
+            app.toggle(true);
+            const motion = app.getMotionInspector();
+            motion.setPlaybackRate(0.25); motion.togglePause();
+            const controlled = { running: running.playState, rate: running.playbackRate };
+            app.toggle(false);
+            const restoredMotion = { running: running.playState, paused: paused.playState, runningRate: running.playbackRate, pausedRate: paused.playbackRate, remembered: motion.originalAnimations.size };
+            running.cancel(); paused.cancel();
+            if (originalStyle === null) body.removeAttribute('style'); else body.setAttribute('style', originalStyle);
+            return { before, active, after, controlled, restoredMotion };
+          }
         }
       }), { id: tab.id, action, value });
       return results[0].result;
@@ -145,6 +210,65 @@ async function main() {
       assert.equal(await inspect('paints'), 0);
       assert.equal(await page.locator('.scratcher-dock').isVisible(), false);
       report.metrics.inactivePaints = 0;
+    });
+    await check('Real Canvas outlines contain distinct, valid and escaped SVG geometry', async () => {
+      const results = await inspect('outlines');
+      for (const result of results) {
+        assert.ok(result.width > 0 && result.height > 0 && result.loops > 0);
+        assert.match(result.path, /^M/);
+        assert.equal(result.valid, true);
+        assert.equal(result.scripts, 0);
+        assert.equal(result.paths, 1);
+        assert.deepEqual(result.attributes, ['d', 'fill', 'fill-rule']);
+      }
+      assert.notEqual(results[1].path, results[2].path);
+    });
+    await check('Font measurements use the edited family and survive switching panels', async () => {
+      await send({ type: 'TOGGLE_SCRATCHER' });
+      await page.locator('#sample-title').click();
+      await inspect('tab', 'fonts');
+      await page.locator('#fontFamilySelect').selectOption('System Default');
+      await page.locator('#fontFamilySelect:not([disabled])').waitFor();
+      await page.locator('details[data-section="glyphs"] summary').click();
+      await page.locator('#btnStartHarvest').click();
+      await inspect('tab', 'code');
+      let state;
+      for (let attempt = 0; attempt < 40; attempt++) {
+        state = await inspect('font-result');
+        if (!state.pending) break;
+        await new Promise(resolve => setTimeout(resolve, 25));
+      }
+      assert.equal(state.pending, false);
+      assert.equal(state.result.family, state.family);
+      assert.equal(state.result.value.measurementOnly, true);
+      assert.equal(state.result.value.coverageDetermined, false);
+      assert.equal(state.result.value.supportedCount, null);
+      await inspect('tab', 'settings');
+      assert.equal(await page.locator('input[data-action="toggleScratcher"]').count(), 0);
+      assert.match(await page.locator('#dockBody').innerText(), /chrome:\/\/extensions\/shortcuts/);
+    });
+    await check('The code panel downloads the selected image through the real extension', async () => {
+      await inspect('select-image');
+      const waiting = page.waitForEvent('download', { timeout: 5000 });
+      await page.locator('#btnDownloadAssets').click();
+      const download = await waiting;
+      assert.equal(download.suggestedFilename(), 'icon48.png');
+      assert.equal(await download.failure(), null);
+      const saved = path.join(output, 'downloaded-icon48.png');
+      await download.saveAs(saved);
+      assert.deepEqual(fs.readFileSync(saved), fs.readFileSync(path.join(fixtureRoot, 'icons/icon48.png')));
+      await inspect('remove-image');
+      await send({ type: 'TOGGLE_SCRATCHER' });
+    });
+    await check('Closing restores auxiliary modes, original styles, event handlers and animations', async () => {
+      const result = await inspect('restore-modes');
+      assert.deepEqual(result.active, { zoomed: true, frozen: true, unblocked: true, cursor: true, tabs: true, running: 'paused', events: { copy: 0, mouseout: 0 } });
+      assert.deepEqual(result.after, { styles: result.before, zoomed: false, scale: 1, zoomListeners: 0, frozen: false, unblocked: false,
+        freezeListeners: 0, unblockListeners: 0, handlers: 0, pausedAnimations: 0, unblockStyle: false,
+        cursor: false, cursorDisplay: 'none', tabs: false, tabDisplay: 'none', tabFrame: null,
+        running: 'running', paused: 'paused', copyRestored: true, events: { copy: 1, mouseout: 1 }, grid: false, baseline: false });
+      assert.deepEqual(result.controlled, { running: 'paused', rate: 0.25 });
+      assert.deepEqual(result.restoredMotion, { running: 'running', paused: 'paused', runningRate: 1.5, pausedRate: 0.75, remembered: 0 });
     });
     if (fs.existsSync(path.join(root, 'website/index.html'))) {
       await check('Introduction loads at root and stays within mobile viewports', async () => {
