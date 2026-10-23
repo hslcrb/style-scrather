@@ -3,131 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
   <title>Style Scratcher</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="popup-container">
-    <!-- Header -->
+  <main class="popup-container" aria-label="Style Scratcher">
     <header class="header">
       <div class="brand">
-        <div class="logo-mark">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="9" y1="3" x2="9" y2="21"></line>
-            <line x1="3" y1="9" x2="21" y2="9"></line>
-            <path d="M14 14l5 5"></path>
-          </svg>
+        <div class="logo-mark" aria-hidden="true"><svg width="30" height="30" aria-hidden="true" viewBox="0 0 64 64"><g fill="none" stroke="#E11D48" stroke-linecap="round" stroke-linejoin="round"><g stroke-width="3.5"><path d="M17 25 L17 20 Q17 17 20 17 L25 17"/><path d="M39 17 L44 17 Q47 17 47 20 L47 25"/><path d="M47 39 L47 44 Q47 47 44 47 L39 47"/><path d="M25 47 L20 47 Q17 47 17 44 L17 39"/></g><g stroke-width="2.2" opacity=".68"><path d="M32 6 L32 10"/><path d="M54 32 L58 32"/><path d="M32 54 L32 58"/><path d="M6 32 L10 32"/></g></g><circle cx="32" cy="32" r="3.3" fill="#E11D48"/></svg>
         </div>
         <div class="brand-text">
-          <h1 class="title">Style Scratcher</h1>
-          <span class="badge">PRO</span>
+          <h1>Style Scratcher</h1>
+          <p>YOUR EVERYDAY WEB STUDIO</p>
         </div>
       </div>
-      <div class="status-indicator active" id="statusIndicator" title="동작 준비 완료"></div>
+      <span class="status-pill" id="statusIndicator" data-state="loading" role="status"><i aria-hidden="true"></i><span id="statusText">확인 중</span></span>
     </header>
 
-    <div class="divider"></div>
-
-    <!-- Restricted URL Warning Banner -->
-    <div class="restricted-banner" id="restrictedBanner" style="display: none;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <span id="restrictedBannerText">현재 페이지는 보안 정책상 실행이 제한됩니다. 일반 웹사이트에서 열어주세요.</span>
-    </div>
-
-    <!-- Main Switch & Primary Action -->
-    <div class="section action-section">
-      <div class="action-info">
-        <span class="action-label">인스펙터 & 튜너</span>
-        <span class="action-desc">웹 요소 호버 검사 및 실시간 CSS 편집</span>
+    <section class="launch-card" aria-labelledby="launchTitle">
+      <div class="launch-decoration" aria-hidden="true"><span></span><span></span><span></span></div>
+      <p class="eyebrow">LOOK CLOSER. MAKE IT YOURS.</p>
+      <h2 id="launchTitle">웹을 더 가까이.</h2>
+      <p class="launch-copy">스타일을 살피고,<br>아이디어를 바로 시험하세요.</p>
+      <div class="page-context">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/></svg>
+        <span id="pageHostname">현재 페이지 확인 중</span>
       </div>
-      <button class="btn btn-primary" id="toggleInspectorBtn">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-        </svg>
-        <span id="toggleBtnText">인스펙터 켜기</span>
+      <button class="btn-primary" id="toggleInspectorBtn" aria-pressed="false" aria-busy="false" disabled>
+        <svg class="action-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 9V4h5m6 0h5v5M4 15v5h5m6 0h5v-5M12 7v10M7 12h10"/></svg>
+        <span id="toggleBtnText">인스펙터 시작</span>
+        <kbd>Alt S</kbd>
       </button>
+      <p class="action-hint" id="actionHint">시작하면 페이지 위에 스튜디오가 열립니다.</p>
+    </section>
+
+    <div class="notice" id="restrictedBanner" role="status" hidden>
+      <span class="notice-icon" aria-hidden="true">!</span>
+      <p id="restrictedBannerText"></p>
+      <button id="retryConnectionBtn" class="retry-button" hidden>다시 연결</button>
     </div>
 
-    <!-- Quick Tool Toggles -->
-    <div class="section tools-grid">
-      <button class="tool-card" id="toggleGridBtn">
-        <div class="tool-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
-        </div>
-        <div class="tool-meta">
-          <span class="tool-title">12컬럼 그리드</span>
-          <span class="tool-sub">레이아웃 정렬 격자</span>
-        </div>
-      </button>
+    <section class="quick-section" aria-labelledby="quickTitle">
+      <div class="section-heading"><h2 id="quickTitle">빠른 도구</h2><span>페이지를 읽는 다른 방법</span></div>
+      <div class="tools-grid">
+        <button class="tool-card" id="toggleGridBtn" aria-pressed="false" disabled>
+          <span class="tool-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16m6-16v16"/></svg></span>
+          <span class="tool-title">레이아웃 그리드</span>
+          <span class="tool-sub" id="gridDescription">12컬럼으로 정렬 보기</span>
+          <span class="tool-state" aria-hidden="true"></span>
+        </button>
+        <button class="tool-card" id="openPaletteBtn" disabled>
+          <span class="tool-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.4-3.4 1 1 0 0 1 .7-1.6H17a4 4 0 0 0 4-4 9 9 0 0 0-9-9Z"/><circle cx="7.5" cy="11" r=".8"/><circle cx="10" cy="7" r=".8"/><circle cx="15" cy="7.5" r=".8"/><circle cx="17" cy="11.5" r=".8"/></svg></span>
+          <span class="tool-title">컬러 & 코드</span>
+          <span class="tool-sub">팔레트와 CSS 탐색</span>
+          <svg class="tool-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m8 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </section>
 
-      <button class="tool-card" id="openPaletteBtn">
-        <div class="tool-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
-            <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
-            <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
-            <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
-            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>
-          </svg>
-        </div>
-        <div class="tool-meta">
-          <span class="tool-title">사이트 컬러 분석</span>
-          <span class="tool-sub">사용 색상 일괄 추출</span>
-        </div>
-      </button>
-    </div>
-
-    <!-- Shortcuts Info -->
-    <div class="section shortcut-box">
-      <div class="shortcut-item">
-        <span class="shortcut-name">인스펙터 켜기/끄기</span>
-        <kbd class="key">Alt + S</kbd>
+    <details class="shortcut-disclosure">
+      <summary><span>작은 동작, 빠른 작업</span><span class="shortcut-summary">단축키 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+      <div class="shortcuts">
+        <p><span>인스펙터 켜기 / 끄기</span><kbd>Alt + S</kbd></p>
+        <p><span>거리 측정</span><kbd>선택 후 Alt + 호버</kbd></p>
+        <p><span>검사 / 편집 전환</span><kbd>Alt + E</kbd></p>
+        <p><span>정밀 십자선</span><kbd>Alt + C</kbd></p>
+        <p><span>화면 고정</span><kbd>Alt + F</kbd></p>
+        <p><span>선택 해제</span><kbd>Esc</kbd></p>
       </div>
-      <div class="shortcut-item">
-        <span class="shortcut-name">피그마 거리 측정</span>
-        <kbd class="key">클릭 후 Alt 호버</kbd>
-      </div>
-      <div class="shortcut-item">
-        <span class="shortcut-name">정밀 십자선 커서</span>
-        <kbd class="key">Alt + C</kbd>
-      </div>
-      <div class="shortcut-item">
-        <span class="shortcut-name">검사 / 편집 모드 전환</span>
-        <kbd class="key">Alt + E</kbd>
-      </div>
-      <div class="shortcut-item">
-        <span class="shortcut-name">인스턴트 줌 (확대/축소/원복)</span>
-        <kbd class="key">Alt + / - / 0</kbd>
-      </div>
-      <div class="shortcut-item">
-        <span class="shortcut-name">정밀 십자선 커서</span>
-        <kbd class="key">Alt + C</kbd>
-      </div>
-      <div class="shortcut-item">
-        <span class="shortcut-name">화면/툴팁 프리징</span>
-        <kbd class="key">Alt + F</kbd>
-      </div>
-      <div class="shortcut-item">
-        <span class="shortcut-name">선택 해제</span>
-        <kbd class="key">Esc</kbd>
-      </div>
-    </div>
-
-    <footer class="footer">
-      <span>Style Scratcher v4.0.3. • White Minimal Studio</span>
-    </footer>
-  </div>
-
+    </details>
+    <footer class="footer"><span><i aria-hidden="true"></i>Open source. Made for curiosity.</span><span id="versionLabel">v4.1.0</span></footer>
+  </main>
   <script src="popup.js"></script>
 </body>
 </html>
