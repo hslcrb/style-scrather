@@ -27,6 +27,11 @@ class FloatingDock {
     this.onToggleSafeMode = options.onToggleSafeMode || (() => {});
     this.onToggleInspector = options.onToggleInspector || (() => {});
     this.currentTab = 'inspector';
+    this.isActive = false;
+    this.activationEpoch = 0;
+    this.clampFrame = null;
+    this.updateTimer = null;
+    this.toastTimer = null;
     this.isMinimized = false;
     this.siteStylesheets = [];
     this.extractedPalette = null;
@@ -35,7 +40,41 @@ class FloatingDock {
     this.disclosureState = new Map();
     this.initDOM();
     this.initDrag();
-    this.initUpdateChecker();
+    this.setActive(options.active !== false);
+  }
+
+  setActive(active) {
+    const next = !!active;
+    if (this.isActive === next) return;
+    this.isActive = next;
+    this.activationEpoch++;
+    if (next) {
+      document.addEventListener('pointerdown', this.onDocumentPointerDown, true);
+      window.addEventListener('resize', this.onWindowResize);
+      this.renderCurrentTab();
+      // The first stylesheet load owns the default position; re-clamp explicit positions after reveal.
+      if (this.container.style.left) this.scheduleClamp();
+      this.initUpdateChecker();
+    } else {
+      document.removeEventListener('pointerdown', this.onDocumentPointerDown, true);
+      window.removeEventListener('resize', this.onWindowResize);
+      if (this.clampFrame !== null) cancelAnimationFrame(this.clampFrame);
+      this.clampFrame = null;
+      clearTimeout(this.updateTimer);
+      clearTimeout(this.toastTimer);
+      this.updateTimer = this.toastTimer = null;
+      this.stopDrag?.();
+      this.toggleToolsMenu(false);
+      this.container.querySelector('#scratcherToast').classList.remove('show');
+    }
+  }
+
+  scheduleClamp() {
+    if (!this.isActive || this.clampFrame !== null) return;
+    this.clampFrame = requestAnimationFrame(() => {
+      this.clampFrame = null;
+      if (this.isActive) this.clampPosition();
+    });
   }
 
   initDOM() {
@@ -101,16 +140,16 @@ class FloatingDock {
     this.container.querySelector('#minimizeBtn').addEventListener('click', () => this.toggleMinimize());
     this.container.querySelector('#closeDockBtn').addEventListener('click', () => this.onToggleInspector());
     this.container.addEventListener('keydown', event => this.handleNavigationKey(event));
-    document.addEventListener('pointerdown', event => {
+    this.onDocumentPointerDown = event => {
       if (!event.composedPath().includes(this.container)) this.toggleToolsMenu(false);
-    }, true);
+    };
     this.container.addEventListener('focusout', () => {
       queueMicrotask(() => {
+        if (!this.isActive) return;
         const focus = this.shadowRoot.activeElement;
         if (!focus?.closest('.dock-navigation')) this.toggleToolsMenu(false);
       });
     });
-    this.renderCurrentTab();
   }
 
   toggleToolsMenu(force, restoreFocus = false) {
@@ -157,6 +196,7 @@ class FloatingDock {
   }
 
   showToast(message, kind = 'success') {
+    if (this.isActive === false) return;
     const toast = this.container.querySelector('#scratcherToast');
     this.container.querySelector('#toastMsg').textContent = message;
     toast.dataset.kind = kind;
@@ -226,11 +266,13 @@ class FloatingDock {
   }
 
   initUpdateChecker() {
-    if (!this.updateGuardian) return;
-    setTimeout(async () => {
+    if (!this.isActive || !this.updateGuardian || this.updateTimer !== null) return;
+    const epoch = this.activationEpoch;
+    this.updateTimer = setTimeout(async () => {
+      this.updateTimer = null;
       try {
         const update = await this.updateGuardian.checkForUpdate();
-        if (update?.hasUpdate) this.showUpdateBanner(update);
+        if (this.isActive && this.activationEpoch === epoch && update?.hasUpdate) this.showUpdateBanner(update);
       } catch { /* A manual retry remains available in Settings. */ }
     }, 1500);
   }
@@ -262,7 +304,7 @@ class FloatingDock {
     header.addEventListener('pointerdown', event => {
       if (event.button !== 0 || (event.target.closest('button') && !event.target.closest('#moveDockBtn'))) return;
       const rect = this.container.getBoundingClientRect();
-      drag = { x: event.clientX, y: event.clientY, left: rect.left, top: rect.top };
+      drag = { x: event.clientX, y: event.clientY, left: rect.left, top: rect.top, pointerId: event.pointerId };
       header.setPointerCapture(event.pointerId);
       this.container.classList.add('dragging');
       event.preventDefault();
@@ -270,7 +312,13 @@ class FloatingDock {
     header.addEventListener('pointermove', event => {
       if (drag) this.clampPosition(drag.left + event.clientX - drag.x, drag.top + event.clientY - drag.y);
     });
-    const stop = () => { drag = null; this.container.classList.remove('dragging'); };
+    const stop = () => {
+      const pointerId = drag?.pointerId;
+      drag = null;
+      if (pointerId !== undefined && header.hasPointerCapture?.(pointerId)) header.releasePointerCapture(pointerId);
+      this.container.classList.remove('dragging');
+    };
+    this.stopDrag = stop;
     header.addEventListener('pointerup', stop);
     header.addEventListener('pointercancel', stop);
     header.addEventListener('lostpointercapture', stop);
@@ -287,12 +335,13 @@ class FloatingDock {
       const rect = this.container.getBoundingClientRect();
       this.container.querySelector('#dockAnnounce').textContent = `스튜디오 위치: 가로 ${Math.round(rect.left)}, 세로 ${Math.round(rect.top)} 픽셀`;
     });
-    window.addEventListener('resize', () => this.clampPosition());
+    this.onWindowResize = () => this.scheduleClamp();
   }
 
   updateElement() { if (!this.isUpdatingControl) this.renderCurrentTab(); }
 
   renderCurrentTab(preserveFocus = true) {
+    if (this.isActive === false) return;
     const body = this.container.querySelector('#dockBody');
     const focus = this.shadowRoot.activeElement;
     const hadFocus = preserveFocus && body.contains(focus);
