@@ -53,7 +53,7 @@ The package includes only `background/`, `content/`, `popup/`, `icons/`, `manife
 
 Publish the **contents** of `dist/site/` to a static host. The page has relative asset URLs and no server API. Do not publish the whole repository, and do not mistake the local preview URL for a deployed website. This refresh provides buildable site files; a new public host is not configured as part of the branch.
 
-When creating a release later, update `manifest.json` and `package.json` together, run all checks, build, independently verify the ZIP, and attach the archive and checksum to the release. Replace preview-branch links in the introduction only after the actual release exists.
+For a release, update `manifest.json` and `package.json` together, run all checks, build, independently verify the ZIP, and attach the archive and checksum to the release. Follow the [manual release procedure](RELEASING.md). Product links must identify the actual published release or an explicitly labeled development source.
 
 ## Branches and commit discipline
 
@@ -63,4 +63,6 @@ The work uses GitHub's authenticated Git data API when the execution environment
 
 ## Continuous integration
 
-`.github/workflows/verify.yml` runs syntax, behavior, packaging, and installed-extension browser checks on pushes and pull requests. Actions are pinned to commit SHAs, checkout uses depth 1, and credentials are not persisted. See [Verification](VERIFICATION.md#hosted-ci-limitation) for the observed account-level blocker before treating a hosted run as validated.
+At the owner's request, all workflow lines are commented with `#` and archived as `.github/workflows/verify.yml.disabled`. There are no active YAML workflows. The `.disabled` suffix prevents GitHub from parsing an empty, comment-only workflow. The original pinned actions, depth-one checkout and disabled credential persistence are preserved for later restoration.
+
+Run the release checks locally. [Workflow restoration](../.github/workflows/README.md) is a separate change after the owner decides to resume automation. [Verification](VERIFICATION.md#hosted-ci-limitation) preserves the evidence that the earlier hosted runner never started; local results do not imply hosted CI success.
