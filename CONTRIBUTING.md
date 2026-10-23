@@ -7,7 +7,7 @@ Thanks for making the web easier to understand. Small, reproducible improvements
 Use Node.js 20 or newer. The extension itself has **no runtime dependencies**.
 
 ```sh
-git clone --depth 1 https://github.com/hslcrb/style-scrather.git
+git clone --depth 1 --branch chatgpt/refresh/integration https://github.com/hslcrb/style-scrather.git
 cd style-scrather
 npm ci
 npm run check
