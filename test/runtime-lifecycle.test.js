@@ -27,6 +27,7 @@ function runtime(extras = {}) {
         this.args = args;
         this.isActive = true;
         this.isGridVisible = false;
+        this.isBaselineVisible = false;
         this.container = node();
         Object.assign(this, extra);
       }
@@ -41,6 +42,7 @@ function runtime(extras = {}) {
       setHoverElement(value) { this.hover = value; }
       setElement(value) { this.element = value; }
       toggleGrid() { this.isGridVisible = !this.isGridVisible; return this.isGridVisible; }
+      toggleBaseline() { this.isBaselineVisible = !this.isBaselineVisible; return this.isBaselineVisible; }
       switchTab(name) { this.tab = name; }
       clearSelection() { this.selectionCleared = true; }
       updateElement() {}
@@ -147,6 +149,22 @@ test('grid and tab actions activate on demand and return truthful state', () => 
   assert.equal(tab.success, true);
   assert.equal(tab.isActive, true);
   assert.equal(page.window.StyleScratcher.getDock().tab, 'fonts');
+});
+
+test('closing the studio clears visible grids so the next grid action enables them', () => {
+  const page = runtime();
+  assert.equal(page.request({ type: 'TOGGLE_GRID' }).isGridActive, true);
+  const canvas = page.window.StyleScratcher.getCanvas();
+  canvas.toggleBaseline();
+  assert.equal(canvas.isBaselineVisible, true);
+  const closed = page.request({ type: 'TOGGLE_SCRATCHER' });
+  assert.equal(closed.isActive, false);
+  assert.equal(closed.isGridActive, false);
+  assert.equal(canvas.isBaselineVisible, false);
+  assert.equal(page.request({ type: 'GET_STATE' }).isGridActive, false);
+  const reopened = page.request({ type: 'TOGGLE_GRID' });
+  assert.equal(reopened.isActive, true);
+  assert.equal(reopened.isGridActive, true);
 });
 
 test('the emitted copy-react HUD action reaches the exporter and clipboard', async () => {
