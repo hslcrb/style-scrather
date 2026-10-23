@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const zlib = require('node:zlib');
 const crypto = require('node:crypto');
+const { validateManifestAssets } = require('./manifest-assets.js');
 
 function collectFiles(root) {
   const files = ['LICENSE', 'manifest.json'];
@@ -76,9 +77,7 @@ function build(root = path.resolve(__dirname, '..')) {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
   if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) throw new Error('Invalid extension version');
   const files = collectFiles(root);
-  const required = [manifest.background.service_worker, manifest.action.default_popup,
-    ...Object.values(manifest.action.default_icon), ...manifest.content_scripts.flatMap(s => s.js || [])];
-  for (const file of required) if (!files.includes(file)) throw new Error(`Missing packaged asset: ${file}`);
+  validateManifestAssets(manifest, files);
   const entries = files.map(name => ({ name, data: fs.readFileSync(path.join(root, name)) }));
   const output = path.join(root, 'dist');
   fs.mkdirSync(output, { recursive: true });
