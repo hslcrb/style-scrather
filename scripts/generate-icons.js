@@ -23,6 +23,10 @@ function mark() {
 }
 const tile = '<defs><linearGradient id="paper" x2="0" y2="1"><stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFF5F7"/></linearGradient></defs><rect x="1" y="1" width="62" height="62" rx="15" fill="url(#paper)" stroke="#F0DDE1" stroke-width=".75"/>';
 fs.writeFileSync(path.join(out, 'mark.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title"><title id="title">Style Scratcher selection mark</title>${mark()}</svg>\n`);
+// A generated mirror keeps the standalone site portable under any URL prefix.
+const siteIcons = path.resolve(__dirname, '..', 'website', 'icons');
+fs.mkdirSync(siteIcons, { recursive: true });
+fs.copyFileSync(path.join(out, 'mark.svg'), path.join(siteIcons, 'mark.svg'));
 fs.writeFileSync(path.join(out, 'app-icon.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title"><title id="title">Style Scratcher</title>${tile}${mark()}</svg>\n`);
 fs.writeFileSync(path.join(out, 'wordmark.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 334 64" role="img" aria-labelledby="title"><title id="title">Style Scratcher</title>${mark()}<text x="79" y="41" fill="#17151C" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="700" letter-spacing="-1.2">Style Scratcher</text></svg>\n`);
 fs.writeFileSync(path.join(out, 'social-card.svg'), `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc"><title id="title">Style Scratcher — Look closer.</title><desc id="desc">A browser inspection studio, with the crimson selection-frame mark on warm pearl.</desc><defs><radialGradient id="glow"><stop stop-color="#FFE4EA"/><stop offset="1" stop-color="#F5F4F1" stop-opacity="0"/></radialGradient></defs><rect width="1200" height="630" fill="#F5F4F1"/><circle cx="1020" cy="290" r="390" fill="url(#glow)"/><path d="M64 110H1136M64 541H1136" stroke="#17151C" stroke-opacity=".14"/><text x="64" y="79" fill="#17151C" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="-.8">Style Scratcher</text><text x="65" y="263" fill="#17151C" font-family="Arial, Helvetica, sans-serif" font-size="96" font-weight="700" letter-spacing="-5">Look closer.</text><text x="65" y="357" fill="#E11D48" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="700" letter-spacing="-3">Make it yours.</text><text x="69" y="434" fill="#626773" font-family="Arial, Helvetica, sans-serif" font-size="24">The web, with your eye for detail.</text><g transform="translate(844 174) scale(4)">${mark()}</g><text x="65" y="582" fill="#626773" font-family="Arial, Helvetica, sans-serif" font-size="17" letter-spacing="2">CHROME EXTENSION · OPEN SOURCE · APACHE-2.0</text></svg>\n`);
@@ -95,4 +99,4 @@ function png(size) {
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', header), chunk('IDAT', zlib.deflateSync(data, { level: 9 })), chunk('IEND', Buffer.alloc(0))]);
 }
 for (const size of [16, 48, 128]) fs.writeFileSync(path.join(out, `icon${size}.png`), png(size));
-console.log('Generated 4 SVG brand assets and PNG extension icons at 16, 48, and 128 px.');
+console.log('Generated 4 SVG brand assets, 3 PNG extension icons, and the portable site mark.');

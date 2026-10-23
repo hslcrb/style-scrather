@@ -12,7 +12,7 @@ The four crimson brackets preserve the original selection-box identity. Short ou
 
 | Asset | Use |
 | --- | --- |
-| `icons/mark.svg` | Transparent mark on light surfaces; navigation and interface headers |
+| `icons/mark.svg` | Transparent mark on light surfaces; navigation and interface headers. `website/icons/mark.svg` is its generated deployment mirror. |
 | `icons/app-icon.svg` | Mark on a pearl app tile |
 | `icons/wordmark.svg` | Horizontal name-and-mark lockup; accessible system-font SVG text |
 | `icons/social-card.svg` | Editable 1200 × 630 project sharing artwork |

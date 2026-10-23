@@ -6,9 +6,9 @@ Korean-first, dependency-free HTML/CSS/JavaScript. The page introduces the exten
 
 From the repository root, use `node serve.js`, then open `/` or `/website/`. The server also exposes the extension test bed at `/demo/`.
 
-The repository's site build copies this directory to the static site root and copies `icons/` alongside it. Relative script, stylesheet, and icon paths work under either the repository's `/website/` URL or that built root. There are no CDN scripts, external fonts, analytics calls, framework dependencies, or application servers.
+The repository's site build copies this directory to the static site root and copies the root `icons/` directory alongside it. All assets use relative URLs, so the page works at `/website/`, the built root, or a deployment subpath. `website/icons/mark.svg` is a generated mirror of the canonical mark, not a second design source. There are no CDN scripts, external fonts, analytics calls, framework dependencies, or application servers.
 
-`index.html` owns the content and semantic structure, `styles.css` the responsive visual system, and `app.js` the preview interactions. The brand artwork is generated from `../scripts/generate-icons.js`; see `../docs/BRAND.md` and `../docs/PHILOSOPHY.md`.
+`index.html` owns the content and semantic structure, `styles.css` the responsive visual system, and `app.js` the preview interactions. The brand artwork and its portable `icons/mark.svg` mirror are generated from `../scripts/generate-icons.js`; see `../docs/BRAND.md` and `../docs/PHILOSOPHY.md`.
 
 ## Preview contract
 
