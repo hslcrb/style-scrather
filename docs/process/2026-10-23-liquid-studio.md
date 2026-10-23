@@ -204,15 +204,33 @@ ZIP에는 `manifest.json`, `LICENSE`, `background/`, `content/`, `popup/`, `icon
 
 GitHub 연결은 커밋·브랜치·PR 병합을 지원하지만 릴리즈 생성 및 바이너리 첨부 연산은 제공하지 않았다. 따라서 요청된 GitHub의 릴리즈 작성 UI에 접근해 실제 양식과 첨부 기능을 확인했다. 인증된 기존 세션을 사용하며 인증 정보 자체를 읽거나 옮기지 않는다. 로컬 빌드 파일은 해당 저장소의 릴리즈 첨부 파일로만 게시한다.
 
-## 13. 배포 완료 기록의 경계
+## 13. main 병합과 정식 릴리즈 게시
 
-이 문서의 첫 작성 시점은 로컬 재검증과 main 병합 전이다. 완료 여부를 앞서 주장하지 않는다. 다음 항목을 실제 게시 후 확정한다.
+2026-10-23 **04:44:22 UTC**, PR #1을 GitHub의 `merge_method: merge`로 병합했다. 예상 head를 `0781aec39814aac02700efe5e43ef4dc971a13ae`로 고정했고, 병합 직전에 main이 원래 기준인 것을 확인했다. squash/rebase는 사용하지 않았다.
 
-- 최종 소스·패키지 검사 결과와 빌드 digest.
-- main no-ff 병합 SHA와 두 부모, PR의 실제 merged 상태.
-- `v4.1.0` 태그가 가리키는 병합 커밋.
-- 공개 Release URL, ZIP·checksum 자산명, 크기와 공개 다운로드 바이트 비교.
-- 모든 작업 브랜치 HEAD가 main의 ancestor인지, 로컬·원격 일치 여부와 shallow 상태.
-- 실제 공개된 릴리즈를 가리키는 README·소개 페이지·개발 문서 갱신.
+| 항목 | 확정 값 |
+| --- | --- |
+| main 병합 | `19c088f61d33fca8e62c7f8d329f4b33aaa58aba` |
+| 첫 번째 부모 | `72f08c6927416c45cc0f81bb641b881f5aa2c09c` |
+| 두 번째 부모 | `0781aec39814aac02700efe5e43ef4dc971a13ae` |
+| 태그 | `v4.1.0` → 위 main 병합 커밋 |
+| Release | [Style Scratcher v4.1.0. — Liquid Studio](https://github.com/hslcrb/style-scrather/releases/tag/v4.1.0) |
+| 공개 시각 | **2026-10-23 04:50:15 UTC** |
+| 공개 상태 | draft=false, prerelease=false, Latest 표시 확인 |
 
-완료 기록 자체의 커밋은 자기 SHA를 본문에 미리 넣을 수 없으므로, 증거의 기준 SHA와 작성 시점을 명시한다. 그 이후의 기록 커밋과 최종 병합은 Git 이력에서 확인한다. 최종 문서 변경은 릴리즈 태그 이후에 올 수 있으며, 해당 변경이 릴리즈 런타임을 바꾸지 않았음을 별도로 확인한다.
+원격 main을 fetch한 뒤 로컬 main을 이미 게시된 병합 커밋으로 갱신했다. 로컬의 이 fast-forward 동기화는 원격 main의 두 부모 병합을 바꾸지 않는다. 이 main 소스에서 `npm run build`를 다시 실행했고 ZIP digest가 검증된 값과 같은 것을 확인했다.
+
+릴리즈 작성 UI에서 Recent Commits의 `19c088f`를 선택해 대상 SHA를 고정했다. 새 태그 이름, 한국어 설치 안내·수정 요약·검증 결과·알려진 경계·과정 문서 링크를 입력했다. 로컬에서 만든 ZIP과 checksum을 파일 chooser로 첨부했다. GitHub가 업로드를 마치고 두 자산명을 보여준 뒤 Publish release를 실행했다. 공개 화면의 Latest, 태그, 커밋을 확인하고 [화면 증거](../assets/release-v4.1.0-20261023.jpg)를 저장했다.
+
+| 자산 | GitHub 자산 ID | 바이트 | 공개 다운로드 확인 |
+| --- | ---: | ---: | --- |
+| `style-scratcher-4.1.0.zip` | 667999657 | 114,504 | 로컬 빌드와 전체 바이트 동일, CRC 정상, 파일 39개 |
+| `style-scratcher-4.1.0.zip.sha256` | 667999679 | 92 | 로컬 checksum 파일과 전체 바이트 동일 |
+
+GitHub API가 반환한 ZIP digest도 `d1b8773cd276587adce6fa5b338d23c3a9b10ced4295d5c70e3d5bf648df6849`였다. 공개 URL에서 두 파일을 새로 내려받아 크기·SHA·전체 바이트를 대조했고, 다운로드 ZIP의 root manifest가 4.1.0인 것을 확인했다. 이 게시 검사는 **04:51:36 UTC**에 기록했다. [배포 증거 JSON](../verification/release-published.json)에는 URL·태그 대상·병합 부모·자산 ID·digest·공개 다운로드 결과가 들어 있다.
+
+## 14. 배포 이후 마감 기록
+
+main 병합 커밋에서 `chatgpt/release/closeout`을 만들어 실제 공개 상태와 설치 링크를 반영한다. 이 브랜치도 작은 커밋마다 게시하고, main으로 통합할 때 두 부모 병합을 사용한다. 사이트와 문서가 릴리즈 태그 이후에 갱신되는 이유는 공개 파일이 존재하는 것을 확인한 뒤 설치 링크를 연결하기 위해서다. 확장 런타임·아이콘·manifest·설치 ZIP은 변경하지 않는다.
+
+원장과 최종 상태 증거에는 기준 SHA와 작성 시점을 명시한다. 기록 파일 자신을 게시하는 커밋은 자기 SHA를 미리 포함할 수 없으므로 그 이후의 기록 커밋과 마지막 병합은 Git 이력과 PR에서 확인한다. 종료 전에 모든 작업 브랜치의 ancestor 관계, 게시된 ref 일치, shallow 상태와 작업 트리의 clean 상태를 확인한다.
