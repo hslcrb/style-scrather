@@ -1,0 +1,81 @@
+{
+  "capturedAtUTC": "2026-10-23T04:57:06.460673+00:00",
+  "snapshotCommit": "d63fe9e1276c3aeaa562461f47b4ef1cd1e45358",
+  "releaseTag": "v4.1.0",
+  "releaseCommit": "19c088f61d33fca8e62c7f8d329f4b33aaa58aba",
+  "mainBeforeCloseout": "19c088f61d33fca8e62c7f8d329f4b33aaa58aba",
+  "closeoutPullRequest": "https://github.com/hslcrb/style-scrather/pull/2",
+  "isShallow": true,
+  "baselineReachableHistoryCount": 1,
+  "commitsAboveBaseline": 68,
+  "branches": [
+    {
+      "branch": "chatgpt/refresh/export/runtime-fixes",
+      "localSha": "9ad45ceded54dce745ff005f70edfcb57b11f68c",
+      "publishedSha": "9ad45ceded54dce745ff005f70edfcb57b11f68c",
+      "matchesPublished": true,
+      "ancestorOfCloseout": true
+    },
+    {
+      "branch": "chatgpt/refresh/identity",
+      "localSha": "42bc5ccae8202b0079bfbf4d3d6781a1e98f38a2",
+      "publishedSha": "42bc5ccae8202b0079bfbf4d3d6781a1e98f38a2",
+      "matchesPublished": true,
+      "ancestorOfCloseout": true
+    },
+    {
+      "branch": "chatgpt/refresh/integration",
+      "localSha": "0781aec39814aac02700efe5e43ef4dc971a13ae",
+      "publishedSha": "0781aec39814aac02700efe5e43ef4dc971a13ae",
+      "matchesPublished": true,
+      "ancestorOfCloseout": true
+    },
+    {
+      "branch": "chatgpt/refresh/interface",
+      "localSha": "1476bfeda0f3f9868f46c0c54eb4565a5e09100f",
+      "publishedSha": "1476bfeda0f3f9868f46c0c54eb4565a5e09100f",
+      "matchesPublished": true,
+      "ancestorOfCloseout": true
+    },
+    {
+      "branch": "chatgpt/refresh/runtime",
+      "localSha": "dd4ed4596f15a7b273ddcdcbba7350c0e8fb7fad",
+      "publishedSha": "dd4ed4596f15a7b273ddcdcbba7350c0e8fb7fad",
+      "matchesPublished": true,
+      "ancestorOfCloseout": true
+    },
+    {
+      "branch": "chatgpt/refresh/studio/lifecycle",
+      "localSha": "52c389637e0823d2ba4324a51794c0975c0548e3",
+      "publishedSha": "52c389637e0823d2ba4324a51794c0975c0548e3",
+      "matchesPublished": true,
+      "ancestorOfCloseout": true
+    },
+    {
+      "branch": "chatgpt/refresh/tooling",
+      "localSha": "f3fad74aa0e63cc47aa0bb99d9f3c51cbb44f5e8",
+      "publishedSha": "f3fad74aa0e63cc47aa0bb99d9f3c51cbb44f5e8",
+      "matchesPublished": true,
+      "ancestorOfCloseout": true
+    },
+    {
+      "branch": "chatgpt/release/closeout",
+      "localSha": "d63fe9e1276c3aeaa562461f47b4ef1cd1e45358",
+      "publishedSha": "d63fe9e1276c3aeaa562461f47b4ef1cd1e45358",
+      "matchesPublished": true,
+      "ancestorOfCloseout": true
+    },
+    {
+      "branch": "main",
+      "localSha": "19c088f61d33fca8e62c7f8d329f4b33aaa58aba",
+      "publishedSha": "19c088f61d33fca8e62c7f8d329f4b33aaa58aba",
+      "matchesPublished": true,
+      "ancestorOfCloseout": true
+    }
+  ],
+  "releasedRuntimeToolingAndTestsUnchanged": true,
+  "activeWorkflowFiles": [],
+  "finalBuildSha256": "d1b8773cd276587adce6fa5b338d23c3a9b10ced4295d5c70e3d5bf648df6849",
+  "finalBuildBytes": 114504,
+  "selfReferenceNote": "This snapshot precedes its own evidence commit and the final no-ff merge. The final merge and clean checkout are checked after publication; their immutable SHAs are in Git and PR #2."
+}

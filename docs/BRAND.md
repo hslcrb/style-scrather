@@ -4,7 +4,7 @@
 
 **Style Scratcher** (스타일 스크래처) is a browser inspection studio for people who care how the web is made. Its voice is direct, curious, and precise. Lead with what someone can inspect or change. Explain the scope of an action and state limitations in ordinary language.
 
-Use **Style Scratcher** in interfaces and prose. `style-scrather` is the existing repository/package spelling; keep it in URLs and paths for compatibility. The upcoming refresh is `v4.1.0.` in visible interface copy and `4.1.0` in machine-readable versions. It is unreleased until an actual release is published. Never imply a Chrome Web Store listing or a downloadable release exists without verifying it.
+Use **Style Scratcher** in interfaces and prose. `style-scrather` is the existing repository/package spelling; keep it in URLs and paths for compatibility. The refresh is `v4.1.0.` in visible interface copy, `4.1.0` in machine-readable versions, and `v4.1.0` as a Git tag. The [GitHub release](https://github.com/hslcrb/style-scrather/releases/tag/v4.1.0) provides the verified extension ZIP and checksum. A GitHub release does not imply a Chrome Web Store listing. Verify a publication before advertising its download link.
 
 ## Mark
 

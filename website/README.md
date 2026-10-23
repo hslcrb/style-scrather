@@ -1,6 +1,6 @@
 # Style Scratcher introduction site
 
-Korean-first, dependency-free HTML/CSS/JavaScript. The page introduces the extension, demonstrates scoped CSS inspection, describes the project philosophy, and gives accurate source-installation instructions.
+Korean-first, dependency-free HTML/CSS/JavaScript. The page introduces the extension, demonstrates scoped CSS inspection, describes the project philosophy, and gives verified release and source-installation instructions.
 
 ## Run and publish
 
@@ -10,7 +10,7 @@ The repository's site build copies this directory to the static site root and co
 
 `index.html` owns the content and semantic structure, `styles.css` the responsive visual system, and `app.js` the preview interactions. The brand artwork and its portable `icons/mark.svg` mirror are generated from `../scripts/generate-icons.js`; see `../docs/BRAND.md` and `../docs/PHILOSOPHY.md`.
 
-## Preview contract
+## Interactive demo contract
 
 The inspector reads actual computed styles from three example elements inside the page. It supports pointer and keyboard selection, native color input and presets, border-radius and font-size sliders, a CSS tab, CSS copying, and reset. Its dimensions come from the selected element's real bounding box. It is a demonstration, not the installed extension, and never inspects another website.
 
@@ -20,7 +20,7 @@ Tabs support Left/Right/Home/End keys. The mobile menu is a native disclosure an
 
 ## Release links
 
-The current copy labels `v4.1.0.` as an **unreleased development preview**. Repository, documentation, and source ZIP URLs point to the existing `chatgpt/refresh/integration` branch. When that work lands on the default branch or is released, update these links as one explicit content change. Do not advertise a Chrome Web Store listing or a release asset unless it exists.
+The page links to the published [v4.1.0 release](https://github.com/hslcrb/style-scrather/releases/tag/v4.1.0) through its curated `style-scratcher-4.1.0.zip` installation asset. The asset and checksum were downloaded from their public URLs and matched the local build byte for byte; see [publication evidence](../docs/verification/release-published.json). Repository, documentation and optional source-clone instructions use `main`. This is a GitHub distribution, not a Chrome Web Store listing. Verify a future release asset before updating the installation link.
 
 ## Verification
 

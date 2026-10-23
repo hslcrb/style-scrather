@@ -1,0 +1,57 @@
+{
+  "id": 421461281,
+  "url": "https://github.com/hslcrb/style-scrather/releases/tag/v4.1.0",
+  "tag": "v4.1.0",
+  "targetCommit": "19c088f61d33fca8e62c7f8d329f4b33aaa58aba",
+  "publishedAt": "2026-10-23T04:50:15Z",
+  "draft": false,
+  "prerelease": false,
+  "assets": [
+    {
+      "id": 667999657,
+      "name": "style-scratcher-4.1.0.zip",
+      "bytes": 114504,
+      "state": "uploaded",
+      "digest": "sha256:d1b8773cd276587adce6fa5b338d23c3a9b10ced4295d5c70e3d5bf648df6849",
+      "url": "https://github.com/hslcrb/style-scrather/releases/download/v4.1.0/style-scratcher-4.1.0.zip",
+      "publicDownload": {
+        "bytes": 114504,
+        "sha256": "d1b8773cd276587adce6fa5b338d23c3a9b10ced4295d5c70e3d5bf648df6849",
+        "matchesLocalBuild": true
+      }
+    },
+    {
+      "id": 667999679,
+      "name": "style-scratcher-4.1.0.zip.sha256",
+      "bytes": 92,
+      "state": "uploaded",
+      "digest": "sha256:deb8e29fad97e29db51e9102c18ae55046e7943dcf172a54463529fc3d072293",
+      "url": "https://github.com/hslcrb/style-scrather/releases/download/v4.1.0/style-scratcher-4.1.0.zip.sha256",
+      "publicDownload": {
+        "bytes": 92,
+        "sha256": "deb8e29fad97e29db51e9102c18ae55046e7943dcf172a54463529fc3d072293",
+        "matchesLocalBuild": true
+      }
+    }
+  ],
+  "mainMergeParents": [
+    "72f08c6927416c45cc0f81bb641b881f5aa2c09c",
+    "0781aec39814aac02700efe5e43ef4dc971a13ae"
+  ],
+  "pullRequest": {
+    "number": 1,
+    "url": "https://github.com/hslcrb/style-scrather/pull/1",
+    "merged": true,
+    "mergedAt": "2026-10-23T04:44:22Z",
+    "mergeCommit": "19c088f61d33fca8e62c7f8d329f4b33aaa58aba"
+  },
+  "publicZipCrcValid": true,
+  "publicZipFiles": 39,
+  "verifiedAtUTC": "2026-10-23T04:51:36.472135+00:00",
+  "workflow": {
+    "activeYamlFiles": [],
+    "archive": ".github/workflows/verify.yml.disabled",
+    "allLinesCommented": true
+  },
+  "publicationScreenshot": "docs/assets/release-v4.1.0-20261023.jpg"
+}

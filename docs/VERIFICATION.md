@@ -111,6 +111,14 @@ d1b8773cd276587adce6fa5b338d23c3a9b10ced4295d5c70e3d5bf648df6849
 - [새 패키지 확장 브라우저 결과](verification/release-browser-packaged.json)
 - [수동 릴리즈 절차](RELEASING.md)
 
+### Published release
+
+[v4.1.0](https://github.com/hslcrb/style-scrather/releases/tag/v4.1.0)은 main의 두 부모 병합 커밋 `19c088f61d33fca8e62c7f8d329f4b33aaa58aba`에서 2026-10-23 04:50:15 UTC에 공개되었습니다. 그 main 소스로 다시 빌드한 ZIP이 검증된 digest와 같았고, 공개 URL에서 받은 ZIP·checksum도 로컬 파일과 전체 바이트가 일치했습니다. [게시 증거](verification/release-published.json)에 자산 ID, 크기, GitHub digest, 태그 대상과 독립 다운로드 결과를 기록했습니다.
+
+### Publication closeout
+
+공개 후 설치 링크를 갱신한 `d63fe9e`에서도 `npm run check`와 빌드를 다시 통과했습니다. 확장 런타임·도구·테스트·의존성 입력은 릴리즈 태그와 같고 ZIP의 전체 digest도 같습니다. 320px·1440px 실제 Chrome에서 공개 다운로드 링크, main source 명령, 정식 버전 표시, 이미지 로딩과 overflow·page error가 없는 것을 확인했습니다. [사이트 결과](verification/closeout-site.json)와 [브랜치 포함·게시·shallow 감사](verification/closeout-audit.json)는 기록 시점과 후속 커밋의 경계를 명시합니다. 마감 통합은 [PR #2](https://github.com/hslcrb/style-scrather/pull/2)에 남깁니다.
+
 ## Evidence files
 
 - [원본 확장 브라우저 결과](verification/browser-source.json)
@@ -128,4 +136,4 @@ d1b8773cd276587adce6fa5b338d23c3a9b10ced4295d5c70e3d5bf648df6849
 - blur 미지원 브라우저와 모든 보조 기술 조합을 실제 장치에서 검증하지 않았습니다. fallback·forced-colors 스타일은 코드에 포함했습니다.
 - 시스템 글꼴에 따라 텍스트 치수와 Canvas 윤곽이 달라질 수 있습니다. 측정값은 폰트 내부 글리프 존재 여부를 증명하지 않습니다.
 - 라이브 텍스트·이미지·DOM 편집은 현재 페이지의 실험입니다. 원본 앱 전체를 되돌리는 undo 이력은 제공하지 않으며, 새로고침으로 초기화할 수 있습니다.
-- 이 브랜치는 프리뷰이며 새 정식 릴리즈나 공개 호스팅 주소를 만들지 않습니다.
+- 확장은 GitHub Release로 배포했습니다. 소개 페이지의 새 공개 호스팅과 Chrome Web Store 등록은 수행하지 않았습니다.
