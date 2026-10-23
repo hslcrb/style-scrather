@@ -445,7 +445,7 @@ const v4Files = [
   'popup/popup.html',
   'popup/popup.css',
   'demo/index.html',
-  'release-notes-v4.0.3.md',
+  'docs/releases/release-notes-v4.0.3.md',
   'README.md',
   'LICENSE'
 ];
