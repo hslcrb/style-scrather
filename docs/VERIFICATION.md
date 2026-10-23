@@ -1,4 +1,4 @@
-# Verification · v4.1.0. preview
+# Verification · v4.1.0.
 
 검증일: **2026-10-23**. 이 문서는 확인한 동작과 확인하지 못한 환경을 구분합니다. 모든 웹사이트에서 모든 오류가 없다는 선언은 아닙니다.
 
@@ -94,7 +94,22 @@ d1b8773cd276587adce6fa5b338d23c3a9b10ced4295d5c70e3d5bf648df6849
 
 > The job was not started because your account is locked due to a billing issue.
 
-실행 단계와 로그가 생성되지 않았으므로 원격 테스트 실패로 분류하지도, 원격 테스트 통과로 표시하지도 않습니다. 저장소 소유자가 계정 billing 제한을 해결한 뒤 `Verify`를 다시 실행해야 합니다. 워크플로는 얕은 checkout, 읽기 전용 권한, 고정 action commit, 중복 실행 취소, Node 22 및 실제 Chromium 검사를 구성했습니다. 계정 결제·권한 설정은 변경하지 않았습니다.
+실행 단계와 로그가 생성되지 않았으므로 원격 테스트 실패로 분류하지도, 원격 테스트 통과로 표시하지도 않습니다. 이후 소유자의 요청으로 워크플로 전체를 `#` 주석 처리하고 `.yml.disabled`로 보관했습니다. 현재 활성 workflow는 없습니다. 얕은 checkout, 읽기 전용 권한, 고정 action commit, 중복 실행 취소, Node 22 및 실제 Chromium 검사 설정은 보존했으며 [별도 복구 절차](../.github/workflows/README.md)를 제공합니다. 계정 결제·권한 설정은 변경하지 않았습니다.
+
+## Fresh local release gate
+
+2026-10-23 04:35–04:39 UTC에 배포를 위한 검사를 새로 실행했습니다. 기준 SHA는 `6eecbc41553873a4cb0034b8ca8a41e0df9ebace`입니다. 검사 중 추가된 작업 일지와 커밋 원장 외에 runtime, manifest, tooling, test, lockfile, website 입력의 변경은 없었습니다.
+
+`npm ci --ignore-scripts`, `npm run check`, `npm test`, `npm run build`, 소스 및 `dist/style-scratcher/`의 실제 브라우저 검사가 통과했습니다. 구문 검사 대상은 JS 54개와 manifest 참조 35개입니다. Node 동작 사례 78개(실패·건너뜀 0), legacy 호환성 단계 11개, 실행 파일 14개가 통과했습니다. 실제 브라우저는 소스 13개·패키지 12개 시나리오, 각각 page error 0입니다.
+
+최초 기본 sandbox에서 `npm test`의 로컬 서버 listen이 `EPERM`으로 거절되었습니다. 코드는 바꾸지 않고 필요한 loopback 권한으로 재실행해 통과했습니다. 실패한 환경 실행과 통과한 재실행을 모두 기록했습니다.
+
+새 ZIP도 39개 파일, 114,504 bytes이며 위의 SHA-256과 같습니다. Python 표준 ZIP 검사로 CRC·안전한 경로·루트 manifest·소스와 unpacked 파일의 바이트 일치·checksum을 확인했고, 반복 빌드의 전체 ZIP 바이트가 동일했습니다. hosted Actions 통과를 의미하지 않습니다.
+
+- [명령·시각·종료 코드·파일 목록·빌드 결과](verification/release-local.json)
+- [새 소스 확장 브라우저 결과](verification/release-browser-source.json)
+- [새 패키지 확장 브라우저 결과](verification/release-browser-packaged.json)
+- [수동 릴리즈 절차](RELEASING.md)
 
 ## Evidence files
 

@@ -20,7 +20,7 @@
 
 | 조사 대상 | 확인한 문제 | 작업 방향 |
 | --- | --- | --- |
-| `background/background.js` | service worker의 폰트 변환에서 `FileReader` 사용 | worker에서 가능한 ArrayBuffer 변환, 입력·크기·시간 제한 |
+| `background/service-worker.js` | service worker의 폰트 변환에서 `FileReader` 사용 | worker에서 가능한 ArrayBuffer 변환, 입력·크기·시간 제한 |
 | 팝업 복구 주입 | manifest와 별도 목록, `content/update-guardian.js` 누락 | manifest의 실제 주입 순서를 공유 |
 | content 초기 상태 | `isActive = true`, 로드 직후 페이지 클릭을 검사기가 가로챔 | 명시적인 실행 요청 전 비활성 |
 | 재주입 | 같은 전역 클래스 선언이 충돌할 수 있음 | 재주입 안전 가드와 일회 초기화 |
