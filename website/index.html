@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F5F4F1">
+  <meta name="description" content="웹을 읽는 눈, 디테일을 바꾸는 손. Style Scratcher는 요소를 검사하고 스타일을 실험하는 오픈소스 Chrome 확장 프로그램입니다.">
+  <meta property="og:title" content="Style Scratcher — Look closer. Make it yours.">
+  <meta property="og:description" content="요소를 선택하고, 스타일을 이해하고, 작은 변화를 직접 시도하세요. 오픈소스 브라우저 인스펙션 스튜디오.">
+  <meta property="og:type" content="website">
+  <title>Style Scratcher — 웹을 읽는 눈, 디테일을 바꾸는 손.</title>
+  <link rel="icon" href="../icons/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <header class="site-header wrap">
+    <a class="brand" href="#" aria-label="Style Scratcher 처음으로"><img src="../icons/mark.svg" width="40" height="40" alt=""><span>Style Scratcher<span class="brand-period">.</span></span></a>
+    <nav class="desktop-nav" aria-label="주요 메뉴">
+      <a href="#features">기능</a><a href="#philosophy">철학</a><a href="#install">설치하기</a>
+      <a href="https://github.com/hslcrb/style-scrather/tree/chatgpt/refresh/integration/docs">문서 <span aria-hidden="true">↗</span></a>
+    </nav>
+    <a class="header-github" href="https://github.com/hslcrb/style-scrather/tree/chatgpt/refresh/integration"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.87c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.03A9.6 9.6 0 0 1 12 6.8c.85 0 1.71.11 2.51.34 1.91-1.3 2.75-1.03 2.75-1.03.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.79c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg><span>GitHub</span><span aria-hidden="true">↗</span></a>
+    <details class="mobile-menu"><summary aria-label="탐색 메뉴 열기">메뉴 <span aria-hidden="true">＋</span></summary><nav aria-label="모바일 메뉴"><a href="#features">기능</a><a href="#philosophy">철학</a><a href="#install">설치하기</a><a href="https://github.com/hslcrb/style-scrather/tree/chatgpt/refresh/integration/docs">문서 ↗</a></nav></details>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="eyebrow hero-eyebrow"><span class="status-dot" aria-hidden="true"></span> A LITTLE CLOSER TO THE WEB <span class="version">v4.1.0. preview</span></div>
+      <h1 id="hero-title">웹을 읽는 눈,<br><span>디테일을 바꾸는 손.</span></h1>
+      <p class="hero-description">궁금했던 스타일을 발견하고, 머릿속의 변화를 화면으로.<br class="desktop-break"> 브라우저 위에 펼쳐지는 당신의 작은 디자인 스튜디오.</p>
+      <div class="hero-actions"><a class="button button-dark" href="#install"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 8.5h8M9 13.7l-4-7M14 15l-4 6"/></svg>Chrome에 설치하기 <span aria-hidden="true">↗</span></a><a class="button button-quiet" href="#playground">먼저 만져보기 <span aria-hidden="true">↓</span></a></div>
+      <p class="hero-meta">무료 · 오픈소스 · Chrome 확장 프로그램</p>
+
+      <div class="studio-demo" id="playground" aria-labelledby="demo-title">
+        <div class="demo-chrome"><div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div><h2 id="demo-title">Your next discovery, in detail.</h2><span class="demo-live"><span aria-hidden="true"></span>인터랙티브 데모</span></div>
+        <div class="demo-workspace">
+          <div class="sample-page" aria-label="검사할 수 있는 예제 페이지">
+            <div class="sample-nav"><span>forma<span class="sample-nav-dot">®</span></span><span>Objects for a slower life</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14M5 15h14"/></svg></div>
+            <div class="sample-composition">
+              <div class="sample-copy"><span class="sample-eyebrow">COLLECTION Nº 04 — EVERYDAY</span><h3 class="collection-heading" data-demo-target="heading" tabindex="0" role="button" aria-label="예제 제목 선택" aria-pressed="false">Less, but<br>considered.</h3><p>좋은 것만 남긴 일상.<br>작은 디테일에서 시작됩니다.</p><button class="collection-button is-selected" type="button" data-demo-target="button" aria-pressed="true">Explore the collection <span aria-hidden="true">↗</span></button></div>
+              <div class="object-card" data-demo-target="object" role="button" tabindex="0" aria-label="예제 오브제 카드 선택" aria-pressed="false"><span class="object-index">FIG. 01</span><div class="object-art" aria-hidden="true"><div class="object-arch"></div><div class="object-shadow"></div></div><div class="object-caption"><span>Everyday architecture</span><span>01 / 03</span></div></div>
+            </div>
+            <div class="sample-footer"><span>DESIGNED TO BE NOTICED.</span><span>SCROLL TO DISCOVER <span aria-hidden="true">↓</span></span></div>
+          </div>
+          <aside class="inspector" aria-label="라이브 스타일 검사기">
+            <div class="inspector-heading"><img src="../icons/mark.svg" width="26" height="26" alt=""><strong>Style Scratcher</strong><span class="inspector-status"><i aria-hidden="true"></i>선택됨</span></div>
+            <div class="element-meta"><span class="element-tag" id="element-tag">button</span><code id="element-name">.collection-button</code><span id="element-size" class="element-size">— × —</span></div>
+            <div class="inspector-tabs" role="tablist" aria-label="검사 보기"><button id="style-tab" type="button" role="tab" aria-selected="true" aria-controls="style-panel" tabindex="0">스타일</button><button id="code-tab" type="button" role="tab" aria-selected="false" aria-controls="code-panel" tabindex="-1">CSS 코드</button></div>
+            <div id="style-panel" class="style-panel" role="tabpanel" aria-labelledby="style-tab">
+              <div class="control-heading"><label for="demo-color" id="color-label">배경색</label><span id="color-value">#E11D48</span></div>
+              <div class="color-controls"><label class="color-input" title="직접 색상 선택"><input type="color" id="demo-color" value="#e11d48" aria-label="배경색 직접 선택" data-demo-control disabled></label><div class="swatches" role="group" aria-label="색상 프리셋"><button type="button" data-color="#e11d48" style="--swatch:#e11d48" aria-label="Studio Crimson" aria-pressed="true" data-demo-control disabled></button><button type="button" data-color="#17151c" style="--swatch:#17151c" aria-label="Ink" aria-pressed="false" data-demo-control disabled></button><button type="button" data-color="#51635b" style="--swatch:#51635b" aria-label="Sage" aria-pressed="false" data-demo-control disabled></button><button type="button" data-color="#65558c" style="--swatch:#65558c" aria-label="Violet" aria-pressed="false" data-demo-control disabled></button></div></div>
+              <div class="control-heading"><label for="demo-radius">모서리</label><output id="radius-value" for="demo-radius">8 px</output></div><input id="demo-radius" type="range" min="0" max="32" value="8" data-demo-control disabled>
+              <div class="control-heading type-heading"><label for="demo-font">글자 크기</label><output id="font-value" for="demo-font">12 px</output></div><input id="demo-font" type="range" min="10" max="64" value="12" data-demo-control disabled>
+              <div class="computed-note"><span aria-hidden="true">⌁</span> 값을 바꾸면 선택한 요소에 바로 반영됩니다.</div>
+            </div>
+            <div id="code-panel" class="code-panel" role="tabpanel" aria-labelledby="code-tab" tabindex="0" hidden><pre><code id="demo-css">.collection-button {
+  background-color: #e11d48;
+  border-radius: 8px;
+  font-size: 12px;
+}</code></pre></div>
+            <div class="inspector-actions"><button type="button" class="copy-css" id="copy-css" data-demo-control disabled><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="7" y="7" width="9" height="10" rx="2"/><path d="M12 4H5a2 2 0 0 0-2 2v7"/></svg>CSS 복사</button><button type="button" class="reset-demo" id="reset-demo" title="예제 스타일 초기화" data-demo-control disabled>초기화 <span aria-hidden="true">↺</span></button></div>
+            <p id="demo-status" class="demo-status" aria-live="polite">작은 변화부터 시작해 보세요.</p>
+          </aside>
+        </div>
+        <div class="demo-guidance"><span><span class="hint-crosshair" aria-hidden="true">⌖</span> 제목, 버튼, 오브제를 눌러 보세요. <span class="guidance-detail">선택한 요소의 스타일을 바꿀 수 있어요.</span></span><span class="keyboard-hint"><kbd>Tab</kbd> + <kbd>Enter</kbd> 로도 선택</span></div>
+      </div>
+      <noscript><p class="noscript-message">실시간 데모는 JavaScript가 필요합니다. 아래의 기능 소개와 설치 안내는 그대로 읽을 수 있습니다.</p></noscript>
+      <div class="capability-strip" aria-label="핵심 작업"><span>Inspect<span>관찰하고</span></span><i aria-hidden="true">→</i><span>Measure<span>이해하고</span></span><i aria-hidden="true">→</i><span>Adjust<span>다듬고</span></span><i aria-hidden="true">→</i><span>Extract<span>이어가세요</span></span></div>
+    </section>
+
+    <section class="features wrap section-space" id="features" aria-labelledby="features-title">
+      <div class="section-intro"><span class="eyebrow">SMALL DETAILS. CLEAR ANSWERS.</span><h2 id="features-title">한 번의 선택으로,<br>화면의 이유가<br class="desktop-break"> 보입니다.</h2><p>복잡한 도구 사이를 오가지 마세요.<br>궁금한 요소 바로 곁에서 관찰하고,<br>비교하고, 바꿔 보세요.</p><a class="text-link" href="#playground">스튜디오 체험하기 <span aria-hidden="true">↗</span></a></div>
+      <div class="feature-list">
+        <article class="feature-row"><span class="feature-number">01 /</span><div><h3>눈에 보이는 것 너머까지.</h3><p>요소의 크기, 여백, 서체와 색상을 확인하세요. 픽셀부터 상대 단위까지, 화면의 인상을 구체적인 값으로 읽습니다.</p><div class="feature-sample"><span class="measure-line" aria-hidden="true"></span><code>24px</code><span class="mini-token">1.5rem</span></div></div><span class="feature-word">INSPECT</span></article>
+        <article class="feature-row"><span class="feature-number">02 /</span><div><h3>생각한 변화를, 그 자리에서.</h3><p>색상과 간격을 조정하고, 텍스트와 에셋을 바꿔 보세요. 현재 페이지 위에서 실험하며 더 나은 균형을 찾습니다.</p><div class="feature-sample color-sample" aria-hidden="true"><span></span><span></span><span></span><i>작은 차이, 다른 인상.</i></div></div><span class="feature-word">REFINE</span></article>
+        <article class="feature-row"><span class="feature-number">03 /</span><div><h3>발견을 다음 작업으로.</h3><p>확인한 스타일을 CSS로 복사하고, 제공되는 코드·에셋 도구로 작업을 이어가세요. 내보낸 결과는 프로젝트에 맞게 검토하고 다듬습니다.</p><div class="feature-sample"><code class="code-sample"><span>border-radius:</span> 12px;</code><span class="sample-arrow" aria-hidden="true">↗</span></div></div><span class="feature-word">EXTRACT</span></article>
+      </div>
+    </section>
+
+    <section class="philosophy" id="philosophy" aria-labelledby="philosophy-title"><div class="wrap philosophy-inner"><span class="eyebrow">OUR POINT OF VIEW</span><div class="philosophy-statement"><h2 id="philosophy-title">도구는 가볍게.<br>시선은 <em>더 깊게.</em></h2><div class="philosophy-aside"><span class="large-mark" aria-hidden="true"><img src="../icons/mark.svg" alt="" width="150" height="150"></span><p>좋은 디자인은 자세히 보는 일에서 시작합니다.<br>Style Scratcher는 당신의 호기심이<br>작은 발견으로 이어지도록 돕습니다.</p></div></div><div class="principles"><article><span>01 — CLARITY</span><h3>페이지가 주인공입니다.</h3><p>맥락을 가리지 않는 유리 표면.<br>필요한 정보는 선명하게 남깁니다.</p></article><article><span>02 — INTENTION</span><h3>선택은 당신의 몫입니다.</h3><p>필요할 때 시작하고, 직접 조정하세요.<br>바뀌는 범위와 상태를 알려드립니다.</p></article><article><span>03 — OPENNESS</span><h3>만드는 과정도 열어 둡니다.</h3><p>소스와 제약을 함께 공개합니다.<br>검토하고 개선할 수 있는 도구를 만듭니다.</p></article></div><a class="philosophy-link" href="https://github.com/hslcrb/style-scrather/blob/chatgpt/refresh/integration/docs/PHILOSOPHY.md">우리가 만드는 방식 <span aria-hidden="true">↗</span></a></div></section>
+
+    <section class="install wrap section-space" id="install" aria-labelledby="install-title"><div class="section-intro"><span class="eyebrow">YOUR BROWSER. YOUR STUDIO.</span><h2 id="install-title">새로운 시선은,<br>여기서 시작.</h2><p>소스를 내려받아 Chrome에 로드하세요.<br>계정 없이, 내 브라우저에서 시작합니다.</p><span class="preview-note"><span aria-hidden="true"></span> v4.1.0. 개발 프리뷰 · 스토어 배포 전</span><a class="button button-crimson" href="https://github.com/hslcrb/style-scrather/archive/refs/heads/chatgpt/refresh/integration.zip">소스 ZIP 받기 <span aria-hidden="true">↗</span></a><a class="install-source" href="https://github.com/hslcrb/style-scrather/tree/chatgpt/refresh/integration">개선 브랜치에서 소스 확인 <span aria-hidden="true">↗</span></a></div>
+      <ol class="install-steps"><li><span class="step-index">01</span><div><h3>소스를 준비하세요.</h3><p>ZIP의 압축을 풀거나, 터미널에서 개선 브랜치를 복제하세요.</p><div class="terminal"><div class="terminal-heading"><span>TERMINAL</span><button type="button" id="copy-install" aria-label="설치 명령어 복사">복사 <span aria-hidden="true">⧉</span></button></div><pre><code id="install-command">git clone --depth 1 --branch chatgpt/refresh/integration https://github.com/hslcrb/style-scrather.git
+cd style-scrather</code></pre><span id="install-copy-status" class="sr-only" aria-live="polite"></span></div></div></li><li><span class="step-index">02</span><div><h3>개발자 모드를 켜세요.</h3><p>Chrome 주소창에 <code>chrome://extensions</code>를 입력한 뒤,<br class="desktop-break"> 우측 상단의 <strong>개발자 모드</strong>를 켜세요.</p></div></li><li><span class="step-index">03</span><div><h3>폴더를 로드하고, 살펴보세요.</h3><p><strong>압축해제된 확장 프로그램을 로드합니다</strong>를 누르고 <code>manifest.json</code>이 있는 저장소 루트 폴더를 선택하세요. 일반 웹 페이지에서 <kbd>Alt</kbd> + <kbd>S</kbd>로 시작합니다.</p><a class="text-link" href="https://github.com/hslcrb/style-scrather/blob/chatgpt/refresh/integration/README.md">전체 설치·사용 안내 <span aria-hidden="true">↗</span></a></div></li></ol>
+    </section>
+
+    <section class="faq wrap" aria-labelledby="faq-title"><div><span class="eyebrow">A FEW THINGS TO KNOW</span><h2 id="faq-title">시작 전에.</h2></div><div class="faq-list"><details><summary>이 페이지의 데모와 확장 프로그램은 어떻게 다른가요?<span aria-hidden="true">＋</span></summary><p>데모는 위의 예제 요소만 선택하고 조정하는 작은 체험입니다. 확장 프로그램을 설치하면 지원되는 실제 웹 페이지에서 검사, 측정, 편집 도구를 사용할 수 있습니다.</p></details><details><summary>편집한 내용이 원래 사이트에 저장되나요?<span aria-hidden="true">＋</span></summary><p>아니요. 라이브 편집은 내 브라우저의 현재 페이지에 적용됩니다. 사이트의 서버나 원본 소스는 바뀌지 않으며, 새로고침이나 앱의 재렌더링으로 변경이 사라질 수 있습니다.</p></details><details><summary>모든 페이지와 요소를 검사할 수 있나요?<span aria-hidden="true">＋</span></summary><p>Chrome 내부 페이지와 확장 스토어 등에서는 브라우저가 주입을 제한합니다. 교차 출처 프레임, 닫힌 Shadow DOM, 캔버스 내부 그래픽이나 외부 폰트도 접근이 제한될 수 있습니다. 내보낸 코드는 원본 프로젝트를 완전히 복원하지 않으므로 직접 검토해야 합니다.</p></details><details><summary>오류를 발견하거나 개선을 제안하려면요?<span aria-hidden="true">＋</span></summary><p>재현 방법과 사용 중인 Chrome 버전을 <a href="https://github.com/hslcrb/style-scrather/issues">GitHub 이슈</a>에 남겨 주세요. 웹사이트 데모는 외부 폰트나 분석 도구 없이 작동합니다. 확장 프로그램의 권한과 동작은 공개된 소스에서 확인할 수 있습니다.</p></details></div></section>
+  </main>
+
+  <footer class="site-footer wrap"><div class="footer-top"><a class="brand" href="#"><img src="../icons/mark.svg" width="40" height="40" alt=""><span>Style Scratcher<span class="brand-period">.</span></span></a><p>Look closer. <span>Make it yours.</span></p><a class="back-top" href="#" aria-label="맨 위로">↑</a></div><div class="footer-bottom"><span>© 2024–2026 Rheehose · Rhee Creative</span><nav aria-label="프로젝트 링크"><a href="https://github.com/hslcrb/style-scrather/blob/chatgpt/refresh/integration/LICENSE">Apache-2.0</a><a href="https://github.com/hslcrb/style-scrather/tree/chatgpt/refresh/integration/docs">문서</a><a href="https://github.com/hslcrb/style-scrather/tree/chatgpt/refresh/integration">GitHub ↗</a></nav><span>Made for the curious.</span></div></footer>
+</body>
+</html>
