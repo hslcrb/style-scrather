@@ -4,6 +4,7 @@
 if (typeof window !== 'undefined' && window.AssetEditor) return;
 
 class AssetEditor {
+  static editableElements = new Map();
   /**
    * Determine asset type of an element
    * @param {Element} element 
@@ -47,12 +48,28 @@ class AssetEditor {
 
   static toggleContentEditable(element) {
     if (!element) return false;
+    if (this.editableElements.has(element)) {
+      this.restoreContentEditable(element);
+      return element.isContentEditable;
+    }
     const isEditable = element.isContentEditable;
+    this.editableElements.set(element, element.getAttribute('contenteditable'));
     element.contentEditable = !isEditable;
     if (!isEditable) {
-      element.focus();
+      element.focus?.();
     }
     return !isEditable;
+  }
+
+  static restoreContentEditable(element) {
+    const elements = element ? [element] : [...this.editableElements.keys()];
+    for (const target of elements) {
+      if (!this.editableElements.has(target)) continue;
+      const original = this.editableElements.get(target);
+      if (original === null) target.removeAttribute('contenteditable');
+      else target.setAttribute('contenteditable', original);
+      this.editableElements.delete(target);
+    }
   }
 
   // --- 2. Image Replacing ---

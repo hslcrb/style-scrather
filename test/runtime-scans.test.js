@@ -75,3 +75,10 @@ test('font URLs resolve relative to the owning stylesheet', async () => {
   const fonts = await context.window.FontStudio.extractWebFonts();
   assert.equal(fonts[0].url, 'https://cdn.test/fonts/demo.woff2');
 });
+
+test('outlines reject large allocations and unavailable canvas instead of inventing glyphs', () => {
+  const context = { window: {} };
+  load('font-studio.js', context);
+  assert.throws(() => context.window.FontStudio.createTextOutlines({ textContent: 'x'.repeat(201) }), /200/);
+  assert.throws(() => context.window.FontStudio.createTextOutlines({ textContent: 'Hello' }), /Canvas/);
+});

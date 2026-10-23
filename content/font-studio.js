@@ -283,6 +283,7 @@ class FontStudio {
     if (!element) return null;
     const text = (element.innerText || element.textContent || '').trim();
     if (!text) return null;
+    if (text.length > 200) throw new Error('아웃라인은 한 번에 200자까지 변환할 수 있습니다. 더 짧은 텍스트 요소를 선택해 주세요.');
 
     let computed = {};
     if (typeof window !== 'undefined' && window.getComputedStyle && typeof Element !== 'undefined' && element instanceof Element) {
@@ -290,12 +291,15 @@ class FontStudio {
     }
 
     const fontSize = options.fontSize || parseFloat(computed.fontSize) || 28;
+    if (!Number.isFinite(Number(fontSize)) || fontSize < 1 || fontSize > 256) {
+      throw new Error('아웃라인 글꼴 크기는 1–256px 범위여야 합니다.');
+    }
     const color = options.color || computed.color || '#111827';
     const fontFamily = options.fontFamily || (computed.fontFamily ? computed.fontFamily.replace(/['"]/g, '').split(',')[0].trim() : 'sans-serif');
     const fontWeight = options.fontWeight || computed.fontWeight || '600';
     const fontStyle = options.fontStyle || computed.fontStyle || 'normal';
 
-    // In non-canvas environments (e.g. Node.js unit tests), provide safe vector envelope
+    // Genuine outlines require Canvas 2D glyph pixels.
     let canvas = null;
     let ctx = null;
     if (typeof document !== 'undefined' && document.createElement) {
@@ -314,28 +318,7 @@ class FontStudio {
     const renderFontSize = Math.round(fontSize * scale);
 
     if (!ctx) {
-      // Mock / Headless Fallback
-      const approxWidth = Math.round(text.length * fontSize * 0.65 + 20);
-      const approxHeight = Math.round(fontSize * 1.5 + 10);
-      const mockPath = `M 5 5 L ${approxWidth - 5} 5 L ${approxWidth - 5} ${approxHeight - 5} L 5 ${approxHeight - 5} Z`;
-      const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${approxWidth} ${approxHeight}" width="${approxWidth}" height="${approxHeight}">
-  <!-- Style Scratcher True Vector Outliner (Node Mock) -->
-  <!-- Original Text: "${text.replace(/"/g, '&quot;')}" -->
-  <!-- Font: "${fontFamily}" Weight: ${fontWeight} -->
-  <path d="${mockPath}" fill="${color}" fill-rule="evenodd" />
-  <desc>${text}</desc>
-</svg>`.trim();
-
-      return {
-        text,
-        svg,
-        pathData: mockPath,
-        width: approxWidth,
-        height: approxHeight,
-        fontFamily,
-        isTrueVector: false
-      };
+      throw new Error('Canvas 2D를 사용할 수 없어 텍스트 아웃라인을 만들 수 없습니다.');
     }
 
     // 1. Measure text on Canvas with designated typography
@@ -347,6 +330,10 @@ class FontStudio {
     const pad = Math.round(16 * scale);
     const canvasWidth = textWidth + pad * 2;
     const canvasHeight = Math.round(fontSize * scale * 2.2 + pad * 2);
+
+    if (!Number.isFinite(canvasWidth) || canvasWidth > 8192 || canvasWidth * canvasHeight > 4000000) {
+      throw new Error('아웃라인 이미지가 너무 큽니다. 더 짧거나 작은 텍스트를 선택해 주세요.');
+    }
 
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;

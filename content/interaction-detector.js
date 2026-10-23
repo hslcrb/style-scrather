@@ -79,7 +79,7 @@ class InteractionDetector {
    * @param {boolean} force
    */
   togglePseudo(element, pseudo, force) {
-    if (!element) return false;
+    if (!element || !['hover', 'active', 'focus'].includes(pseudo)) return false;
 
     let set = this.forcedPseudos.get(element);
     if (!set) {
@@ -107,6 +107,7 @@ class InteractionDetector {
       }
     }
 
+    if (set.size === 0) this.forcedPseudos.delete(element);
     return shouldEnable;
   }
 
@@ -120,11 +121,12 @@ class InteractionDetector {
     if (!element) return;
     const set = this.forcedPseudos.get(element);
     if (set) {
-      set.forEach(p => {
-        element.classList.remove(`__scratcher_${p}__`);
-      });
-      set.clear();
+      for (const pseudo of [...set]) this.togglePseudo(element, pseudo, false);
     }
+  }
+
+  reset() {
+    for (const element of [...this.forcedPseudos.keys()]) this.clearForcedPseudos(element);
   }
 }
 

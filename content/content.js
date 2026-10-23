@@ -196,6 +196,7 @@
     if (next === isActive) return isActive;
     if (next) initStyleScratcher();
     isActive = next;
+    window.__STYLE_SCRATCHER_SET_INTERCEPTION__?.(isActive);
     overlayCanvas?.setActive?.(isActive);
     instantZoom?.setActive?.(isActive);
     contextHud?.setActive?.(isActive);

@@ -26,7 +26,8 @@ function environment(...scripts) {
     return Object.assign(target(), {
       tagName: tag.toUpperCase(), style: {}, children: [], parentNode: null, textContent: '', innerHTML: '',
       setAttribute(key, value) { attrs.set(key, String(value)); },
-      getAttribute(key) { return attrs.get(key) || null; },
+      getAttribute(key) { return attrs.has(key) ? attrs.get(key) : null; },
+      removeAttribute(key) { attrs.delete(key); },
       appendChild(child) { this.children.push(child); child.parentNode = this; return child; },
       removeChild(child) { this.children.splice(this.children.indexOf(child), 1); child.parentNode = null; },
       get firstChild() { return this.children[0] || null; },
@@ -176,4 +177,38 @@ test('pixel measurement does not read root computed style for each distance badg
   reads = 0;
   for (let i = 0; i < 100; i++) converter.formatBadge(i);
   assert.equal(reads, 0);
+});
+
+test('temporary content editing restores both missing and existing editable attributes', () => {
+  const env = environment('asset-editor.js');
+  const element = env.node();
+  Object.defineProperty(element, 'contentEditable', {
+    get() { return this.getAttribute('contenteditable') || 'inherit'; },
+    set(value) { this.setAttribute('contenteditable', String(value)); }
+  });
+  Object.defineProperty(element, 'isContentEditable', { get() { return this.getAttribute('contenteditable') === 'true'; } });
+  element.focus = () => {};
+  env.window.AssetEditor.toggleContentEditable(element);
+  assert.equal(element.getAttribute('contenteditable'), 'true');
+  env.window.AssetEditor.restoreContentEditable();
+  assert.equal(element.getAttribute('contenteditable'), null);
+  element.setAttribute('contenteditable', 'true');
+  env.window.AssetEditor.toggleContentEditable(element);
+  env.window.AssetEditor.restoreContentEditable();
+  assert.equal(element.getAttribute('contenteditable'), 'true');
+});
+
+test('reset releases focus simulation markers and stored element references', () => {
+  const env = environment('interaction-detector.js');
+  const detector = new env.window.InteractionDetector();
+  const classes = new Set();
+  let focused = false;
+  const element = { classList: { add: value => classes.add(value), remove: value => classes.delete(value) },
+    focus() { focused = true; }, blur() { focused = false; } };
+  detector.togglePseudo(element, 'focus', true);
+  assert.equal(detector.isPseudoForced(element, 'focus'), true);
+  detector.reset();
+  assert.equal(focused, false);
+  assert.equal(classes.size, 0);
+  assert.equal(detector.forcedPseudos.size, 0);
 });
