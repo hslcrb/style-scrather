@@ -3,33 +3,37 @@
   <h1>Style Scratcher</h1>
   <p><strong>웹을 읽는 눈, 디테일을 바꾸는 손.</strong></p>
   <p>브라우저 위에 펼치는 투명한 디자인 작업대.</p>
-  <p><a href="LICENSE">Apache-2.0</a> · Manifest V3 · v4.1.0. preview · Runtime dependencies: 0</p>
+  <p><a href="LICENSE">Apache-2.0</a> · Manifest V3 · v4.1.0. · Runtime dependencies: 0</p>
 </div>
 
 ![Style Scratcher 실제 스튜디오](docs/assets/studio-desktop.png)
 
 **Style Scratcher**는 웹 페이지의 요소를 관찰하고 CSS를 조정하며, 발견한 색상과 코드를 다음 작업으로 가져오는 Chrome 확장 프로그램입니다. 필요할 때 켜고, 작업을 마치면 페이지에 대한 제어를 돌려줍니다.
 
-[설치](#설치) · [기능](#무엇을-할-수-있나요) · [소개 페이지](website/index.html) · [브랜드](docs/BRAND.md) · [철학](docs/PHILOSOPHY.md) · [검증 기록](docs/VERIFICATION.md)
+[설치](#설치) · [기능](#무엇을-할-수-있나요) · [소개 페이지](website/index.html) · [브랜드](docs/BRAND.md) · [철학](docs/PHILOSOPHY.md) · [검증 기록](docs/VERIFICATION.md) · [전체 작업 과정](docs/process/2026-10-23-liquid-studio.md)
 
-> **v4.1.0.은 개발 프리뷰입니다.** 이번 개선은 `chatgpt/refresh/integration` 브랜치에 있습니다. Chrome Web Store 등록이나 새 정식 릴리즈 배포를 뜻하지 않습니다. 아래 명령은 해당 프리뷰 소스를 받습니다.
+**[v4.1.0. — Liquid Studio](https://github.com/hslcrb/style-scrather/releases/tag/v4.1.0)**가 공개되었습니다. 직접 빌드한 설치 ZIP과 SHA-256을 제공하며, 공개 다운로드가 검증한 빌드와 동일한지 확인했습니다. 모든 구현 브랜치는 이력을 보존하는 merge commit으로 `main`에 통합했습니다.
 
 ## 설치
 
-### 소스로 바로 설치
+### 릴리즈 ZIP으로 설치
+
+1. [설치 ZIP](https://github.com/hslcrb/style-scrather/releases/download/v4.1.0/style-scratcher-4.1.0.zip)과 [SHA-256 파일](https://github.com/hslcrb/style-scrather/releases/download/v4.1.0/style-scratcher-4.1.0.zip.sha256)을 받고 압축을 풉니다.
+2. Chrome에서 `chrome://extensions`를 열고 **개발자 모드**를 켭니다.
+3. **압축해제된 확장 프로그램을 로드합니다**를 누릅니다.
+4. 압축을 푼 폴더 중 `manifest.json`이 있는 폴더를 선택합니다.
+5. 일반 웹 페이지에서 확장 아이콘 또는 **Alt+S**로 검사기를 켭니다.
+
+확장 실행에는 npm 설치나 서버가 필요하지 않습니다. GitHub 릴리즈에서 제공하는 설치 파일이며 Chrome Web Store 등록본은 아닙니다.
+
+### 소스로 설치하거나 개발하기
 
 ```sh
-git clone --depth 1 --branch chatgpt/refresh/integration https://github.com/hslcrb/style-scrather.git
+git clone --depth 1 --branch main https://github.com/hslcrb/style-scrather.git
 cd style-scrather
 ```
 
-1. Chrome에서 `chrome://extensions`를 엽니다.
-2. **개발자 모드**를 켭니다.
-3. **압축해제된 확장 프로그램을 로드합니다**를 누릅니다.
-4. `manifest.json`이 있는 **저장소 루트 폴더**를 선택합니다.
-5. 일반 웹 페이지에서 확장 아이콘 또는 **Alt+S**로 검사기를 켭니다.
-
-Git 없이 설치하려면 [프리뷰 소스 ZIP](https://github.com/hslcrb/style-scrather/archive/refs/heads/chatgpt/refresh/integration.zip)을 내려받아 압축을 풀고 같은 절차를 따르세요. 확장 실행에는 npm 설치나 서버가 필요하지 않습니다.
+위의 Chrome 설치 절차에서 `manifest.json`이 있는 **저장소 루트 폴더**를 선택하면 됩니다. 릴리즈와 동일한 소스를 고정하려면 복제 명령의 `--branch main` 대신 `--branch v4.1.0`을 사용하세요.
 
 ### 깔끔한 설치 패키지 만들기
 
@@ -51,7 +55,7 @@ npm run build
 | 자세히 보기 | 폰트 정보, 문자 폭 측정·텍스트 윤곽, 모션 속도, 정밀 커서와 줌 |
 | 비교하기 | 디바이스 프레임, 선택 요소의 인터랙션·그래픽 정보 |
 
-### 이번 프리뷰의 변화
+### v4.1.0.의 변화
 
 - **필요할 때 시작:** 팝업을 열거나 페이지를 로드하는 것만으로 검사 모드가 켜지지 않습니다.
 - **정확한 상태:** 연결 확인, 실행 중, 대기, 제한 페이지, 실패를 구분합니다. 실패한 작업을 성공으로 표시하지 않습니다.
@@ -110,6 +114,8 @@ npm run test:browser
 ```
 
 기본 테스트와 패키징은 Node 표준 라이브러리로 실행됩니다. Playwright는 실제 브라우저 테스트를 위한 **개발 전용** 의존성입니다. 결과와 비교 조건은 [검증 기록](docs/VERIFICATION.md)에 남깁니다.
+
+GitHub Actions는 요청에 따라 전체 주석 처리한 `.yml.disabled` 파일로 보관 중입니다. 현재 배포는 [수동 릴리즈 절차](docs/RELEASING.md)의 로컬 검증을 사용합니다. [커밋 원장](docs/process/COMMITS.md)에서 세부 변경과 병합 관계를 확인할 수 있습니다.
 
 ## 저장소 구조
 

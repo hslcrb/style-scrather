@@ -57,7 +57,7 @@ For a release, update `manifest.json` and `package.json` together, run all check
 
 ## Branches and commit discipline
 
-This work starts from a shallow checkout and an integration branch. Runtime, interface, identity and tooling branches descend from that branch. Each small commit uses an English prefix and Korean description and is published immediately. Child branches are merged with two-parent merge commits; the resulting integration branch is proposed to `main` with a pull request.
+The refresh started from a shallow checkout and an integration branch. Runtime, interface, identity and tooling branches descended from that branch, with exporter and studio follow-ups based on later runtime/integration commits. Each small commit uses an English prefix and Korean description and is published immediately. Child branches and the integration PR were merged with two-parent merge commits. Future work starts from current `main`; preserve the same small-commit and no-ff discipline.
 
 The work uses GitHub's authenticated Git data API when the execution environment has no shell credential helper. Creating a commit and immediately moving its branch reference publishes it; fetching that reference keeps the local checkout aligned. No credential is stored in this repository.
 

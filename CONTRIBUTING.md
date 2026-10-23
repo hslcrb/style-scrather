@@ -7,7 +7,7 @@ Thanks for making the web easier to understand. Small, reproducible improvements
 Use Node.js 20 or newer. The extension itself has **no runtime dependencies**.
 
 ```sh
-git clone --depth 1 --branch chatgpt/refresh/integration https://github.com/hslcrb/style-scrather.git
+git clone --depth 1 --branch main https://github.com/hslcrb/style-scrather.git
 cd style-scrather
 npm ci
 npm run check
@@ -20,10 +20,10 @@ Open `http://127.0.0.1:3000/` for the introduction and `/demo/` for the extensio
 ## Make a focused change
 
 1. Open an issue with the problem, a minimal reproduction, and expected behavior. For a small, clear fix, a pull request is enough.
-2. Branch from the current base. This refresh uses `chatgpt/refresh/<area>` branches from `chatgpt/refresh/integration`; future work can use `chatgpt/<topic>/<area>`.
+2. Branch from current `main` using `chatgpt/<topic>/<area>`. For parallel work, create an integration branch and child worktrees; the completed refresh used `chatgpt/refresh/<area>` and nested follow-up branches.
 3. Change one behavior at a time. For a bug, add a failing regression case before the fix.
 4. Use **English commit prefix + Korean description**, for example `fix: 검사 종료 시 페이지 변환 복원` or `docs: 압축 해제 설치 안내 보완`.
-5. Make small commits and push **every commit immediately**. Do not force-push shared history. Merge child branches into the integration branch with merge commits.
+5. Make small commits and push **every commit immediately**. Do not force-push shared history. Merge child branches into the integration branch and reviewed work into `main` with two-parent (`--no-ff`) merge commits.
 6. Run the relevant tests and the complete checks before requesting review. State what you could not test.
 
 ## Verification

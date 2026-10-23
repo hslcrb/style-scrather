@@ -1,8 +1,8 @@
 # Changelog
 
-Changes are grouped by release. A preview entry does not mean a Chrome Web Store build or GitHub release asset has been published.
+Changes are grouped by release. GitHub installation archives and Chrome Web Store distribution are separate publication channels.
 
-## v4.1.0. — Liquid Studio preview · 2026-10-23
+## [v4.1.0. — Liquid Studio](https://github.com/hslcrb/style-scrather/releases/tag/v4.1.0) · 2026-10-23
 
 ### Experience and identity
 
@@ -38,15 +38,16 @@ Changes are grouped by release. A preview entry does not mean a Chrome Web Store
 - Validate manifest JavaScript, CSS, icons, and web-accessible wildcard resources before packaging.
 - Restrict the local preview server to public directories, including resolved symlink targets.
 - Move historical release notes into `docs/releases/` and add contribution, community, security, privacy, architecture, and verification documentation.
-- Add issue/PR templates and a shallow-checkout GitHub Actions workflow with pinned action commits.
-- Expand behavioral and real-browser regression coverage. Hosted CI execution currently needs the repository owner's GitHub billing lock resolved; local results are recorded separately.
+- Add issue/PR templates and preserve a pinned, depth-one verification workflow. At the owner's request, every workflow line is commented with `#` and the file is archived as `.yml.disabled`; no workflow is currently active.
+- Expand behavioral and real-browser regression coverage, run the final gate locally, and publish the locally built ZIP and checksum as GitHub Release assets. The earlier hosted runner could not start; local results and public-download integrity are recorded separately.
+- Merge all implementation and nested work with two-parent commits, and publish a detailed process record and per-commit file ledger.
 
 ### Compatibility notes
 
 - Existing Chrome/Chromium installation paths and the root manifest remain intact.
 - `ReactExporter.downloadAsset()` now returns `Promise<metadata|null>` and rejects failed downloads.
 - Character measurement results deliberately contain no font-coverage percentage. Canvas outlines approximate rendered text rather than recover original font vectors or document layout.
-- The new introduction is buildable static content. Public hosting and a new release are separate publication steps.
+- The new introduction is buildable static content in `dist/site/`. The extension GitHub release is published; public website hosting remains a separate setup step.
 
 ## Earlier releases
 
