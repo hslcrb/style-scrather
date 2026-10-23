@@ -202,6 +202,8 @@
     contextHud?.setActive?.(isActive);
     floatingDock?.setActive?.(isActive);
     if (!isActive) {
+      if (overlayCanvas?.isGridVisible) overlayCanvas.toggleGrid();
+      if (overlayCanvas?.isBaselineVisible) overlayCanvas.toggleBaseline();
       activeListeners.splice(0).forEach(({ type, listener, options }) => {
         window.removeEventListener(type, listener, options);
       });
