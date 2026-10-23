@@ -17,6 +17,7 @@
 | `npm test` | Isolated engine and behavior test processes |
 | `npm run test:legacy` | Original engine regression suite, maintained for current contracts |
 | `npm run build` | Extension folder, ZIP, checksum and static site in `dist/` |
+| `npm run benchmark` | 동일 fixture의 활성 전 상태와 240-event 오버레이 그리기 횟수 |
 | `npm run icons` | Regenerate vector and antialiased PNG identity assets |
 | `npm run test:browser` | Real Chromium Manifest V3 smoke checks; evidence in `test-results/browser/` |
 
@@ -59,3 +60,7 @@ When creating a release later, update `manifest.json` and `package.json` togethe
 This work starts from a shallow checkout and an integration branch. Runtime, interface, identity and tooling branches descend from that branch. Each small commit uses an English prefix and Korean description and is published immediately. Child branches are merged with two-parent merge commits; the resulting integration branch is proposed to `main` with a pull request.
 
 The work uses GitHub's authenticated Git data API when the execution environment has no shell credential helper. Creating a commit and immediately moving its branch reference publishes it; fetching that reference keeps the local checkout aligned. No credential is stored in this repository.
+
+## Continuous integration
+
+`.github/workflows/verify.yml` runs syntax, behavior, packaging, and installed-extension browser checks on pushes and pull requests. Actions are pinned to commit SHAs, checkout uses depth 1, and credentials are not persisted. See [Verification](VERIFICATION.md#hosted-ci-limitation) for the observed account-level blocker before treating a hosted run as validated.
