@@ -1,5 +1,8 @@
 // Style Scratcher v2.0 - Page Controller (Copy Unblocker & Script/DOM Freezer)
 
+(function () {
+if (typeof window !== 'undefined' && window.PageController) return;
+
 class PageController {
   constructor() {
     this.isUnblocked = false;
@@ -152,3 +155,4 @@ class PageController {
 if (typeof window !== 'undefined') {
   window.PageController = PageController;
 }
+})();

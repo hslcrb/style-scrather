@@ -1,5 +1,8 @@
 // Style Scratcher v3.0.0 - Live Asset & Content Editor (Text, Images, SVG)
 
+(function () {
+if (typeof window !== 'undefined' && window.AssetEditor) return;
+
 class AssetEditor {
   /**
    * Determine asset type of an element
@@ -144,3 +147,4 @@ class AssetEditor {
 if (typeof window !== 'undefined') {
   window.AssetEditor = AssetEditor;
 }
+})();

@@ -1,5 +1,8 @@
 // Style Scratcher v4.0.0 - Context Menu HUD (Smart Alternating Right-Click Toggle)
 
+(function () {
+if (typeof window !== 'undefined' && window.ContextHud) return;
+
 class ContextHud {
   constructor(shadowRoot, options = {}) {
     this.shadowRoot = shadowRoot;
@@ -195,3 +198,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ContextHud;
 }
+})();

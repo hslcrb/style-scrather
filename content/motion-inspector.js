@@ -1,5 +1,8 @@
 // Style Scratcher v2.0 - Motion & Animation Inspector & Playback Speed Controller
 
+(function () {
+if (typeof window !== 'undefined' && window.MotionInspector) return;
+
 class MotionInspector {
   constructor() {
     this.playbackRate = 1.0;
@@ -220,3 +223,4 @@ class MotionInspector {
 if (typeof window !== 'undefined') {
   window.MotionInspector = MotionInspector;
 }
+})();

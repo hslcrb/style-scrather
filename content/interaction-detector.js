@@ -1,5 +1,8 @@
 // Style Scratcher v2.0 - Interaction & Pseudo-Class Detector
 
+(function () {
+if (typeof window !== 'undefined' && window.InteractionDetector) return;
+
 class InteractionDetector {
   constructor() {
     this.forcedPseudos = new Map(); // element -> Set of active pseudo classes
@@ -128,3 +131,4 @@ class InteractionDetector {
 if (typeof window !== 'undefined') {
   window.InteractionDetector = InteractionDetector;
 }
+})();

@@ -1,5 +1,8 @@
 // Style Scratcher v2.0 - Multi-Unit Measurement & Conversion Engine
 
+(function () {
+if (typeof window !== 'undefined' && window.UnitConverter) return;
+
 class UnitConverter {
   constructor() {
     this.currentUnit = 'px'; // 'px' | 'rem' | 'em' | '%' | 'vw' | 'vh' | 'pt'
@@ -111,3 +114,4 @@ class UnitConverter {
 if (typeof window !== 'undefined') {
   window.UnitConverter = UnitConverter;
 }
+})();

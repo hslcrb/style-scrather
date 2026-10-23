@@ -1,5 +1,8 @@
 // Style Scratcher v3.0.0 - Precision Crosshair & Coordinate Pointer
 
+(function () {
+if (typeof window !== 'undefined' && window.PrecisionCursor) return;
+
 class PrecisionCursor {
   constructor(shadowRoot) {
     this.shadowRoot = shadowRoot;
@@ -122,3 +125,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = PrecisionCursor;
 }
+})();

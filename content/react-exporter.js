@@ -1,5 +1,8 @@
 // Style Scratcher v4.0.0 - React (JSX) Exporter & Asset Downloader
 
+(function () {
+if (typeof window !== 'undefined' && window.ReactExporter) return;
+
 class ReactExporter {
   /**
    * Generate clean React (JSX) component code from DOM element
@@ -156,3 +159,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ReactExporter;
 }
+})();

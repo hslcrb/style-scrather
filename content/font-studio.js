@@ -1,6 +1,9 @@
 // Style Scratcher v4.0.3. - Advanced Font Studio & True Glyph Vector Engine
 // Features: Figma Font Picker, Hug/Fill/Fixed Autolayout, Real WebFont Downloader, True Vector Outliner (Marching Squares), Real Glyph Harvester & W3C SVG Font Builder
 
+(function () {
+if (typeof window !== 'undefined' && window.FontStudio) return;
+
 class FontStudio {
   static CURATED_FONTS = [
     { name: 'Inter', category: 'sans-serif', google: true },
@@ -703,3 +706,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = FontStudio;
 }
+})();

@@ -1,5 +1,8 @@
 // Style Scratcher v4.0.0 - Accessibility Tab Order Flow Visualizer
 
+(function () {
+if (typeof window !== 'undefined' && window.TabOrderVisualizer) return;
+
 class TabOrderVisualizer {
   constructor(shadowRoot) {
     this.shadowRoot = shadowRoot;
@@ -212,3 +215,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = TabOrderVisualizer;
 }
+})();

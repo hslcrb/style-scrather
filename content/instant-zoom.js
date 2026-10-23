@@ -1,5 +1,8 @@
 // Style Scratcher v4.0.0 - Instant Zoom & Step Zoom Engine (Alt++ / Alt+- / Alt+0)
 
+(function () {
+if (typeof window !== 'undefined' && window.InstantZoom) return;
+
 class InstantZoom {
   constructor(options = {}) {
     this.isZoomed = false;
@@ -210,4 +213,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = InstantZoom;
 }
-
+})();

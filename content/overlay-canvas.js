@@ -1,5 +1,8 @@
 // Style Scratcher - Figma-like Canvas Overlay Engine (Guides, Rulers, Dimensions, 12-Col Grid)
 
+(function () {
+if (typeof window !== 'undefined' && window.OverlayCanvas) return;
+
 class OverlayCanvas {
   constructor(shadowRoot, unitConverter = null) {
     this.shadowRoot = shadowRoot;
@@ -491,3 +494,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = OverlayCanvas;
 }
+})();

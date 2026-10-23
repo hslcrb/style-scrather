@@ -1,5 +1,8 @@
 // Style Scratcher v4.0.2. - GitHub Release Auto-Detection & One-Click Update Guardian
 
+(function () {
+if (typeof window !== 'undefined' && window.UpdateGuardian) return;
+
 class UpdateGuardian {
   constructor(options = {}) {
     this.repo = options.repo || 'hslcrb/style-scrather';
@@ -154,3 +157,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = UpdateGuardian;
 }
+})();

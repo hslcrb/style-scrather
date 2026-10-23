@@ -1,5 +1,8 @@
 // Style Scratcher - Tailwind CSS Converter & Clean CSS Generator
 
+(function () {
+if (typeof window !== 'undefined' && window.TailwindConverter) return;
+
 class TailwindConverter {
   /**
    * Convert pixel values to Tailwind spacing tokens or arbitrary values
@@ -267,3 +270,4 @@ class TailwindConverter {
 if (typeof window !== 'undefined') {
   window.TailwindConverter = TailwindConverter;
 }
+})();

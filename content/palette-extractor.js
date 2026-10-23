@@ -1,5 +1,8 @@
 // Style Scratcher - Site Color Palette & Font Extractor
 
+(function () {
+if (typeof window !== 'undefined' && window.PaletteExtractor) return;
+
 class PaletteExtractor {
   /**
    * Convert any rgb/rgba string to hex
@@ -129,3 +132,4 @@ class PaletteExtractor {
 if (typeof window !== 'undefined') {
   window.PaletteExtractor = PaletteExtractor;
 }
+})();

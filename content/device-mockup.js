@@ -1,5 +1,8 @@
 // Style Scratcher v4.0.0 - Responsive Device Mockup & Viewport Simulator (TV, Desktop, Tablet, Mobile)
 
+(function () {
+if (typeof window !== 'undefined' && window.DeviceMockup) return;
+
 class DeviceMockup {
   constructor(shadowRoot) {
     this.shadowRoot = shadowRoot;
@@ -252,3 +255,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = DeviceMockup;
 }
+})();

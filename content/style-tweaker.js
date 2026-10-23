@@ -1,5 +1,8 @@
 // Style Scratcher - Real-time Element Style Tweaker & Sandbox
 
+(function () {
+if (typeof window !== 'undefined' && window.StyleTweaker) return;
+
 class StyleTweaker {
   constructor(onChangeCallback) {
     this.currentElement = null;
@@ -148,3 +151,4 @@ class StyleTweaker {
 if (typeof window !== 'undefined') {
   window.StyleTweaker = StyleTweaker;
 }
+})();

@@ -1,5 +1,8 @@
 // Style Scratcher v3.0.0 - Sensory Color Suite & EyeDropper System
 
+(function () {
+if (typeof window !== 'undefined' && window.ColorSuite) return;
+
 class ColorSuite {
   /**
    * Calculate relative luminance according to WCAG 2.1
@@ -82,3 +85,4 @@ class ColorSuite {
 if (typeof window !== 'undefined') {
   window.ColorSuite = ColorSuite;
 }
+})();
