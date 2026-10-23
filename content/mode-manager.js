@@ -1,5 +1,8 @@
 // Style Scratcher v4.0.0 - Mode Manager (Inspect vs Edit Studio, Multi-Select & DOM Reorder)
 
+(function () {
+if (typeof window !== 'undefined' && window.ModeManager) return;
+
 class ModeManager {
   constructor(options = {}) {
     this.mode = 'inspect'; // 'inspect' | 'edit'
@@ -163,3 +166,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ModeManager;
 }
+})();

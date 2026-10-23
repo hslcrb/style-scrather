@@ -1,5 +1,8 @@
 // Style Scratcher - CSS Beautifier & Site Stylesheet Extractor
 
+(function () {
+if (typeof window !== 'undefined' && window.CssBeautifier) return;
+
 class CssBeautifier {
   /**
    * Format and de-minify raw CSS string into readable, indented CSS
@@ -172,3 +175,4 @@ class CssBeautifier {
 if (typeof window !== 'undefined') {
   window.CssBeautifier = CssBeautifier;
 }
+})();

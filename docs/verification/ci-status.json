@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-10-23",
+  "runUrl": "https://github.com/hslcrb/style-scrather/actions/runs/39898695046",
+  "runId": 39898695046,
+  "jobId": 120234990354,
+  "runnerAssigned": false,
+  "steps": [],
+  "conclusion": "failure",
+  "annotation": "The job was not started because your account is locked due to a billing issue.",
+  "classification": "hosted runner blocked before tests"
+}

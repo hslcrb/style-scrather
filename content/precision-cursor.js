@@ -1,5 +1,8 @@
 // Style Scratcher v3.0.0 - Precision Crosshair & Coordinate Pointer
 
+(function () {
+if (typeof window !== 'undefined' && window.PrecisionCursor) return;
+
 class PrecisionCursor {
   constructor(shadowRoot) {
     this.shadowRoot = shadowRoot;
@@ -76,7 +79,7 @@ class PrecisionCursor {
   }
 
   initListeners() {
-    window.addEventListener('mousemove', (e) => {
+    this._onMove = (e) => {
       if (!this.isActive) return;
 
       const x = e.clientX;
@@ -101,12 +104,16 @@ class PrecisionCursor {
         tagStr = ` • <${t}${c}>`;
       }
 
-      this.badge.innerHTML = `<span style="color: #FB7185;">X: ${Math.round(x)}</span> <span style="color: #F87171;">Y: ${Math.round(y)}</span>${tagStr}`;
-    }, { passive: true });
+      this.badge.textContent = `X: ${Math.round(x)} Y: ${Math.round(y)}${tagStr.slice(0, 120)}`;
+    };
   }
 
   toggle(forceState) {
-    this.isActive = forceState !== undefined ? forceState : !this.isActive;
+    const next = forceState !== undefined ? !!forceState : !this.isActive;
+    if (next === this.isActive) return next;
+    this.isActive = next;
+    if (next) window.addEventListener('mousemove', this._onMove, { passive: true });
+    else window.removeEventListener('mousemove', this._onMove);
     this.overlay.style.display = this.isActive ? 'block' : 'none';
     return this.isActive;
   }
@@ -118,3 +125,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = PrecisionCursor;
 }
+})();

@@ -1,0 +1,28 @@
+{
+  "version": "4.1.0",
+  "checks": [
+    "The extension stays inactive until explicitly enabled",
+    "Enable, select a real element, edit CSS and restore it",
+    "All ten studio panels render with a real selected element",
+    "240 same-target pointer events are coalesced before painting",
+    "Repeated script injection does not duplicate the studio",
+    "The studio stays in bounds at 390px and 320px widths",
+    "A real popup reads the inspected tab without activating anything",
+    "Deactivation restores normal clicks and stops overlay painting",
+    "Real Canvas outlines contain distinct, valid and escaped SVG geometry",
+    "Font measurements use the edited family and survive switching panels",
+    "The code panel downloads the selected image through the real extension",
+    "Closing restores auxiliary modes, original styles, event handlers and animations",
+    "Introduction loads at root and stays within mobile viewports"
+  ],
+  "pageErrors": [],
+  "metrics": {
+    "idleHostCount": 0,
+    "paintMethod": "renderNow",
+    "pointerBurstEvents": 240,
+    "pointerBurstPaints": 1,
+    "inactivePaints": 0
+  },
+  "browser": "156.0.8078.47",
+  "success": true
+}

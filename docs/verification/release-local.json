@@ -1,0 +1,344 @@
+{
+  "schemaVersion": 1,
+  "scope": "Local release gate; this report does not claim a GitHub Actions run.",
+  "result": "passed",
+  "sourceSHA": "6eecbc41553873a4cb0034b8ca8a41e0df9ebace",
+  "sourceBranch": "chatgpt/refresh/integration",
+  "startedAtUtc": "2026-10-23T04:35:37Z",
+  "completedAtUtc": "2026-10-23T04:39:54.661870+00:00",
+  "environment": {
+    "node": "v24.19.0",
+    "npm": "11.9.0",
+    "browser": "156.0.8078.47",
+    "chromiumExecutable": "/tmp/style-scratcher-chromium/chrome-linux64/chrome",
+    "fontConfigFile": "/tmp/style-scratcher-fonts.conf"
+  },
+  "freshInstall": {
+    "command": "npm ci --ignore-scripts",
+    "packagesAdded": 2,
+    "lifecycleScriptsDisabled": true,
+    "lockfileSha256": "866235101d74278b92f7319d6b07ccfe460bdbfc936ee98f4e0a59da1f90b7b6"
+  },
+  "staticChecks": {
+    "javascriptFiles": 54,
+    "manifestReferencedFiles": 35,
+    "version": "4.1.0",
+    "passed": true
+  },
+  "tests": {
+    "suiteProcesses": 14,
+    "nodeTestCases": 78,
+    "passed": 78,
+    "failed": 0,
+    "skipped": 0,
+    "legacyCompatibilityPhases": 11,
+    "suites": [
+      {
+        "file": "verify.js",
+        "compatibilityPhases": 11,
+        "passed": true
+      },
+      {
+        "file": "export.test.js",
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "interface.test.js",
+        "tests": 12,
+        "pass": 12,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "package-assets.test.js",
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "popup.test.js",
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "runtime-background.test.js",
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "runtime-engines.test.js",
+        "tests": 12,
+        "pass": 12,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "runtime-fonts.test.js",
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "runtime-injection.test.js",
+        "tests": 2,
+        "pass": 2,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "runtime-lifecycle.test.js",
+        "tests": 10,
+        "pass": 10,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "runtime-scans.test.js",
+        "tests": 4,
+        "pass": 4,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "runtime-updates.test.js",
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "server.test.js",
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "skipped": 0
+      },
+      {
+        "file": "studio-lifecycle.test.js",
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "browser": {
+    "source": {
+      "passed": true,
+      "checkCount": 13,
+      "pageErrorCount": 0,
+      "metrics": {
+        "idleHostCount": 0,
+        "paintMethod": "renderNow",
+        "pointerBurstEvents": 240,
+        "pointerBurstPaints": 1,
+        "inactivePaints": 0
+      },
+      "report": "docs/verification/release-browser-source.json",
+      "reportSha256": "0c5d793b3bb3548917d4abe46ef4acaf3d62fb8cd8598b7e693a0b6fc14987ae"
+    },
+    "packaged": {
+      "passed": true,
+      "checkCount": 12,
+      "pageErrorCount": 0,
+      "metrics": {
+        "idleHostCount": 0,
+        "paintMethod": "renderNow",
+        "pointerBurstEvents": 240,
+        "pointerBurstPaints": 1,
+        "inactivePaints": 0
+      },
+      "report": "docs/verification/release-browser-packaged.json",
+      "reportSha256": "17933f8a0b82a5c3e28173dc2cf2b826412dd878182d7cef163a6f50a4346bf8"
+    }
+  },
+  "browserCountExplanation": "The source run also checks the introduction website. The extension-only package intentionally excludes the website, so its run has 12 checks instead of 13.",
+  "package": {
+    "archive": "dist/style-scratcher-4.1.0.zip",
+    "bytes": 114504,
+    "sha256": "d1b8773cd276587adce6fa5b338d23c3a9b10ced4295d5c70e3d5bf648df6849",
+    "files": 39,
+    "crcValidation": {
+      "tool": "Python standard-library zipfile.testzip()",
+      "firstFailingMember": null,
+      "passed": true
+    },
+    "manifestAtRoot": true,
+    "manifestVersion": "4.1.0",
+    "manifestSchema": 3,
+    "uniqueSafeRegularPaths": true,
+    "zipMatchesEveryUnpackedAndSourceFile": true,
+    "unpackedFileSetMatchesZip": true,
+    "checksumFileMatches": true,
+    "reproducibility": {
+      "builds": 2,
+      "firstSha256": "d1b8773cd276587adce6fa5b338d23c3a9b10ced4295d5c70e3d5bf648df6849",
+      "secondSha256": "d1b8773cd276587adce6fa5b338d23c3a9b10ced4295d5c70e3d5bf648df6849",
+      "byteIdentical": true
+    },
+    "fileList": [
+      "LICENSE",
+      "background/service-worker.js",
+      "content/asset-editor.js",
+      "content/color-suite.js",
+      "content/components/floating-dock.js",
+      "content/content.js",
+      "content/context-hud.js",
+      "content/css-beautifier.js",
+      "content/device-mockup.js",
+      "content/event-interceptor.js",
+      "content/font-studio.js",
+      "content/graphics-inspector.js",
+      "content/instant-zoom.js",
+      "content/interaction-detector.js",
+      "content/mode-manager.js",
+      "content/motion-inspector.js",
+      "content/overlay-canvas.js",
+      "content/page-controller.js",
+      "content/palette-extractor.js",
+      "content/precision-cursor.js",
+      "content/react-exporter.js",
+      "content/shortcut-manager.js",
+      "content/style-tweaker.js",
+      "content/styles/shadow-styles.css",
+      "content/tab-order-visualizer.js",
+      "content/tailwind-converter.js",
+      "content/unit-converter.js",
+      "content/update-guardian.js",
+      "icons/app-icon.svg",
+      "icons/icon128.png",
+      "icons/icon16.png",
+      "icons/icon48.png",
+      "icons/mark.svg",
+      "icons/social-card.svg",
+      "icons/wordmark.svg",
+      "manifest.json",
+      "popup/popup.css",
+      "popup/popup.html",
+      "popup/popup.js"
+    ]
+  },
+  "sourceIntegrity": {
+    "headAtCompletion": "144e9970289ec769eee8af682d51952a2d058462",
+    "committedFilesSinceSourceSHA": [
+      "docs/process/2026-10-23-liquid-studio.md",
+      "docs/process/COMMITS.md",
+      "docs/process/commits.json"
+    ],
+    "runtimeToolingWebsiteAndTestsUnmodified": true,
+    "changedProtectedFiles": [],
+    "untrackedProtectedFiles": []
+  },
+  "commands": [
+    {
+      "label": "npm-ci",
+      "command": "npm ci --ignore-scripts",
+      "exitCode": 0,
+      "startedAtUtc": "2026-10-23T04:36:21.396607+00:00",
+      "completedAtUtc": "2026-10-23T04:36:21.945720+00:00",
+      "durationSeconds": 0.549,
+      "log": "test-results/release/npm-ci.log"
+    },
+    {
+      "label": "check",
+      "command": "npm run check",
+      "exitCode": 0,
+      "startedAtUtc": "2026-10-23T04:36:27.352154+00:00",
+      "completedAtUtc": "2026-10-23T04:36:27.497645+00:00",
+      "durationSeconds": 0.145,
+      "log": "test-results/release/check.log"
+    },
+    {
+      "label": "tests",
+      "command": "npm test",
+      "exitCode": 1,
+      "startedAtUtc": "2026-10-23T04:36:27.821506+00:00",
+      "completedAtUtc": "2026-10-23T04:36:28.816755+00:00",
+      "durationSeconds": 0.995,
+      "log": "test-results/release/tests.log"
+    },
+    {
+      "label": "tests-authorized",
+      "command": "npm test",
+      "exitCode": 0,
+      "startedAtUtc": "2026-10-23T04:36:45.968682+00:00",
+      "completedAtUtc": "2026-10-23T04:36:47.109967+00:00",
+      "durationSeconds": 1.141,
+      "log": "test-results/release/tests-authorized.log"
+    },
+    {
+      "label": "build-first",
+      "command": "npm run build",
+      "exitCode": 0,
+      "startedAtUtc": "2026-10-23T04:36:55.196669+00:00",
+      "completedAtUtc": "2026-10-23T04:36:55.361738+00:00",
+      "durationSeconds": 0.165,
+      "log": "test-results/release/build-first.log"
+    },
+    {
+      "label": "browser-source",
+      "command": "env CHROMIUM_EXECUTABLE=/tmp/style-scratcher-chromium/chrome-linux64/chrome FONTCONFIG_FILE=/tmp/style-scratcher-fonts.conf npm run test:browser",
+      "exitCode": 0,
+      "startedAtUtc": "2026-10-23T04:37:14.905265+00:00",
+      "completedAtUtc": "2026-10-23T04:37:17.900778+00:00",
+      "durationSeconds": 2.995,
+      "log": "test-results/release/browser-source.log"
+    },
+    {
+      "label": "browser-packaged",
+      "command": "env CHROMIUM_EXECUTABLE=/tmp/style-scratcher-chromium/chrome-linux64/chrome FONTCONFIG_FILE=/tmp/style-scratcher-fonts.conf EXTENSION_UNDER_TEST=dist/style-scratcher TEST_OUTPUT_DIR=test-results/packaged node test/browser.js",
+      "exitCode": 0,
+      "startedAtUtc": "2026-10-23T04:38:11.787228+00:00",
+      "completedAtUtc": "2026-10-23T04:38:14.302548+00:00",
+      "durationSeconds": 2.515,
+      "log": "test-results/release/browser-packaged.log"
+    },
+    {
+      "label": "build-repeat",
+      "command": "npm run build",
+      "exitCode": 0,
+      "startedAtUtc": "2026-10-23T04:38:18.656402+00:00",
+      "completedAtUtc": "2026-10-23T04:38:18.832392+00:00",
+      "durationSeconds": 0.176,
+      "log": "test-results/release/build-repeat.log"
+    },
+    {
+      "label": "zip-audit",
+      "command": "python /tmp/style-scratcher-release-zip-audit.py",
+      "exitCode": 0,
+      "startedAtUtc": "2026-10-23T04:38:19.151811+00:00",
+      "completedAtUtc": "2026-10-23T04:38:19.200533+00:00",
+      "durationSeconds": 0.049,
+      "log": "test-results/release/zip-audit.log"
+    }
+  ],
+  "environmentNotes": [
+    {
+      "commandLabel": "tests",
+      "exitCode": 1,
+      "reason": "The default sandbox denied the local server fixture listen(127.0.0.1) with EPERM. This was an execution-environment failure; the unchanged suite passed with authorized loopback access.",
+      "resolvedByCommandLabel": "tests-authorized"
+    },
+    {
+      "reason": "npm emitted an environment-config warning for http-proxy; installation and all final gates completed successfully."
+    }
+  ],
+  "privacyReview": {
+    "reviewedFiles": [
+      "docs/verification/release-local.json",
+      "docs/verification/release-browser-source.json",
+      "docs/verification/release-browser-packaged.json"
+    ],
+    "sensitiveDataFound": false,
+    "contents": "Command names and exit codes, local fixture test names, numeric metrics, versions, timestamps, repository file paths, and artifact hashes only. No credentials, authorization headers, cookies, session payloads, or personal browsing content are included."
+  }
+}

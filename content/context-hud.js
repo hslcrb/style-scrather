@@ -1,19 +1,21 @@
 // Style Scratcher v4.0.0 - Context Menu HUD (Smart Alternating Right-Click Toggle)
 
+(function () {
+if (typeof window !== 'undefined' && window.ContextHud) return;
+
 class ContextHud {
   constructor(shadowRoot, options = {}) {
     this.shadowRoot = shadowRoot;
     this.container = null;
     this.targetElement = null;
+    this.isActive = false;
     this.state = 'READY_FOR_HUD'; // 'READY_FOR_HUD' | 'HUD_OPEN' | 'ALLOW_NATIVE_NEXT'
 
     this.onAction = typeof options === 'function' ? options : (options.onAction || (() => {}));
     if (this.shadowRoot && typeof document !== 'undefined') {
       this.initDOM();
     }
-    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-      this.initListeners();
-    }
+    this.setActive(options.active !== false);
   }
 
   initDOM() {
@@ -26,7 +28,7 @@ class ContextHud {
 
   initListeners() {
     // 1. Contextmenu Right-Click Listener on Window
-    window.addEventListener('contextmenu', (e) => {
+    this._onContextMenu = (e) => {
       const host = document.getElementById('style-scratcher-host');
       if (host && (e.target === host || host.contains(e.target))) {
         return; // Inside style-scratcher
@@ -36,19 +38,37 @@ class ContextHud {
       if (target && target !== document.documentElement && target !== document.body) {
         this.handleContextMenu(e, target);
       }
-    }, true);
+    };
 
     // 2. Click Anywhere Outside to Dismiss HUD
-    window.addEventListener('click', (e) => {
+    this._onOutsideClick = (e) => {
       const path = e.composedPath ? e.composedPath() : [];
       const isInsideHud = this.container && path.includes(this.container);
       if (!isInsideHud) {
         this.handleClickOutside(e);
       }
-    }, true);
+    };
+  }
+
+  setActive(active) {
+    if (this.isActive === !!active) return;
+    this.isActive = !!active;
+    if (typeof window === 'undefined' || !window.addEventListener) return;
+    if (this.isActive) {
+      if (!this._onContextMenu) this.initListeners();
+      window.addEventListener('contextmenu', this._onContextMenu, true);
+      window.addEventListener('click', this._onOutsideClick, true);
+    } else {
+      window.removeEventListener('contextmenu', this._onContextMenu, true);
+      window.removeEventListener('click', this._onOutsideClick, true);
+      this.close();
+      this.state = 'READY_FOR_HUD';
+      this.targetElement = null;
+    }
   }
 
   handleContextMenu(e, target) {
+    if (!this.isActive) return false;
     if (this.state === 'ALLOW_NATIVE_NEXT') {
       this.state = 'READY_FOR_HUD';
       return false; // Not intercepted -> Native allowed!
@@ -76,10 +96,7 @@ class ContextHud {
     this.state = 'HUD_OPEN';
 
     if (this.container) {
-      this.renderItems(target);
-      this.container.style.display = 'block';
-      this.container.style.left = `${Math.min(x, (typeof window !== 'undefined' ? window.innerWidth : 1920) - 240)}px`;
-      this.container.style.top = `${Math.min(y, (typeof window !== 'undefined' ? window.innerHeight : 1080) - 300)}px`;
+      this.renderItems(target, x, y);
     }
   }
 
@@ -97,7 +114,7 @@ class ContextHud {
 
     this.container.innerHTML = `
       <div class="hud-header">
-        <span class="hud-tag">&lt;${tag}${cls}&gt;</span>
+        <span class="hud-tag"></span>
         <span class="hud-close" id="hudCloseBtn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
       </div>
       <div class="hud-menu">
@@ -137,6 +154,9 @@ class ContextHud {
         </button>
       </div>
     `;
+
+    const label = this.container.querySelector('.hud-tag');
+    if (label) label.textContent = `<${tag}${cls}>`.slice(0, 160);
 
     // Position gracefully inside viewport bounds
     const hudWidth = 240;
@@ -178,3 +198,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ContextHud;
 }
+})();

@@ -1,0 +1,19 @@
+{
+  "fixture": "one-heading-v1",
+  "version": "4.0.3",
+  "browser": "156.0.8078.47",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "initialState": {
+    "isActive": true,
+    "isGridActive": false
+  },
+  "initialHostCount": 1,
+  "nativeClickBeforeActivation": "Clicks: 0",
+  "burstEvents": 240,
+  "paintMethod": "render",
+  "paints": 240,
+  "pageErrors": []
+}

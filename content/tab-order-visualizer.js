@@ -1,5 +1,8 @@
 // Style Scratcher v4.0.0 - Accessibility Tab Order Flow Visualizer
 
+(function () {
+if (typeof window !== 'undefined' && window.TabOrderVisualizer) return;
+
 class TabOrderVisualizer {
   constructor(shadowRoot) {
     this.shadowRoot = shadowRoot;
@@ -7,6 +10,8 @@ class TabOrderVisualizer {
     this.container = null;
     this.svg = null;
     this.tabbableElements = [];
+    this.frameId = null;
+    this.lastScanAt = 0;
 
     if (typeof document !== 'undefined') {
       this.initDOM();
@@ -51,16 +56,34 @@ class TabOrderVisualizer {
       '[contenteditable="true"]'
     ].join(',');
 
-    const all = Array.from(document.querySelectorAll(selector));
+    const all = [];
+    this.isTruncated = false;
+    if (document.createTreeWalker) {
+      const walker = document.createTreeWalker(document.body || document.documentElement, 1);
+      let visited = 0;
+      while (visited < 5000 && all.length < 250) {
+        const el = walker.nextNode();
+        if (!el) break;
+        visited++;
+        if (el.matches(selector) && !el.matches(':disabled') && !el.closest?.('[inert]')) all.push(el);
+      }
+      this.isTruncated = visited >= 5000 || all.length >= 250;
+    } else {
+      // Compatibility with lightweight standalone document implementations.
+      const candidates = document.querySelectorAll(selector);
+      for (let i = 0; i < Math.min(candidates.length, 250); i++) all.push(candidates[i]);
+      this.isTruncated = candidates.length > 250;
+    }
     const host = document.getElementById('style-scratcher-host');
 
     // Filter out hidden, zero-sized elements or elements inside Style Scratcher host
     const visible = all.filter(el => {
       if (host && (el === host || host.contains(el))) return false;
+      if (el.matches?.(':disabled') || el.closest?.('[inert]')) return false;
       const rect = el.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return false;
       const style = window.getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+      if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse') return false;
       return true;
     });
 
@@ -89,14 +112,26 @@ class TabOrderVisualizer {
     return this.tabbableElements;
   }
 
-  render() {
+  scheduleRender() {
+    if (!this.isActive || this.frameId !== null) return;
+    this.frameId = requestAnimationFrame(() => {
+      this.frameId = null;
+      this.render();
+    });
+  }
+
+  render(rescan = false) {
     if (!this.isActive) {
       this.clear();
       return;
     }
 
     this.clear();
-    const elements = this.findTabbableElements();
+    if (rescan || Date.now() - this.lastScanAt > 1000) {
+      this.findTabbableElements();
+      this.lastScanAt = Date.now();
+    }
+    const elements = this.tabbableElements.filter(element => element.isConnected !== false);
     if (elements.length === 0) return;
 
     // 1. Draw connection flow lines between step N and step N+1
@@ -172,6 +207,7 @@ class TabOrderVisualizer {
   }
 
   clear() {
+    if (!this.svg) return;
     while (this.svg.firstChild) {
       this.svg.removeChild(this.svg.firstChild);
     }
@@ -181,8 +217,10 @@ class TabOrderVisualizer {
     this.isActive = forceState !== undefined ? forceState : !this.isActive;
     this.container.style.display = this.isActive ? 'block' : 'none';
     if (this.isActive) {
-      this.render();
+      this.render(true);
     } else {
+      if (this.frameId !== null) cancelAnimationFrame(this.frameId);
+      this.frameId = null;
       this.clear();
     }
     return this.isActive;
@@ -195,3 +233,4 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = TabOrderVisualizer;
 }
+})();

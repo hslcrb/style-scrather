@@ -1,11 +1,16 @@
 // Style Scratcher v2.0 - Page Controller (Copy Unblocker & Script/DOM Freezer)
 
+(function () {
+if (typeof window !== 'undefined' && window.PageController) return;
+
 class PageController {
   constructor() {
     this.isUnblocked = false;
     this.isFrozen = false;
     this.unblockStyleTag = null;
     this.activeListeners = [];
+    this.freezeListeners = [];
+    this.originalHandlers = [];
     this.pausedAnimations = [];
   }
 
@@ -14,7 +19,9 @@ class PageController {
    * @param {boolean} forceState
    */
   toggleUnblock(forceState) {
-    this.isUnblocked = forceState !== undefined ? forceState : !this.isUnblocked;
+    const next = forceState !== undefined ? !!forceState : !this.isUnblocked;
+    if (next === this.isUnblocked) return next;
+    this.isUnblocked = next;
 
     if (this.isUnblocked) {
       this.enableUnblock();
@@ -56,11 +63,12 @@ class PageController {
 
     // 3. Nullify on* properties
     try {
-      document.oncontextmenu = null;
-      document.onselectstart = null;
-      document.oncopy = null;
-      document.body && (document.body.oncontextmenu = null);
-      document.body && (document.body.onselectstart = null);
+      for (const target of [document, document.body].filter(Boolean)) {
+        for (const property of ['oncontextmenu', 'onselectstart', 'oncopy']) {
+          this.originalHandlers.push({ target, property, value: target[property] });
+          target[property] = null;
+        }
+      }
     } catch (e) {}
 
     console.log('[Style Scratcher] Copy & Right-Click protection unblocked.');
@@ -77,6 +85,10 @@ class PageController {
       document.removeEventListener(evt, handler, true);
     });
     this.activeListeners = [];
+    this.originalHandlers.splice(0).forEach(({ target, property, value }) => {
+      // Preserve handlers the page changed while this mode was enabled.
+      if (target[property] === null) target[property] = value;
+    });
 
     console.log('[Style Scratcher] Copy protection restored.');
   }
@@ -86,7 +98,9 @@ class PageController {
    * @param {boolean} forceState
    */
   toggleFreeze(forceState) {
-    this.isFrozen = forceState !== undefined ? forceState : !this.isFrozen;
+    const next = forceState !== undefined ? !!forceState : !this.isFrozen;
+    if (next === this.isFrozen) return next;
+    this.isFrozen = next;
 
     if (this.isFrozen) {
       this.enableFreeze();
@@ -109,7 +123,7 @@ class PageController {
     const transientEvents = ['mouseleave', 'mouseout', 'pointerout', 'blur'];
     transientEvents.forEach(evt => {
       window.addEventListener(evt, freezeHandler, true);
-      this.activeListeners.push({ evt, handler: freezeHandler });
+      this.freezeListeners.push({ evt, handler: freezeHandler });
     });
 
     // 2. Pause all running animations
@@ -123,10 +137,13 @@ class PageController {
   }
 
   disableFreeze() {
+    this.freezeListeners.splice(0).forEach(({ evt, handler }) => {
+      window.removeEventListener(evt, handler, true);
+    });
     // Resume animations
     try {
       this.pausedAnimations.forEach(a => {
-        try { a.play(); } catch {}
+        try { if (a.playState === 'paused') a.play(); } catch {}
       });
       this.pausedAnimations = [];
     } catch (e) {}
@@ -138,3 +155,4 @@ class PageController {
 if (typeof window !== 'undefined') {
   window.PageController = PageController;
 }
+})();
