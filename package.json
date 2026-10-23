@@ -4,7 +4,9 @@
   "private": true,
   "description": "An on-demand web inspector and CSS studio for curious designers and developers.",
   "license": "Apache-2.0",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node scripts/serve.js",
     "dev": "node scripts/serve.js",
@@ -14,9 +16,15 @@
     "test:browser": "node test/browser.js",
     "build": "node scripts/build.js",
     "package": "node scripts/build.js",
-    "icons": "node generate-icons.js"
+    "icons": "node generate-icons.js",
+    "benchmark": "node test/benchmark.js"
   },
-  "devDependencies": { "playwright": "1.62.1" },
-  "repository": { "type": "git", "url": "https://github.com/hslcrb/style-scrather.git" },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hslcrb/style-scrather.git"
+  },
   "bugs": "https://github.com/hslcrb/style-scrather/issues"
 }
