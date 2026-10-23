@@ -1423,7 +1423,7 @@ class FloatingDock {
         ${component ? `<div class="code-card"><div class="code-header"><span class="code-lang-tag">React JSX</span><button class="copy-mini-btn" id="copyReactBtn">복사</button></div><pre class="code-content" tabindex="0">${escapeHtml(component.slice(0, 20000))}</pre>${component.length > 20000 ? '<p class="muted-copy">미리보기 일부 표시 · 복사하면 전체 코드를 가져옵니다.</p>' : ''}</div>` : ''}
         <div class="code-card"><div class="code-header"><span class="code-lang-tag">Tailwind CSS</span><button class="copy-mini-btn" id="copyTailwindBtn">복사</button></div><pre class="code-content" tabindex="0">${escapeHtml(converted.tailwind || '추출된 유틸리티가 없습니다.')}</pre></div>
         <div class="code-card"><div class="code-header"><span class="code-lang-tag">CSS</span><button class="copy-mini-btn" id="copyCssBtn">복사</button></div><pre class="code-content" tabindex="0">${escapeHtml(converted.cleanCss)}</pre></div>
-        <button class="btn-secondary-action" id="btnDownloadAssets">요소 안의 이미지 · SVG 저장</button>
+        <button class="btn-secondary-action" id="btnDownloadAssets">선택 요소의 에셋 저장</button><p class="muted-copy">선택한 이미지, SVG 또는 배경 이미지 한 개를 저장합니다.</p>
       </div></details>` : '<div class="empty-state"><div class="empty-title">요소를 코드로 가져오세요.</div><p class="empty-desc">페이지의 요소를 선택하면 CSS, Tailwind 클래스와 React JSX를 확인할 수 있습니다.</p></div>'}
       <details class="studio-section" data-section="stylesheets"><summary><span>사이트 스타일시트</span><small>CSS explorer</small></summary><div class="section-content"><button class="btn-secondary-action" id="loadSiteCssBtn" ${this.cssScanPending ? 'disabled' : ''}>${this.cssScanPending ? '스타일시트 확인 중…' : '스타일시트 불러오기'}</button><input type="search" class="site-search-input" id="cssSearchInput" placeholder="클래스, 셀렉터, 속성 검색" aria-label="스타일시트 검색"><div class="stylesheet-results" id="cssSheetsList"><p class="muted-copy">접근 가능한 스타일시트의 CSS를 읽기 좋게 정리합니다.</p></div></div></details>
     `;
@@ -1440,8 +1440,8 @@ class FloatingDock {
     container.querySelector('#copyCssBtn')?.addEventListener('click', () => this.copyText(converted.cleanCss, 'CSS를 복사했습니다.'));
     container.querySelector('#btnDownloadAssets')?.addEventListener('click', event => this.performAction(event.currentTarget, async () => {
       if (!this.reactExporter) throw new Error('에셋 내보내기 도구를 불러올 수 없습니다.');
-      const count = await this.reactExporter.downloadAllAssets(el);
-      this.showToast(count ? `${count}개 에셋의 다운로드를 요청했습니다.` : '이 요소 안에 저장할 이미지나 SVG가 없습니다.', count ? 'success' : 'info');
+      const asset = await this.reactExporter.downloadAsset(el);
+      this.showToast(asset ? `${asset.filename} 다운로드를 요청했습니다.` : '선택 요소에 저장할 이미지, SVG 또는 배경 이미지가 없습니다.', asset ? 'success' : 'info');
     }, '에셋 확인 중…'));
     container.querySelector('#loadSiteCssBtn').addEventListener('click', event => this.performAction(event.currentTarget, async () => {
       if (typeof CssBeautifier === 'undefined') throw new Error('CSS 도구를 불러올 수 없습니다.');

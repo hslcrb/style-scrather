@@ -138,3 +138,34 @@ test('motion panel includes both animations and transitions on one element', () 
   assert.ok(view.innerHTML.includes('fade-animation'));
   assert.ok(view.innerHTML.includes('opacity-transition'));
 });
+
+test('the code panel downloads the selected asset and reports absent or failed assets', async () => {
+  const { Dock } = load({ TailwindConverter: { convert: () => ({ tailwind: '', cleanCss: 'color: red;' }) } });
+  const selected = { tagName: 'IMG' };
+  for (const result of [{ filename: 'photo.png' }, null, new Error('HTTP 404')]) {
+    const dock = Object.create(Dock.prototype);
+    const controls = new Map();
+    const notices = [], calls = [];
+    const view = {
+      innerHTML: '', querySelectorAll: () => [],
+      querySelector(selector) {
+        if (!controls.has(selector)) controls.set(selector, { ...control(), addEventListener(name, listener) { this[name] = listener; } });
+        return controls.get(selector);
+      }
+    };
+    dock.tweaker = { getElement: () => selected };
+    dock.reactExporter = {
+      generateComponent: () => '<img />',
+      async downloadAsset(element) { calls.push(element); if (result instanceof Error) throw result; return result; }
+    };
+    dock.showToast = (...args) => notices.push(args);
+    dock.renderCodeTab(view);
+    const button = controls.get('#btnDownloadAssets');
+    await button.click({ currentTarget: button });
+    assert.deepEqual(calls, [selected]);
+    assert.equal(button.disabled, false);
+    if (result instanceof Error) assert.equal(notices[0][1], 'error');
+    else if (result) assert.match(notices[0][0], /photo\.png/);
+    else assert.equal(notices[0][1], 'info');
+  }
+});
