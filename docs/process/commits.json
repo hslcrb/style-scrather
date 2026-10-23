@@ -1,0 +1,2595 @@
+{
+  "capturedAtUTC": "2026-10-23T04:39:04.954870+00:00",
+  "baseline": "72f08c6927416c45cc0f81bb641b881f5aa2c09c",
+  "cutoff": "7e069940fcea8e623dea7f54d3c6d837cb44bebd",
+  "isShallow": true,
+  "counts": {
+    "commits": 61,
+    "mergeCommits": 7
+  },
+  "branchesAtSnapshot": [
+    {
+      "name": "chatgpt/refresh/export/runtime-fixes",
+      "localSha": "9ad45ceded54dce745ff005f70edfcb57b11f68c",
+      "publishedSha": "9ad45ceded54dce745ff005f70edfcb57b11f68c",
+      "matchesPublished": true,
+      "ancestorOfSnapshot": true
+    },
+    {
+      "name": "chatgpt/refresh/identity",
+      "localSha": "42bc5ccae8202b0079bfbf4d3d6781a1e98f38a2",
+      "publishedSha": "42bc5ccae8202b0079bfbf4d3d6781a1e98f38a2",
+      "matchesPublished": true,
+      "ancestorOfSnapshot": true
+    },
+    {
+      "name": "chatgpt/refresh/integration",
+      "localSha": "7e069940fcea8e623dea7f54d3c6d837cb44bebd",
+      "publishedSha": "7e069940fcea8e623dea7f54d3c6d837cb44bebd",
+      "matchesPublished": true,
+      "ancestorOfSnapshot": true
+    },
+    {
+      "name": "chatgpt/refresh/interface",
+      "localSha": "1476bfeda0f3f9868f46c0c54eb4565a5e09100f",
+      "publishedSha": "1476bfeda0f3f9868f46c0c54eb4565a5e09100f",
+      "matchesPublished": true,
+      "ancestorOfSnapshot": true
+    },
+    {
+      "name": "chatgpt/refresh/runtime",
+      "localSha": "dd4ed4596f15a7b273ddcdcbba7350c0e8fb7fad",
+      "publishedSha": "dd4ed4596f15a7b273ddcdcbba7350c0e8fb7fad",
+      "matchesPublished": true,
+      "ancestorOfSnapshot": true
+    },
+    {
+      "name": "chatgpt/refresh/studio/lifecycle",
+      "localSha": "52c389637e0823d2ba4324a51794c0975c0548e3",
+      "publishedSha": "52c389637e0823d2ba4324a51794c0975c0548e3",
+      "matchesPublished": true,
+      "ancestorOfSnapshot": true
+    },
+    {
+      "name": "chatgpt/refresh/tooling",
+      "localSha": "f3fad74aa0e63cc47aa0bb99d9f3c51cbb44f5e8",
+      "publishedSha": "f3fad74aa0e63cc47aa0bb99d9f3c51cbb44f5e8",
+      "matchesPublished": true,
+      "ancestorOfSnapshot": true
+    }
+  ],
+  "commits": [
+    {
+      "sha": "1a273bb011e9272401561def44cac0485a1660af",
+      "parents": [
+        "72f08c6927416c45cc0f81bb641b881f5aa2c09c"
+      ],
+      "authoredAt": "2026-10-23T12:15:57+09:00",
+      "committedAt": "2026-10-23T12:15:57+09:00",
+      "subject": "docs: 리퀴드 스튜디오 개선 설계와 브랜치 계획 수립",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/plans/2026-10-23-refresh.md",
+          "status": "A",
+          "added": 54,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "d3fca926371aa63b249c5cc1afed227370ae82db",
+      "parents": [
+        "1a273bb011e9272401561def44cac0485a1660af"
+      ],
+      "authoredAt": "2026-10-23T12:22:23+09:00",
+      "committedAt": "2026-10-23T12:22:23+09:00",
+      "subject": "fix: 미리보기 서버 경로 검증과 공개 자산 경계 수정",
+      "filesAgainstFirstParent": [
+        {
+          "path": ".gitignore",
+          "status": "M",
+          "added": 9,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/serve.js",
+          "status": "A",
+          "added": 75,
+          "deleted": 0
+        },
+        {
+          "path": "serve.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 42
+        },
+        {
+          "path": "test/server.test.js",
+          "status": "A",
+          "added": 45,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "cf9def370e472eb3a7f0984cde88028eaef9b11e",
+      "parents": [
+        "d3fca926371aa63b249c5cc1afed227370ae82db"
+      ],
+      "authoredAt": "2026-10-23T12:25:32+09:00",
+      "committedAt": "2026-10-23T12:25:32+09:00",
+      "subject": "build: 외부 의존성 없는 확장 패키징과 체크섬 생성 추가",
+      "filesAgainstFirstParent": [
+        {
+          "path": "scripts/build.js",
+          "status": "A",
+          "added": 109,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "f6e5dd79d57865c8270d7cc6c9090abd5511211d",
+      "parents": [
+        "cf9def370e472eb3a7f0984cde88028eaef9b11e"
+      ],
+      "authoredAt": "2026-10-23T12:26:40+09:00",
+      "committedAt": "2026-10-23T12:26:40+09:00",
+      "subject": "chore: 개발 명령과 구문 검사 및 테스트 실행 체계 추가",
+      "filesAgainstFirstParent": [
+        {
+          "path": "package-lock.json",
+          "status": "A",
+          "added": 66,
+          "deleted": 0
+        },
+        {
+          "path": "package.json",
+          "status": "A",
+          "added": 22,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/check.js",
+          "status": "A",
+          "added": 28,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/test.js",
+          "status": "A",
+          "added": 13,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "d384bd0c003070661c7c3a140b922b6612913953",
+      "parents": [
+        "f6e5dd79d57865c8270d7cc6c9090abd5511211d"
+      ],
+      "authoredAt": "2026-10-23T12:29:13+09:00",
+      "committedAt": "2026-10-23T12:29:13+09:00",
+      "subject": "refactor: 누적 릴리즈 기록을 문서 아카이브로 정리",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/releases/release-notes-v2.1.0.md",
+          "status": "A",
+          "added": 45,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v2.md",
+          "status": "A",
+          "added": 50,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v3.0.0.md",
+          "status": "A",
+          "added": 61,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v3.0.1.md",
+          "status": "A",
+          "added": 52,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v3.0.2.md",
+          "status": "A",
+          "added": 45,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.0.md",
+          "status": "A",
+          "added": 37,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.1.md",
+          "status": "A",
+          "added": 77,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.2.md",
+          "status": "A",
+          "added": 85,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.3.md",
+          "status": "A",
+          "added": 68,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes.md",
+          "status": "A",
+          "added": 50,
+          "deleted": 0
+        },
+        {
+          "path": "release-notes-v2.1.0.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 45
+        },
+        {
+          "path": "release-notes-v2.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 50
+        },
+        {
+          "path": "release-notes-v3.0.0.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 61
+        },
+        {
+          "path": "release-notes-v3.0.1.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 52
+        },
+        {
+          "path": "release-notes-v3.0.2.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 45
+        },
+        {
+          "path": "release-notes-v4.0.0.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 37
+        },
+        {
+          "path": "release-notes-v4.0.1.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 77
+        },
+        {
+          "path": "release-notes-v4.0.2.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 85
+        },
+        {
+          "path": "release-notes-v4.0.3.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 68
+        },
+        {
+          "path": "release-notes.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 50
+        },
+        {
+          "path": "test/verify.js",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        }
+      ]
+    },
+    {
+      "sha": "16d2e29a2bf25d67f0986026a9ce00215dc408ba",
+      "parents": [
+        "d384bd0c003070661c7c3a140b922b6612913953"
+      ],
+      "authoredAt": "2026-10-23T12:29:52+09:00",
+      "committedAt": "2026-10-23T12:29:52+09:00",
+      "subject": "docs: 기여 규칙과 보안 제보 및 커뮤니티 기준 정립",
+      "filesAgainstFirstParent": [
+        {
+          "path": "CODE_OF_CONDUCT.md",
+          "status": "A",
+          "added": 11,
+          "deleted": 0
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "status": "A",
+          "added": 57,
+          "deleted": 0
+        },
+        {
+          "path": "SECURITY.md",
+          "status": "A",
+          "added": 17,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "fa30559f73a489e5a4d711e71ebc109301400b5a",
+      "parents": [
+        "16d2e29a2bf25d67f0986026a9ce00215dc408ba"
+      ],
+      "authoredAt": "2026-10-23T12:31:51+09:00",
+      "committedAt": "2026-10-23T12:31:51+09:00",
+      "subject": "chore: 오류 제보와 개선 제안 및 PR 템플릿 구성",
+      "filesAgainstFirstParent": [
+        {
+          "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+          "status": "A",
+          "added": 36,
+          "deleted": 0
+        },
+        {
+          "path": ".github/ISSUE_TEMPLATE/config.yml",
+          "status": "A",
+          "added": 5,
+          "deleted": 0
+        },
+        {
+          "path": ".github/ISSUE_TEMPLATE/feature_request.yml",
+          "status": "A",
+          "added": 20,
+          "deleted": 0
+        },
+        {
+          "path": ".github/pull_request_template.md",
+          "status": "A",
+          "added": 19,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "7c84421f111f8dd2a5b625e93ebce4dd3384dd59",
+      "parents": [
+        "fa30559f73a489e5a4d711e71ebc109301400b5a"
+      ],
+      "authoredAt": "2026-10-23T12:35:03+09:00",
+      "committedAt": "2026-10-23T12:35:03+09:00",
+      "subject": "feat: 외부 요청 없는 확장 실습 페이지와 상호작용 예제 구성",
+      "filesAgainstFirstParent": [
+        {
+          "path": "demo/index.html",
+          "status": "M",
+          "added": 28,
+          "deleted": 728
+        },
+        {
+          "path": "demo/playground.css",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "demo/playground.js",
+          "status": "A",
+          "added": 4,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "c71de373c150fd1ec6f827f8bf762e005a999ac3",
+      "parents": [
+        "7c84421f111f8dd2a5b625e93ebce4dd3384dd59"
+      ],
+      "authoredAt": "2026-10-23T12:36:01+09:00",
+      "committedAt": "2026-10-23T12:36:01+09:00",
+      "subject": "test: 실제 확장 실행과 클릭 복원 및 렌더 횟수 회귀 검사 추가",
+      "filesAgainstFirstParent": [
+        {
+          "path": "test/browser.js",
+          "status": "A",
+          "added": 174,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "073f53e9befc546508b791c487ab5248d3b5883b",
+      "parents": [
+        "c71de373c150fd1ec6f827f8bf762e005a999ac3"
+      ],
+      "authoredAt": "2026-10-23T12:42:05+09:00",
+      "committedAt": "2026-10-23T12:42:05+09:00",
+      "subject": "docs: 런타임 경계와 배포 및 개인정보 처리 문서 작성",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "status": "A",
+          "added": 77,
+          "deleted": 0
+        },
+        {
+          "path": "docs/DEVELOPMENT.md",
+          "status": "A",
+          "added": 61,
+          "deleted": 0
+        },
+        {
+          "path": "docs/PRIVACY.md",
+          "status": "A",
+          "added": 37,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "60c39e916223260d41b5caf1288192787edefe45",
+      "parents": [
+        "073f53e9befc546508b791c487ab5248d3b5883b"
+      ],
+      "authoredAt": "2026-10-23T12:47:38+09:00",
+      "committedAt": "2026-10-23T12:47:38+09:00",
+      "subject": "fix: 미리보기 공개 경로 밖의 심볼릭 링크 접근 차단",
+      "filesAgainstFirstParent": [
+        {
+          "path": "scripts/serve.js",
+          "status": "M",
+          "added": 9,
+          "deleted": 4
+        },
+        {
+          "path": "test/server.test.js",
+          "status": "M",
+          "added": 10,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "c25b89b6269a4d63357c1f8b9c9422abed8120fb",
+      "parents": [
+        "60c39e916223260d41b5caf1288192787edefe45"
+      ],
+      "authoredAt": "2026-10-23T12:49:03+09:00",
+      "committedAt": "2026-10-23T12:49:03+09:00",
+      "subject": "fix: 패키징과 검사에서 공개 스타일 및 와일드카드 자산 검증",
+      "filesAgainstFirstParent": [
+        {
+          "path": "scripts/build.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 3
+        },
+        {
+          "path": "scripts/check.js",
+          "status": "M",
+          "added": 12,
+          "deleted": 7
+        },
+        {
+          "path": "scripts/manifest-assets.js",
+          "status": "A",
+          "added": 25,
+          "deleted": 0
+        },
+        {
+          "path": "test/package-assets.test.js",
+          "status": "A",
+          "added": 50,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "a0c0c20d98d7838eaad8363828e4eef4b3641e77",
+      "parents": [
+        "c25b89b6269a4d63357c1f8b9c9422abed8120fb"
+      ],
+      "authoredAt": "2026-10-23T12:49:44+09:00",
+      "committedAt": "2026-10-23T12:49:44+09:00",
+      "subject": "docs: 프리뷰 설치와 기능 및 개발 진입 안내 전면 정리",
+      "filesAgainstFirstParent": [
+        {
+          "path": "CONTRIBUTING.md",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "path": "README.md",
+          "status": "M",
+          "added": 120,
+          "deleted": 167
+        }
+      ]
+    },
+    {
+      "sha": "f3fad74aa0e63cc47aa0bb99d9f3c51cbb44f5e8",
+      "parents": [
+        "a0c0c20d98d7838eaad8363828e4eef4b3641e77"
+      ],
+      "authoredAt": "2026-10-23T12:50:09+09:00",
+      "committedAt": "2026-10-23T12:50:09+09:00",
+      "subject": "fix(test): 브라우저 주입 인자의 비어 있는 값을 직렬화",
+      "filesAgainstFirstParent": [
+        {
+          "path": "test/browser.js",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        }
+      ]
+    },
+    {
+      "sha": "6f00ff17c1a83b675c15badbaf63087c80bb299d",
+      "parents": [
+        "1a273bb011e9272401561def44cac0485a1660af",
+        "f3fad74aa0e63cc47aa0bb99d9f3c51cbb44f5e8"
+      ],
+      "authoredAt": "2026-10-23T12:51:13+09:00",
+      "committedAt": "2026-10-23T12:51:13+09:00",
+      "subject": "merge: 저장소 체계와 재현 가능한 개발 도구 통합",
+      "filesAgainstFirstParent": [
+        {
+          "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+          "status": "A",
+          "added": 36,
+          "deleted": 0
+        },
+        {
+          "path": ".github/ISSUE_TEMPLATE/config.yml",
+          "status": "A",
+          "added": 5,
+          "deleted": 0
+        },
+        {
+          "path": ".github/ISSUE_TEMPLATE/feature_request.yml",
+          "status": "A",
+          "added": 20,
+          "deleted": 0
+        },
+        {
+          "path": ".github/pull_request_template.md",
+          "status": "A",
+          "added": 19,
+          "deleted": 0
+        },
+        {
+          "path": ".gitignore",
+          "status": "M",
+          "added": 9,
+          "deleted": 0
+        },
+        {
+          "path": "CODE_OF_CONDUCT.md",
+          "status": "A",
+          "added": 11,
+          "deleted": 0
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "status": "A",
+          "added": 57,
+          "deleted": 0
+        },
+        {
+          "path": "README.md",
+          "status": "M",
+          "added": 120,
+          "deleted": 167
+        },
+        {
+          "path": "SECURITY.md",
+          "status": "A",
+          "added": 17,
+          "deleted": 0
+        },
+        {
+          "path": "demo/index.html",
+          "status": "M",
+          "added": 28,
+          "deleted": 728
+        },
+        {
+          "path": "demo/playground.css",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "demo/playground.js",
+          "status": "A",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "status": "A",
+          "added": 77,
+          "deleted": 0
+        },
+        {
+          "path": "docs/DEVELOPMENT.md",
+          "status": "A",
+          "added": 61,
+          "deleted": 0
+        },
+        {
+          "path": "docs/PRIVACY.md",
+          "status": "A",
+          "added": 37,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v2.1.0.md",
+          "status": "A",
+          "added": 45,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v2.md",
+          "status": "A",
+          "added": 50,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v3.0.0.md",
+          "status": "A",
+          "added": 61,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v3.0.1.md",
+          "status": "A",
+          "added": 52,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v3.0.2.md",
+          "status": "A",
+          "added": 45,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.0.md",
+          "status": "A",
+          "added": 37,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.1.md",
+          "status": "A",
+          "added": 77,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.2.md",
+          "status": "A",
+          "added": 85,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.3.md",
+          "status": "A",
+          "added": 68,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes.md",
+          "status": "A",
+          "added": 50,
+          "deleted": 0
+        },
+        {
+          "path": "package-lock.json",
+          "status": "A",
+          "added": 66,
+          "deleted": 0
+        },
+        {
+          "path": "package.json",
+          "status": "A",
+          "added": 22,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/build.js",
+          "status": "A",
+          "added": 108,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/check.js",
+          "status": "A",
+          "added": 33,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/manifest-assets.js",
+          "status": "A",
+          "added": 25,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/serve.js",
+          "status": "A",
+          "added": 80,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/test.js",
+          "status": "A",
+          "added": 13,
+          "deleted": 0
+        },
+        {
+          "path": "serve.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 42
+        },
+        {
+          "path": "test/browser.js",
+          "status": "A",
+          "added": 174,
+          "deleted": 0
+        },
+        {
+          "path": "test/package-assets.test.js",
+          "status": "A",
+          "added": 50,
+          "deleted": 0
+        },
+        {
+          "path": "test/server.test.js",
+          "status": "A",
+          "added": 55,
+          "deleted": 0
+        },
+        {
+          "path": "test/verify.js",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        }
+      ]
+    },
+    {
+      "sha": "e54193f4847bfc2ac0452b630cf3c5fad270e671",
+      "parents": [
+        "1a273bb011e9272401561def44cac0485a1660af"
+      ],
+      "authoredAt": "2026-10-23T12:22:06+09:00",
+      "committedAt": "2026-10-23T12:22:06+09:00",
+      "subject": "feat: 선택 프레임 로고와 스튜디오 브랜드 원칙 정립",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/BRAND.md",
+          "status": "A",
+          "added": 53,
+          "deleted": 0
+        },
+        {
+          "path": "docs/PHILOSOPHY.md",
+          "status": "A",
+          "added": 32,
+          "deleted": 0
+        },
+        {
+          "path": "generate-icons.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 146
+        },
+        {
+          "path": "icons/app-icon.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "icons/icon128.png",
+          "status": "M",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "icons/icon16.png",
+          "status": "M",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "icons/icon48.png",
+          "status": "M",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "icons/mark.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "icons/social-card.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "icons/wordmark.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/generate-icons.js",
+          "status": "A",
+          "added": 98,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "7dd9e9f2b88c33d2ec76e37a418f01b82bc9eb78",
+      "parents": [
+        "e54193f4847bfc2ac0452b630cf3c5fad270e671"
+      ],
+      "authoredAt": "2026-10-23T12:32:17+09:00",
+      "committedAt": "2026-10-23T12:32:17+09:00",
+      "subject": "feat: 실제 CSS 체험을 갖춘 리퀴드 스튜디오 소개 사이트 구현",
+      "filesAgainstFirstParent": [
+        {
+          "path": "website/app.js",
+          "status": "A",
+          "added": 145,
+          "deleted": 0
+        },
+        {
+          "path": "website/index.html",
+          "status": "A",
+          "added": 94,
+          "deleted": 0
+        },
+        {
+          "path": "website/styles.css",
+          "status": "A",
+          "added": 11,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "a263772bdac99c86c95e7d7cc6a5f93f955d621a",
+      "parents": [
+        "7dd9e9f2b88c33d2ec76e37a418f01b82bc9eb78"
+      ],
+      "authoredAt": "2026-10-23T12:39:21+09:00",
+      "committedAt": "2026-10-23T12:39:21+09:00",
+      "subject": "fix: 웹 데모 접근성과 복사 상태 및 반응형 가독성 개선",
+      "filesAgainstFirstParent": [
+        {
+          "path": "website/README.md",
+          "status": "A",
+          "added": 29,
+          "deleted": 0
+        },
+        {
+          "path": "website/app.js",
+          "status": "M",
+          "added": 3,
+          "deleted": 3
+        },
+        {
+          "path": "website/index.html",
+          "status": "M",
+          "added": 3,
+          "deleted": 3
+        },
+        {
+          "path": "website/styles.css",
+          "status": "M",
+          "added": 2567,
+          "deleted": 10
+        }
+      ]
+    },
+    {
+      "sha": "42bc5ccae8202b0079bfbf4d3d6781a1e98f38a2",
+      "parents": [
+        "a263772bdac99c86c95e7d7cc6a5f93f955d621a"
+      ],
+      "authoredAt": "2026-10-23T12:41:38+09:00",
+      "committedAt": "2026-10-23T12:41:38+09:00",
+      "subject": "fix: 정적 사이트 하위 경로에서도 브랜드 자산 유지",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/BRAND.md",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "path": "scripts/generate-icons.js",
+          "status": "M",
+          "added": 5,
+          "deleted": 1
+        },
+        {
+          "path": "website/README.md",
+          "status": "M",
+          "added": 2,
+          "deleted": 2
+        },
+        {
+          "path": "website/icons/mark.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "website/index.html",
+          "status": "M",
+          "added": 5,
+          "deleted": 5
+        }
+      ]
+    },
+    {
+      "sha": "94178cfe3290cef21c746034308817ed2c728f1e",
+      "parents": [
+        "6f00ff17c1a83b675c15badbaf63087c80bb299d",
+        "42bc5ccae8202b0079bfbf4d3d6781a1e98f38a2"
+      ],
+      "authoredAt": "2026-10-23T12:52:21+09:00",
+      "committedAt": "2026-10-23T12:52:21+09:00",
+      "subject": "merge: 브랜드 자산과 소개 페이지 및 문서 아카이브 통합",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/BRAND.md",
+          "status": "A",
+          "added": 53,
+          "deleted": 0
+        },
+        {
+          "path": "docs/PHILOSOPHY.md",
+          "status": "A",
+          "added": 32,
+          "deleted": 0
+        },
+        {
+          "path": "generate-icons.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 146
+        },
+        {
+          "path": "icons/app-icon.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "icons/icon128.png",
+          "status": "M",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "icons/icon16.png",
+          "status": "M",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "icons/icon48.png",
+          "status": "M",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "icons/mark.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "icons/social-card.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "icons/wordmark.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "release-notes-v2.1.0.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 45
+        },
+        {
+          "path": "release-notes-v2.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 50
+        },
+        {
+          "path": "release-notes-v3.0.0.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 61
+        },
+        {
+          "path": "release-notes-v3.0.1.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 52
+        },
+        {
+          "path": "release-notes-v3.0.2.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 45
+        },
+        {
+          "path": "release-notes-v4.0.0.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 37
+        },
+        {
+          "path": "release-notes-v4.0.1.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 77
+        },
+        {
+          "path": "release-notes-v4.0.2.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 85
+        },
+        {
+          "path": "release-notes-v4.0.3.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 68
+        },
+        {
+          "path": "release-notes.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 50
+        },
+        {
+          "path": "scripts/generate-icons.js",
+          "status": "A",
+          "added": 102,
+          "deleted": 0
+        },
+        {
+          "path": "website/README.md",
+          "status": "A",
+          "added": 29,
+          "deleted": 0
+        },
+        {
+          "path": "website/app.js",
+          "status": "A",
+          "added": 145,
+          "deleted": 0
+        },
+        {
+          "path": "website/icons/mark.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "website/index.html",
+          "status": "A",
+          "added": 94,
+          "deleted": 0
+        },
+        {
+          "path": "website/styles.css",
+          "status": "A",
+          "added": 2568,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "21ed5c1244b7259eb899f5e6dabf4f93018da301",
+      "parents": [
+        "1a273bb011e9272401561def44cac0485a1660af"
+      ],
+      "authoredAt": "2026-10-23T12:22:34+09:00",
+      "committedAt": "2026-10-23T12:22:34+09:00",
+      "subject": "feat(popup): 액체 유리 화면과 명시적 실행 상태 개선",
+      "filesAgainstFirstParent": [
+        {
+          "path": "popup/popup.css",
+          "status": "M",
+          "added": 87,
+          "deleted": 297
+        },
+        {
+          "path": "popup/popup.html",
+          "status": "M",
+          "added": 56,
+          "deleted": 105
+        },
+        {
+          "path": "popup/popup.js",
+          "status": "M",
+          "added": 128,
+          "deleted": 177
+        },
+        {
+          "path": "test/popup.test.js",
+          "status": "A",
+          "added": 143,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "1f8c1b4fb86f6dcc45ce22d2c5b1394802bef709",
+      "parents": [
+        "21ed5c1244b7259eb899f5e6dabf4f93018da301"
+      ],
+      "authoredAt": "2026-10-23T12:35:03+09:00",
+      "committedAt": "2026-10-23T12:35:03+09:00",
+      "subject": "feat(studio): 반응형 유리 스튜디오와 키보드 탐색 재구성",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/components/floating-dock.js",
+          "status": "M",
+          "added": 383,
+          "deleted": 595
+        },
+        {
+          "path": "content/styles/shadow-styles.css",
+          "status": "M",
+          "added": 237,
+          "deleted": 1842
+        },
+        {
+          "path": "test/interface-browser.js",
+          "status": "A",
+          "added": 100,
+          "deleted": 0
+        },
+        {
+          "path": "test/interface.test.js",
+          "status": "A",
+          "added": 89,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "1476bfeda0f3f9868f46c0c54eb4565a5e09100f",
+      "parents": [
+        "1f8c1b4fb86f6dcc45ce22d2c5b1394802bef709"
+      ],
+      "authoredAt": "2026-10-23T12:47:01+09:00",
+      "committedAt": "2026-10-23T12:47:01+09:00",
+      "subject": "fix(studio): 페이지 데이터 표시와 비동기 도구 결과 검증",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/components/floating-dock.js",
+          "status": "M",
+          "added": 294,
+          "deleted": 664
+        },
+        {
+          "path": "content/styles/shadow-styles.css",
+          "status": "M",
+          "added": 6,
+          "deleted": 0
+        },
+        {
+          "path": "popup/popup.html",
+          "status": "M",
+          "added": 1,
+          "deleted": 5
+        },
+        {
+          "path": "test/interface-browser.js",
+          "status": "M",
+          "added": 73,
+          "deleted": 1
+        },
+        {
+          "path": "test/interface.test.js",
+          "status": "M",
+          "added": 51,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "5d96745d544439bcb2cf011979e0702f2ef9925c",
+      "parents": [
+        "94178cfe3290cef21c746034308817ed2c728f1e",
+        "1476bfeda0f3f9868f46c0c54eb4565a5e09100f"
+      ],
+      "authoredAt": "2026-10-23T12:52:58+09:00",
+      "committedAt": "2026-10-23T12:52:58+09:00",
+      "subject": "merge: 팝업과 반응형 리퀴드 스튜디오 인터페이스 통합",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/components/floating-dock.js",
+          "status": "M",
+          "added": 674,
+          "deleted": 1256
+        },
+        {
+          "path": "content/styles/shadow-styles.css",
+          "status": "M",
+          "added": 243,
+          "deleted": 1842
+        },
+        {
+          "path": "popup/popup.css",
+          "status": "M",
+          "added": 87,
+          "deleted": 297
+        },
+        {
+          "path": "popup/popup.html",
+          "status": "M",
+          "added": 53,
+          "deleted": 106
+        },
+        {
+          "path": "popup/popup.js",
+          "status": "M",
+          "added": 128,
+          "deleted": 177
+        },
+        {
+          "path": "test/interface-browser.js",
+          "status": "A",
+          "added": 172,
+          "deleted": 0
+        },
+        {
+          "path": "test/interface.test.js",
+          "status": "A",
+          "added": 140,
+          "deleted": 0
+        },
+        {
+          "path": "test/popup.test.js",
+          "status": "A",
+          "added": 143,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "bd5b13ccd0fe35f376a56771719cf6b2174d591e",
+      "parents": [
+        "1a273bb011e9272401561def44cac0485a1660af"
+      ],
+      "authoredAt": "2026-10-23T12:19:52+09:00",
+      "committedAt": "2026-10-23T12:19:52+09:00",
+      "subject": "fix: 서비스 워커 폰트 다운로드와 스크립트 주입 복구",
+      "filesAgainstFirstParent": [
+        {
+          "path": "background/service-worker.js",
+          "status": "M",
+          "added": 68,
+          "deleted": 48
+        },
+        {
+          "path": "test/runtime-background.test.js",
+          "status": "A",
+          "added": 98,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "f2015a0d183db5dab32a1635c44b48c836a2ab99",
+      "parents": [
+        "bd5b13ccd0fe35f376a56771719cf6b2174d591e"
+      ],
+      "authoredAt": "2026-10-23T12:22:06+09:00",
+      "committedAt": "2026-10-23T12:22:06+09:00",
+      "subject": "fix: 검사기를 요청 시 한 번만 초기화",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 71,
+          "deleted": 45
+        },
+        {
+          "path": "test/runtime-lifecycle.test.js",
+          "status": "A",
+          "added": 149,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "60d5608960a62bbb138b48984bbc54c4e1e203c3",
+      "parents": [
+        "f2015a0d183db5dab32a1635c44b48c836a2ab99"
+      ],
+      "authoredAt": "2026-10-23T12:24:55+09:00",
+      "committedAt": "2026-10-23T12:24:55+09:00",
+      "subject": "fix: 비활성화 시 페이지 조작과 이벤트를 안전하게 복원",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "content/context-hud.js",
+          "status": "M",
+          "added": 29,
+          "deleted": 12
+        },
+        {
+          "path": "content/instant-zoom.js",
+          "status": "M",
+          "added": 58,
+          "deleted": 20
+        },
+        {
+          "path": "content/motion-inspector.js",
+          "status": "M",
+          "added": 33,
+          "deleted": 3
+        },
+        {
+          "path": "content/page-controller.js",
+          "status": "M",
+          "added": 23,
+          "deleted": 9
+        },
+        {
+          "path": "content/precision-cursor.js",
+          "status": "M",
+          "added": 8,
+          "deleted": 4
+        },
+        {
+          "path": "test/runtime-engines.test.js",
+          "status": "A",
+          "added": 143,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "281b21fb1bc5b0957f1da3064319dc7d6d0c7fea",
+      "parents": [
+        "60d5608960a62bbb138b48984bbc54c4e1e203c3"
+      ],
+      "authoredAt": "2026-10-23T12:26:41+09:00",
+      "committedAt": "2026-10-23T12:26:41+09:00",
+      "subject": "perf: 오버레이 렌더링을 프레임별로 묶고 탭 순서 오류 수정",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 9,
+          "deleted": 3
+        },
+        {
+          "path": "content/overlay-canvas.js",
+          "status": "M",
+          "added": 28,
+          "deleted": 4
+        },
+        {
+          "path": "content/tab-order-visualizer.js",
+          "status": "M",
+          "added": 20,
+          "deleted": 3
+        },
+        {
+          "path": "content/unit-converter.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 1
+        },
+        {
+          "path": "test/runtime-engines.test.js",
+          "status": "M",
+          "added": 36,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "a8008f15e0323f62c9451c6e835c0febc4e7c49d",
+      "parents": [
+        "281b21fb1bc5b0957f1da3064319dc7d6d0c7fea"
+      ],
+      "authoredAt": "2026-10-23T12:28:29+09:00",
+      "committedAt": "2026-10-23T12:28:29+09:00",
+      "subject": "fix: 중복 스크립트 주입 시 전역 클래스 충돌 방지",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/asset-editor.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/color-suite.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/context-hud.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/css-beautifier.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/device-mockup.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/font-studio.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/graphics-inspector.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/instant-zoom.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 1
+        },
+        {
+          "path": "content/interaction-detector.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/mode-manager.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/motion-inspector.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/overlay-canvas.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/page-controller.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/palette-extractor.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/precision-cursor.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/react-exporter.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/shortcut-manager.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/style-tweaker.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/tab-order-visualizer.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/tailwind-converter.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/unit-converter.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/update-guardian.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-injection.test.js",
+          "status": "A",
+          "added": 30,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "3e4bd763aca68b71d896c3c199df97e31a48030d",
+      "parents": [
+        "a8008f15e0323f62c9451c6e835c0febc4e7c49d"
+      ],
+      "authoredAt": "2026-10-23T12:30:03+09:00",
+      "committedAt": "2026-10-23T12:30:03+09:00",
+      "subject": "perf: 업데이트 확인을 공유 캐시와 제한 시간으로 보호",
+      "filesAgainstFirstParent": [
+        {
+          "path": "background/service-worker.js",
+          "status": "M",
+          "added": 48,
+          "deleted": 0
+        },
+        {
+          "path": "content/update-guardian.js",
+          "status": "M",
+          "added": 34,
+          "deleted": 39
+        },
+        {
+          "path": "test/runtime-background.test.js",
+          "status": "M",
+          "added": 31,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-updates.test.js",
+          "status": "A",
+          "added": 27,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "154413914ce11c1a64ac6ea2db5bb93f1d5da5c4",
+      "parents": [
+        "3e4bd763aca68b71d896c3c199df97e31a48030d"
+      ],
+      "authoredAt": "2026-10-23T12:32:35+09:00",
+      "committedAt": "2026-10-23T12:32:35+09:00",
+      "subject": "perf: 페이지 스캔 비용을 제한하고 웹폰트 상대 경로 복구",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/font-studio.js",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "path": "content/palette-extractor.js",
+          "status": "M",
+          "added": 47,
+          "deleted": 39
+        },
+        {
+          "path": "content/tab-order-visualizer.js",
+          "status": "M",
+          "added": 20,
+          "deleted": 2
+        },
+        {
+          "path": "test/runtime-scans.test.js",
+          "status": "A",
+          "added": 77,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "cddb0b20c10c04870d703146308da56a5a0a4149",
+      "parents": [
+        "154413914ce11c1a64ac6ea2db5bb93f1d5da5c4"
+      ],
+      "authoredAt": "2026-10-23T12:34:52+09:00",
+      "committedAt": "2026-10-23T12:34:52+09:00",
+      "subject": "fix: 컨텍스트 메뉴 작업과 누락된 단축키 연결",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 85,
+          "deleted": 44
+        },
+        {
+          "path": "test/runtime-lifecycle.test.js",
+          "status": "M",
+          "added": 24,
+          "deleted": 2
+        }
+      ]
+    },
+    {
+      "sha": "a73e2a9ad737daf677a4805b14676cb2a38f879d",
+      "parents": [
+        "cddb0b20c10c04870d703146308da56a5a0a4149"
+      ],
+      "authoredAt": "2026-10-23T12:39:06+09:00",
+      "committedAt": "2026-10-23T12:39:06+09:00",
+      "subject": "fix: 임시 편집 상태를 복원하고 가짜 글리프 대체 결과 제거",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/asset-editor.js",
+          "status": "M",
+          "added": 18,
+          "deleted": 1
+        },
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "content/event-interceptor.js",
+          "status": "M",
+          "added": 46,
+          "deleted": 47
+        },
+        {
+          "path": "content/font-studio.js",
+          "status": "M",
+          "added": 10,
+          "deleted": 23
+        },
+        {
+          "path": "content/interaction-detector.js",
+          "status": "M",
+          "added": 7,
+          "deleted": 5
+        },
+        {
+          "path": "test/runtime-engines.test.js",
+          "status": "M",
+          "added": 36,
+          "deleted": 1
+        },
+        {
+          "path": "test/runtime-injection.test.js",
+          "status": "M",
+          "added": 24,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-scans.test.js",
+          "status": "M",
+          "added": 7,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "9350120add300b0389abed85f025e1b392071dbd",
+      "parents": [
+        "a73e2a9ad737daf677a4805b14676cb2a38f879d"
+      ],
+      "authoredAt": "2026-10-23T12:40:40+09:00",
+      "committedAt": "2026-10-23T12:40:40+09:00",
+      "subject": "chore: 리퀴드 스튜디오 런타임 버전을 4.1.0으로 갱신",
+      "filesAgainstFirstParent": [
+        {
+          "path": "background/service-worker.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 2
+        },
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 2
+        },
+        {
+          "path": "manifest.json",
+          "status": "M",
+          "added": 2,
+          "deleted": 2
+        }
+      ]
+    },
+    {
+      "sha": "e88f3e0a623415f8d8107ec8b7233d0963922dbe",
+      "parents": [
+        "9350120add300b0389abed85f025e1b392071dbd"
+      ],
+      "authoredAt": "2026-10-23T12:46:35+09:00",
+      "committedAt": "2026-10-23T12:46:35+09:00",
+      "subject": "fix: 문자 폭 실측과 실제 글리프 경로 내보내기 구분",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/font-studio.js",
+          "status": "M",
+          "added": 62,
+          "deleted": 88
+        },
+        {
+          "path": "test/runtime-fonts.test.js",
+          "status": "A",
+          "added": 51,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "f0eb1def5fe855316d2d505071be5ac18f2dd827",
+      "parents": [
+        "e88f3e0a623415f8d8107ec8b7233d0963922dbe"
+      ],
+      "authoredAt": "2026-10-23T12:50:02+09:00",
+      "committedAt": "2026-10-23T12:50:02+09:00",
+      "subject": "fix: 비동기 에셋 다운로드 실패를 HUD에 표시",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "path": "test/runtime-lifecycle.test.js",
+          "status": "M",
+          "added": 17,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "1edd67fd1f7cd17c4a2d8821175b9aa9c83739e8",
+      "parents": [
+        "f0eb1def5fe855316d2d505071be5ac18f2dd827"
+      ],
+      "authoredAt": "2026-10-23T12:53:10+09:00",
+      "committedAt": "2026-10-23T12:53:10+09:00",
+      "subject": "fix: 텍스트 아웃라인 SVG의 호스트 입력을 안전하게 직렬화",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/font-studio.js",
+          "status": "M",
+          "added": 8,
+          "deleted": 8
+        },
+        {
+          "path": "test/runtime-fonts.test.js",
+          "status": "M",
+          "added": 24,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "75f9f507e932a5d69fbaf2d7f446c16dad98e611",
+      "parents": [
+        "5d96745d544439bcb2cf011979e0702f2ef9925c",
+        "1edd67fd1f7cd17c4a2d8821175b9aa9c83739e8"
+      ],
+      "authoredAt": "2026-10-23T12:55:01+09:00",
+      "committedAt": "2026-10-23T12:55:01+09:00",
+      "subject": "merge: 명시적 실행과 페이지 복원 및 렌더링 개선 통합",
+      "filesAgainstFirstParent": [
+        {
+          "path": "background/service-worker.js",
+          "status": "M",
+          "added": 117,
+          "deleted": 49
+        },
+        {
+          "path": "content/asset-editor.js",
+          "status": "M",
+          "added": 22,
+          "deleted": 1
+        },
+        {
+          "path": "content/color-suite.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 169,
+          "deleted": 94
+        },
+        {
+          "path": "content/context-hud.js",
+          "status": "M",
+          "added": 33,
+          "deleted": 12
+        },
+        {
+          "path": "content/css-beautifier.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/device-mockup.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/event-interceptor.js",
+          "status": "M",
+          "added": 46,
+          "deleted": 47
+        },
+        {
+          "path": "content/font-studio.js",
+          "status": "M",
+          "added": 82,
+          "deleted": 117
+        },
+        {
+          "path": "content/graphics-inspector.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/instant-zoom.js",
+          "status": "M",
+          "added": 62,
+          "deleted": 21
+        },
+        {
+          "path": "content/interaction-detector.js",
+          "status": "M",
+          "added": 11,
+          "deleted": 5
+        },
+        {
+          "path": "content/mode-manager.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/motion-inspector.js",
+          "status": "M",
+          "added": 37,
+          "deleted": 3
+        },
+        {
+          "path": "content/overlay-canvas.js",
+          "status": "M",
+          "added": 32,
+          "deleted": 4
+        },
+        {
+          "path": "content/page-controller.js",
+          "status": "M",
+          "added": 27,
+          "deleted": 9
+        },
+        {
+          "path": "content/palette-extractor.js",
+          "status": "M",
+          "added": 51,
+          "deleted": 39
+        },
+        {
+          "path": "content/precision-cursor.js",
+          "status": "M",
+          "added": 12,
+          "deleted": 4
+        },
+        {
+          "path": "content/react-exporter.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/shortcut-manager.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/style-tweaker.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/tab-order-visualizer.js",
+          "status": "M",
+          "added": 44,
+          "deleted": 5
+        },
+        {
+          "path": "content/tailwind-converter.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/unit-converter.js",
+          "status": "M",
+          "added": 6,
+          "deleted": 1
+        },
+        {
+          "path": "content/update-guardian.js",
+          "status": "M",
+          "added": 38,
+          "deleted": 39
+        },
+        {
+          "path": "manifest.json",
+          "status": "M",
+          "added": 2,
+          "deleted": 2
+        },
+        {
+          "path": "test/runtime-background.test.js",
+          "status": "A",
+          "added": 129,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-engines.test.js",
+          "status": "A",
+          "added": 214,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-fonts.test.js",
+          "status": "A",
+          "added": 75,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-injection.test.js",
+          "status": "A",
+          "added": 54,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-lifecycle.test.js",
+          "status": "A",
+          "added": 188,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-scans.test.js",
+          "status": "A",
+          "added": 84,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-updates.test.js",
+          "status": "A",
+          "added": 27,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "57d340505977de77c536fa2e7268acc0019fa6bb",
+      "parents": [
+        "75f9f507e932a5d69fbaf2d7f446c16dad98e611"
+      ],
+      "authoredAt": "2026-10-23T12:56:59+09:00",
+      "committedAt": "2026-10-23T12:56:59+09:00",
+      "subject": "test: 고정 UI 문구 대신 실제 엔진 계약으로 호환성 검사 정리",
+      "filesAgainstFirstParent": [
+        {
+          "path": "test/verify.js",
+          "status": "M",
+          "added": 28,
+          "deleted": 118
+        }
+      ]
+    },
+    {
+      "sha": "edc3f8ecf85fbc8891125efe47ab292cc679156a",
+      "parents": [
+        "9350120add300b0389abed85f025e1b392071dbd"
+      ],
+      "authoredAt": "2026-10-23T12:51:40+09:00",
+      "committedAt": "2026-10-23T12:51:40+09:00",
+      "subject": "fix: JSX 문자열과 HTML 빈 요소를 안전하게 내보내기",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/react-exporter.js",
+          "status": "M",
+          "added": 16,
+          "deleted": 11
+        },
+        {
+          "path": "test/export.test.js",
+          "status": "A",
+          "added": 57,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "9ad45ceded54dce745ff005f70edfcb57b11f68c",
+      "parents": [
+        "edc3f8ecf85fbc8891125efe47ab292cc679156a"
+      ],
+      "authoredAt": "2026-10-23T12:55:02+09:00",
+      "committedAt": "2026-10-23T12:55:02+09:00",
+      "subject": "fix: 에셋 다운로드의 HTTP 오류와 비동기 실패를 전달",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/react-exporter.js",
+          "status": "M",
+          "added": 10,
+          "deleted": 12
+        },
+        {
+          "path": "test/export.test.js",
+          "status": "M",
+          "added": 69,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "7494ea3de63e00154d1ae7c2649d46ec0e32cf6b",
+      "parents": [
+        "57d340505977de77c536fa2e7268acc0019fa6bb",
+        "9ad45ceded54dce745ff005f70edfcb57b11f68c"
+      ],
+      "authoredAt": "2026-10-23T12:57:56+09:00",
+      "committedAt": "2026-10-23T12:57:56+09:00",
+      "subject": "merge: 런타임 하위 브랜치의 코드와 에셋 내보내기 수정 통합",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/react-exporter.js",
+          "status": "M",
+          "added": 26,
+          "deleted": 23
+        },
+        {
+          "path": "test/export.test.js",
+          "status": "A",
+          "added": 126,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "f482441a7ba01f982e28d5a3169bf6761a6736af",
+      "parents": [
+        "7494ea3de63e00154d1ae7c2649d46ec0e32cf6b"
+      ],
+      "authoredAt": "2026-10-23T12:59:01+09:00",
+      "committedAt": "2026-10-23T12:59:01+09:00",
+      "subject": "fix: 코드 패널의 에셋 저장을 실제 비동기 API에 연결",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/components/floating-dock.js",
+          "status": "M",
+          "added": 3,
+          "deleted": 3
+        },
+        {
+          "path": "test/interface.test.js",
+          "status": "M",
+          "added": 31,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "0cc2d39b2b802fe094601d3b0e213ee1d76dfb22",
+      "parents": [
+        "f482441a7ba01f982e28d5a3169bf6761a6736af"
+      ],
+      "authoredAt": "2026-10-23T13:00:39+09:00",
+      "committedAt": "2026-10-23T13:00:39+09:00",
+      "subject": "fix: 전역 실행 단축키와 페이지 작업 단축키 설정을 구분",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/components/floating-dock.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 2
+        }
+      ]
+    },
+    {
+      "sha": "dd4ed4596f15a7b273ddcdcbba7350c0e8fb7fad",
+      "parents": [
+        "1edd67fd1f7cd17c4a2d8821175b9aa9c83739e8"
+      ],
+      "authoredAt": "2026-10-23T12:58:48+09:00",
+      "committedAt": "2026-10-23T12:58:48+09:00",
+      "subject": "fix: 스튜디오 종료 시 그리드 표시 상태를 해제",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-lifecycle.test.js",
+          "status": "M",
+          "added": 18,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "1f21a987a378fec1638bb9690adc858126ccdfdf",
+      "parents": [
+        "0cc2d39b2b802fe094601d3b0e213ee1d76dfb22",
+        "dd4ed4596f15a7b273ddcdcbba7350c0e8fb7fad"
+      ],
+      "authoredAt": "2026-10-23T13:01:15+09:00",
+      "committedAt": "2026-10-23T13:01:15+09:00",
+      "subject": "merge: 종료 후 그리드와 기준선 상태 정리 수정 통합",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-lifecycle.test.js",
+          "status": "M",
+          "added": 18,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "4d0a528402979affec0a3a277a4b2521c7ead98c",
+      "parents": [
+        "1f21a987a378fec1638bb9690adc858126ccdfdf"
+      ],
+      "authoredAt": "2026-10-23T13:02:26+09:00",
+      "committedAt": "2026-10-23T13:02:26+09:00",
+      "subject": "fix: 글꼴 변경과 탭 이동 뒤에도 문자 폭 측정 결과 유지",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/components/floating-dock.js",
+          "status": "M",
+          "added": 9,
+          "deleted": 4
+        },
+        {
+          "path": "test/interface.test.js",
+          "status": "M",
+          "added": 41,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "38b8e72a6703aaefa34406746364ff0adb0f3326",
+      "parents": [
+        "4d0a528402979affec0a3a277a4b2521c7ead98c"
+      ],
+      "authoredAt": "2026-10-23T13:05:32+09:00",
+      "committedAt": "2026-10-23T13:05:32+09:00",
+      "subject": "test: 실제 브라우저에서 글꼴 내보내기와 전체 임시 상태 복원 검증",
+      "filesAgainstFirstParent": [
+        {
+          "path": "test/browser.js",
+          "status": "M",
+          "added": 128,
+          "deleted": 4
+        }
+      ]
+    },
+    {
+      "sha": "52c389637e0823d2ba4324a51794c0975c0548e3",
+      "parents": [
+        "f482441a7ba01f982e28d5a3169bf6761a6736af"
+      ],
+      "authoredAt": "2026-10-23T13:05:14+09:00",
+      "committedAt": "2026-10-23T13:05:14+09:00",
+      "subject": "fix(studio): 비활성 상태의 전역 이벤트와 UI 타이머 중지",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/components/floating-dock.js",
+          "status": "M",
+          "added": 59,
+          "deleted": 10
+        },
+        {
+          "path": "test/studio-lifecycle.test.js",
+          "status": "A",
+          "added": 102,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "c14946266adcc2086d4823436ec0ab090bbf0087",
+      "parents": [
+        "38b8e72a6703aaefa34406746364ff0adb0f3326",
+        "52c389637e0823d2ba4324a51794c0975c0548e3"
+      ],
+      "authoredAt": "2026-10-23T13:07:11+09:00",
+      "committedAt": "2026-10-23T13:07:11+09:00",
+      "subject": "merge: 도크 하위 브랜치의 이벤트와 타이머 수명 관리 통합",
+      "filesAgainstFirstParent": [
+        {
+          "path": "content/components/floating-dock.js",
+          "status": "M",
+          "added": 59,
+          "deleted": 10
+        },
+        {
+          "path": "test/studio-lifecycle.test.js",
+          "status": "A",
+          "added": 102,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "42153a9353b25333365c3af9dea959ac1f2e3e52",
+      "parents": [
+        "c14946266adcc2086d4823436ec0ab090bbf0087"
+      ],
+      "authoredAt": "2026-10-23T13:08:01+09:00",
+      "committedAt": "2026-10-23T13:08:01+09:00",
+      "subject": "ci: 얕은 체크아웃과 실제 확장 브라우저 검증 자동화",
+      "filesAgainstFirstParent": [
+        {
+          "path": ".github/workflows/verify.yml",
+          "status": "A",
+          "added": 34,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "9bf9db55e2744bbe74b71f084d5913e4d5b6ce3c",
+      "parents": [
+        "42153a9353b25333365c3af9dea959ac1f2e3e52"
+      ],
+      "authoredAt": "2026-10-23T13:09:47+09:00",
+      "committedAt": "2026-10-23T13:09:47+09:00",
+      "subject": "style: 기존 버전 표기 규칙과 문자 폭 기능 설명을 일치",
+      "filesAgainstFirstParent": [
+        {
+          "path": "README.md",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "path": "content/components/floating-dock.js",
+          "status": "M",
+          "added": 3,
+          "deleted": 3
+        },
+        {
+          "path": "popup/popup.html",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "path": "popup/popup.js",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        }
+      ]
+    },
+    {
+      "sha": "2c55afd6aa892dd999667a5ce886b6e6e2085732",
+      "parents": [
+        "9bf9db55e2744bbe74b71f084d5913e4d5b6ce3c"
+      ],
+      "authoredAt": "2026-10-23T13:13:18+09:00",
+      "committedAt": "2026-10-23T13:13:18+09:00",
+      "subject": "test: 동일 페이지에서 전후 렌더 횟수를 재현하는 측정 도구 추가",
+      "filesAgainstFirstParent": [
+        {
+          "path": "package.json",
+          "status": "M",
+          "added": 12,
+          "deleted": 4
+        },
+        {
+          "path": "test/benchmark.js",
+          "status": "A",
+          "added": 70,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "ee91b17b03de64409d6f8928a2a1862e530773bd",
+      "parents": [
+        "2c55afd6aa892dd999667a5ce886b6e6e2085732"
+      ],
+      "authoredAt": "2026-10-23T13:16:42+09:00",
+      "committedAt": "2026-10-23T13:16:42+09:00",
+      "subject": "docs: 리퀴드 스튜디오 프리뷰 변경 이력과 개발 안내 완성",
+      "filesAgainstFirstParent": [
+        {
+          "path": "CHANGELOG.md",
+          "status": "A",
+          "added": 55,
+          "deleted": 0
+        },
+        {
+          "path": "docs/DEVELOPMENT.md",
+          "status": "M",
+          "added": 5,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "8f05ffdd9d10aa1c9d99a07cd4129e453f6d4bbd",
+      "parents": [
+        "ee91b17b03de64409d6f8928a2a1862e530773bd"
+      ],
+      "authoredAt": "2026-10-23T13:18:09+09:00",
+      "committedAt": "2026-10-23T13:18:09+09:00",
+      "subject": "docs: 실제 브라우저와 패키지 검증 근거 및 CI 제한 기록",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/VERIFICATION.md",
+          "status": "A",
+          "added": 116,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/benchmark-after.json",
+          "status": "A",
+          "added": 20,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/benchmark-before.json",
+          "status": "A",
+          "added": 19,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/browser-packaged.json",
+          "status": "A",
+          "added": 27,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/browser-source.json",
+          "status": "A",
+          "added": 28,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/ci-status.json",
+          "status": "A",
+          "added": 11,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/package.json",
+          "status": "A",
+          "added": 11,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "6dcab289e2fcce7e4c69fa42357cc5cb1d83402e",
+      "parents": [
+        "8f05ffdd9d10aa1c9d99a07cd4129e453f6d4bbd"
+      ],
+      "authoredAt": "2026-10-23T13:19:23+09:00",
+      "committedAt": "2026-10-23T13:19:23+09:00",
+      "subject": "docs: 실제 스튜디오와 소개 페이지 화면을 README에 반영",
+      "filesAgainstFirstParent": [
+        {
+          "path": "README.md",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "path": "docs/assets/studio-desktop.png",
+          "status": "A",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "docs/assets/website-hero.png",
+          "status": "A",
+          "added": null,
+          "deleted": null
+        }
+      ]
+    },
+    {
+      "sha": "8c0ba8d8ab56c466d4a27249e69a500d476c8c9d",
+      "parents": [
+        "6dcab289e2fcce7e4c69fa42357cc5cb1d83402e"
+      ],
+      "authoredAt": "2026-10-23T13:21:02+09:00",
+      "committedAt": "2026-10-23T13:21:02+09:00",
+      "subject": "docs: 완료된 브랜치 작업과 검증 결과를 계획에 반영",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/plans/2026-10-23-refresh.md",
+          "status": "M",
+          "added": 12,
+          "deleted": 8
+        }
+      ]
+    },
+    {
+      "sha": "dfe954ec436065bea09fab4cf5ba3c65fcee91c8",
+      "parents": [
+        "8c0ba8d8ab56c466d4a27249e69a500d476c8c9d"
+      ],
+      "authoredAt": "2026-10-23T13:23:57+09:00",
+      "committedAt": "2026-10-23T13:23:57+09:00",
+      "subject": "docs: PR 검토 링크와 얕은 체크아웃 완료 상태 기록",
+      "filesAgainstFirstParent": [
+        {
+          "path": ".github/pull_request_template.md",
+          "status": "M",
+          "added": 0,
+          "deleted": 1
+        },
+        {
+          "path": "docs/plans/2026-10-23-refresh.md",
+          "status": "M",
+          "added": 5,
+          "deleted": 1
+        }
+      ]
+    },
+    {
+      "sha": "e8db293eae744c7c7161dfab6ca3239e3a83f0df",
+      "parents": [
+        "dfe954ec436065bea09fab4cf5ba3c65fcee91c8"
+      ],
+      "authoredAt": "2026-10-23T13:32:24+09:00",
+      "committedAt": "2026-10-23T13:32:24+09:00",
+      "subject": "ci: 워크플로를 전체 주석 처리하고 임시 비활성화",
+      "filesAgainstFirstParent": [
+        {
+          "path": ".github/workflows/README.md",
+          "status": "A",
+          "added": 20,
+          "deleted": 0
+        },
+        {
+          "path": ".github/workflows/verify.yml",
+          "status": "D",
+          "added": 0,
+          "deleted": 34
+        },
+        {
+          "path": ".github/workflows/verify.yml.disabled",
+          "status": "A",
+          "added": 38,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "6eecbc41553873a4cb0034b8ca8a41e0df9ebace",
+      "parents": [
+        "e8db293eae744c7c7161dfab6ca3239e3a83f0df"
+      ],
+      "authoredAt": "2026-10-23T13:34:21+09:00",
+      "committedAt": "2026-10-23T13:34:21+09:00",
+      "subject": "docs: 로컬 검증과 no-ff 병합 및 수동 릴리즈 절차 정립",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/DEVELOPMENT.md",
+          "status": "M",
+          "added": 4,
+          "deleted": 2
+        },
+        {
+          "path": "docs/RELEASING.md",
+          "status": "A",
+          "added": 63,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "7e069940fcea8e623dea7f54d3c6d837cb44bebd",
+      "parents": [
+        "6eecbc41553873a4cb0034b8ca8a41e0df9ebace"
+      ],
+      "authoredAt": "2026-10-23T13:37:54+09:00",
+      "committedAt": "2026-10-23T13:37:54+09:00",
+      "subject": "docs: 조사부터 통합과 검증까지 전체 개선 과정을 상세 기록",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/process/2026-10-23-liquid-studio.md",
+          "status": "A",
+          "added": 218,
+          "deleted": 0
+        }
+      ]
+    }
+  ]
+}
