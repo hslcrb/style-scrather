@@ -169,3 +169,20 @@ test('clipboard denial from a HUD action is handled with feedback', async () => 
   await page.window.StyleScratcher.getContextHud().args[1]('copy-react', {});
   assert.match(page.window.StyleScratcher.getDock().lastToast || '', /Permission denied/);
 });
+
+test('asset download rejection from a HUD action is handled with feedback', async () => {
+  const failedDownload = Promise.reject(new Error('HTTP 404'));
+  // Keep the unfixed call site from leaking an unhandled rejection during this regression.
+  failedDownload.catch(() => {});
+  const page = runtime({ ReactExporter: { downloadAsset: () => failedDownload } });
+  page.request({ type: 'OPEN_TAB' });
+  await page.window.StyleScratcher.getContextHud().args[1]('download-asset', {});
+  assert.match(page.window.StyleScratcher.getDock().lastToast || '', /HTTP 404/);
+});
+
+test('an async asset download with no asset produces useful feedback', async () => {
+  const page = runtime({ ReactExporter: { downloadAsset: async () => null } });
+  page.request({ type: 'OPEN_TAB' });
+  await page.window.StyleScratcher.getContextHud().args[1]('download-asset', {});
+  assert.match(page.window.StyleScratcher.getDock().lastToast || '', /다운로드할 이미지나 SVG/);
+});

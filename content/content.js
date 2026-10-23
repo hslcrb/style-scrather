@@ -175,7 +175,7 @@
         floatingDock.switchTab('assets');
         floatingDock.showToast(editable ? '직접 타이핑 모드가 켜졌습니다.' : '직접 타이핑 모드가 꺼졌습니다.');
       } else if (action === 'download-asset') {
-        if (!ReactExporter.downloadAsset(targetEl)) throw new Error('다운로드할 이미지나 SVG를 찾지 못했습니다.');
+        if (!await ReactExporter.downloadAsset(targetEl)) throw new Error('다운로드할 이미지나 SVG를 찾지 못했습니다.');
       } else if (action === 'move-up' || action === 'move-down') {
         const moved = action === 'move-up' ? modeManager?.moveUp(targetEl) : modeManager?.moveDown(targetEl);
         if (moved) selectElement(targetEl);
