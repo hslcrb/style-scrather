@@ -4,6 +4,12 @@
 (function () {
 if (typeof window !== 'undefined' && window.FontStudio) return;
 
+const escapeXml = value => String(value)
+  .replace(/[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/gu, '\uFFFD')
+  .replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;'
+  })[character]);
+
 class FontStudio {
   static CURATED_FONTS = [
     { name: 'Inter', category: 'sans-serif', google: true },
@@ -527,15 +533,12 @@ class FontStudio {
     });
 
     const fullPathData = pathSegments.join(' ');
-    const safeText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
     const svgString = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}" width="${svgWidth}" height="${svgHeight}">
   <!-- Style Scratcher True Vector Outlines (Create Outlines) -->
-  <!-- Original Text: "${safeText}" -->
-  <!-- Font: "${fontFamily}" (${fontWeight} ${fontStyle}) -->
-  <path d="${fullPathData}" fill="${color}" fill-rule="evenodd" />
-  <desc>${safeText}</desc>
+  <path d="${escapeXml(fullPathData)}" fill="${escapeXml(color)}" fill-rule="evenodd" />
+  <desc>${escapeXml(text)}</desc>
 </svg>`.trim();
 
     return {
@@ -607,9 +610,6 @@ class FontStudio {
     if (!Array.isArray(glyphList) || glyphList.length === 0 || glyphList.length > 2048) {
       throw new Error('SVG 폰트에는 실제 글리프 경로가 필요합니다 (최대 2048개).');
     }
-    const escapeXml = value => String(value).replace(/[&<>"']/g, character => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;'
-    })[character]);
     let pathSize = 0;
     const glyphTags = glyphList.map(glyph => {
       const d = typeof glyph.pathData === 'string' ? glyph.pathData.trim() : '';

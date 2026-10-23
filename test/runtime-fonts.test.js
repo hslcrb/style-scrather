@@ -12,6 +12,13 @@ function studio(document) {
   return window.FontStudio;
 }
 
+function outlineStudio() {
+  return studio({ createElement() { return { getContext() { return {
+    measureText() { return { width: 24 }; }, fillText() {},
+    getImageData(x, y, width, height) { return { data: new Uint8ClampedArray(width * height * 4) }; }
+  }; } }; } });
+}
+
 test('glyph measurement rejects missing Canvas instead of inventing available glyphs', async () => {
   await assert.rejects(studio(undefined).harvestGlyphs('Example'), /Canvas/);
 });
@@ -48,4 +55,21 @@ test('SVG font export preserves real paths and escapes font attributes', () => {
   assert.ok(result.includes('horiz-adv-x="600"'));
   assert.throws(() => FontStudio.buildSvgFont('Demo', [{ ...glyphs[0], pathData: 'M 0 0" onload="bad' }]), /경로|path/i);
   assert.throws(() => FontStudio.buildSvgFont('Demo', [{ ...glyphs[0], code: '41;" onload="bad' }]), /코드|code/i);
+});
+
+test('text outline XML escapes text and replaces characters forbidden by XML 1.0', () => {
+  const result = outlineStudio().createTextOutlines({ textContent: 'A & <B> -- \u0001 \uD800' });
+  assert.ok(result.svg.includes('<desc>A &amp; &lt;B&gt; -- \uFFFD \uFFFD</desc>'));
+  assert.ok(!result.svg.includes('<!-- Original Text:'));
+});
+
+test('text outline XML cannot turn typography metadata or color into markup', () => {
+  const hostile = '--><script>globalThis.injected=true</script><!--';
+  const result = outlineStudio().createTextOutlines({ textContent: 'A' }, {
+    fontFamily: hostile, fontWeight: hostile, fontStyle: hostile,
+    color: 'red" onload="alert(1)'
+  });
+  assert.ok(!result.svg.includes('<script>'));
+  assert.ok(!result.svg.includes('<!-- Font:'));
+  assert.ok(result.svg.includes('fill="red&quot; onload=&quot;alert(1)"'));
 });
