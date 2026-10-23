@@ -551,120 +551,94 @@ class FontStudio {
   }
 
   /**
-   * Real Parallel Glyph Coverage Scanner
-   * Scans representative syllables and characters to check true glyph rendering support (NotDef fallback check)
+   * Measure character advances in short batches. Canvas may use fallback fonts;
+   * these measurements do not establish glyph coverage or contain outline paths.
    */
   static async harvestGlyphs(fontFamily = 'Inter', onProgress = null) {
     const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?~/`';
     const hangul = '가나다라마바사아자차카타파하각난닫람밥삿앙잦착칵탓팝핫거너더러머버서어저처커터퍼허고노도로모보소오조초코토포호구누두루무부수우주추쿠투푸후그느드르므브스으즈츠크트프히길꽃꿈눈달별사랑빛손하늘감성피그마스튜디오한글글리프웹폰트아웃라인벡터';
     const symbols = '©®™§¶†‡•—–…“”‘’«»‹›¿¡€£¥₩¢₹₽';
-    const allChars = (latin + hangul + symbols).split('');
-
+    const allChars = [...(latin + hangul + symbols)];
     const total = allChars.length;
-    let completed = 0;
-    const harvested = [];
-    const missing = [];
-
-    // Check canvas support for NotDef glyph detection
-    let canvas = null;
+    const glyphs = [];
     let ctx = null;
     if (typeof document !== 'undefined' && document.createElement) {
-      try {
-        canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
-        ctx = canvas.getContext('2d', { willReadFrequently: true });
-      } catch (e) {
-        ctx = null;
+      try { ctx = document.createElement('canvas').getContext('2d'); } catch {}
+    }
+    if (!ctx || typeof ctx.measureText !== 'function') {
+      throw new Error('Canvas 2D를 사용할 수 없어 문자 폭을 측정할 수 없습니다.');
+    }
+
+    const measurementFontSize = 24;
+    const font = `${measurementFontSize}px ${JSON.stringify(String(fontFamily))}, monospace`;
+    for (let i = 0; i < total; i += 30) {
+      await new Promise(resolve => setTimeout(resolve, 6));
+      for (const char of allChars.slice(i, i + 30)) {
+        ctx.font = font;
+        const width = ctx.measureText(char).width;
+        ctx.font = `${measurementFontSize}px monospace`;
+        const fallbackWidth = ctx.measureText(char).width;
+        if (!Number.isFinite(width) || !Number.isFinite(fallbackWidth)) {
+          throw new Error('문자 폭을 측정하지 못했습니다.');
+        }
+        glyphs.push({
+          char, code: char.codePointAt(0).toString(16).toUpperCase().padStart(4, '0'),
+          font: fontFamily, width, fallbackWidth,
+          supported: null, available: null
+        });
       }
+      if (onProgress) onProgress(Math.round(glyphs.length / total * 100), glyphs.length, total);
     }
-
-    const batchSize = 30;
-    for (let i = 0; i < total; i += batchSize) {
-      const chunk = allChars.slice(i, i + batchSize);
-
-      await new Promise(resolve => {
-        setTimeout(() => {
-          chunk.forEach(ch => {
-            let isSupported = true;
-            let charWidth = 16;
-
-            if (ctx) {
-              // 1. Measure with target font
-              ctx.font = `24px "${fontFamily}", monospace`;
-              const targetWidth = ctx.measureText(ch).width;
-              charWidth = Math.round(targetWidth);
-
-              // 2. Measure with baseline fallback monospace
-              ctx.font = '24px monospace';
-              const fallbackWidth = ctx.measureText(ch).width;
-
-              // If non-standard font matches fallback monospace width perfectly on irregular chars,
-              // or glyph renders invisible/null, verify support
-              isSupported = targetWidth > 0;
-            }
-
-            const glyphItem = {
-              char: ch,
-              code: ch.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0'),
-              font: fontFamily,
-              width: charWidth,
-              supported: isSupported,
-              available: isSupported // backwards compatibility
-            };
-
-            harvested.push(glyphItem);
-            if (!isSupported) missing.push(glyphItem);
-            completed++;
-          });
-
-          if (onProgress) {
-            onProgress(Math.round((completed / total) * 100), completed, total);
-          }
-          resolve();
-        }, 6);
-      });
-    }
-
-    const coveragePct = total > 0 ? Math.round(((total - missing.length) / total) * 100) : 100;
 
     return {
-      fontFamily,
-      totalGlyphs: harvested.length,
-      supportedCount: harvested.length - missing.length,
-      missingCount: missing.length,
-      coveragePct,
-      glyphs: harvested,
-      status: `Harvested ${harvested.length} glyphs (${coveragePct}% coverage)`
+      fontFamily, measurementFontSize, measurementOnly: true, coverageDetermined: false,
+      totalGlyphs: glyphs.length, measuredCount: glyphs.length,
+      supportedCount: null, missingCount: null, coveragePct: null, glyphs,
+      status: `Measured ${glyphs.length} character advances; font coverage and outlines are not determined.`
     };
   }
 
   /**
-   * Package Harvested Glyphs into a W3C SVG Font (.svg)
-   * Can be re-imported into Figma, Illustrator, or icon font generator studios!
+   * Build SVG font XML only from caller-supplied paths and advance widths.
+   * Paths and widths must already use the same 1000-units-per-em coordinate system.
+   * Canvas character measurements alone are insufficient for this format.
    */
   static buildSvgFont(fontFamily = 'CustomFont', glyphList = []) {
-    const glyphTags = glyphList.map(g => {
-      // Build clean glyph tag
-      const unicodeHex = `&#x${g.code};`;
-      const d = g.pathData || `M 50 100 L ${Math.max(300, (g.width || 500) - 50)} 100 L ${Math.max(300, (g.width || 500) - 50)} 700 L 50 700 Z`;
-      return `    <glyph unicode="${unicodeHex}" glyph-name="uni${g.code}" horiz-adv-x="${(g.width || 16) * 50}" d="${d}" />`;
+    if (!Array.isArray(glyphList) || glyphList.length === 0 || glyphList.length > 2048) {
+      throw new Error('SVG 폰트에는 실제 글리프 경로가 필요합니다 (최대 2048개).');
+    }
+    const escapeXml = value => String(value).replace(/[&<>"']/g, character => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;'
+    })[character]);
+    let pathSize = 0;
+    const glyphTags = glyphList.map(glyph => {
+      const d = typeof glyph.pathData === 'string' ? glyph.pathData.trim() : '';
+      pathSize += d.length;
+      if (!/^[Mm]/.test(d) || !/^[MmZzLlHhVvCcSsQqTtAaEe0-9+.,\s-]+$/.test(d) || d.length > 100000 || pathSize > 2000000) {
+        throw new Error('모든 글리프에 유효한 실제 SVG path 경로가 필요합니다. 문자 폭으로 경로를 만들 수 없습니다.');
+      }
+      const code = String(glyph.code || '').toUpperCase();
+      const point = parseInt(code, 16);
+      if (!/^[0-9A-F]{1,6}$/.test(code) || point < 32 || point > 0x10FFFF || (point >= 0xD800 && point <= 0xDFFF) || point === 0xFFFE || point === 0xFFFF) {
+        throw new Error('유효한 유니코드 글리프 코드가 필요합니다.');
+      }
+      const advance = glyph.advanceWidth ?? glyph.width;
+      if (!Number.isFinite(advance) || advance < 0 || advance > 1000000) {
+        throw new Error('글리프 경로와 같은 좌표 단위의 유효한 advance width가 필요합니다.');
+      }
+      return `    <glyph unicode="&#x${code};" glyph-name="uni${code}" horiz-adv-x="${advance}" d="${escapeXml(d)}" />`;
     }).join('\n');
 
-    const svgFont = `
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+    return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <font id="${fontFamily.replace(/\s+/g, '_')}" horiz-adv-x="1000">
-      <font-face font-family="${fontFamily}" units-per-em="1000" ascent="800" descent="-200" />
-      <missing-glyph horiz-adv-x="500" d="M 50 0 L 450 0 L 450 800 L 50 800 Z" />
+    <font id="${escapeXml(String(fontFamily).replace(/\s+/g, '_'))}" horiz-adv-x="1000">
+      <font-face font-family="${escapeXml(fontFamily)}" units-per-em="1000" ascent="800" descent="-200" />
+      <missing-glyph horiz-adv-x="0" />
 ${glyphTags}
     </font>
   </defs>
-</svg>`.trim();
-
-    return svgFont;
+</svg>`;
   }
 
   /**
