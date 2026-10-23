@@ -31,7 +31,7 @@
   }
   function updateCode(style) {
     const property = colorProperty();
-    cssOutput.textContent = `.${classNames[selected.dataset.demoTarget]} {\n  ${property}: ${hexColor(style.getPropertyValue(property))};${selected.dataset.demoTarget === 'button' ? `\n  color: ${hexColor(style.color)};` : ''}\n  border-radius: ${style.borderRadius};\n  font-size: ${style.fontSize};\n}`;
+    cssOutput.textContent = `.${classNames[selected.dataset.demoTarget]} {\n  ${property}: ${hexColor(style.getPropertyValue(property))};${selected.dataset.demoTarget !== 'heading' ? `\n  color: ${hexColor(style.color)};` : ''}\n  border-radius: ${style.borderRadius};\n  font-size: ${style.fontSize};\n}`;
   }
   function refreshControls() {
     const style = getComputedStyle(selected);
@@ -77,8 +77,8 @@
   }
   function setColor(color) {
     selected.style.setProperty(colorProperty(), color);
-    // Keep the example button legible even when a custom light color is chosen.
-    if (selected.dataset.demoTarget === 'button') {
+    // Keep preview labels legible when a custom light or dark fill is chosen.
+    if (selected.dataset.demoTarget !== 'heading') {
       const rgb = color.slice(1).match(/.{2}/g).map(value => parseInt(value, 16) / 255);
       const luminance = rgb.map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4)
         .reduce((sum, value, index) => sum + value * [.2126, .7152, .0722][index], 0);
