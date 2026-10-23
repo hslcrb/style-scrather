@@ -362,11 +362,17 @@
 
     // Window Resize / Scroll
     listen('scroll', () => {
-      if (isActive) overlayCanvas.render();
-    }, { passive: true });
+      if (isActive) {
+        overlayCanvas.render();
+        tabOrderVisualizer?.scheduleRender?.();
+      }
+    }, { passive: true, capture: true });
 
     listen('resize', () => {
-      if (isActive) overlayCanvas.render();
+      if (isActive) {
+        overlayCanvas.render();
+        tabOrderVisualizer?.scheduleRender?.();
+      }
     }, { passive: true });
   }
 

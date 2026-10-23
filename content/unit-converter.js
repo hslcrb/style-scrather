@@ -39,7 +39,6 @@ class UnitConverter {
    * @returns {{ value: number, formatted: string, rawPx: number }}
    */
   convert(px, unit = this.currentUnit, context = {}) {
-    this.updateBaseFontSize();
     const rawPx = Math.round(px);
 
     if (unit === 'px') {
@@ -47,11 +46,13 @@ class UnitConverter {
     }
 
     if (unit === 'rem') {
+      this.updateBaseFontSize();
       const val = parseFloat((px / this.baseFontSize).toFixed(3));
       return { value: val, formatted: `${val}rem`, rawPx };
     }
 
     if (unit === 'em') {
+      this.updateBaseFontSize();
       let elFs = this.baseFontSize;
       if (context.element) {
         try {

@@ -7,6 +7,8 @@ class TabOrderVisualizer {
     this.container = null;
     this.svg = null;
     this.tabbableElements = [];
+    this.frameId = null;
+    this.lastScanAt = 0;
 
     if (typeof document !== 'undefined') {
       this.initDOM();
@@ -89,14 +91,26 @@ class TabOrderVisualizer {
     return this.tabbableElements;
   }
 
-  render() {
+  scheduleRender() {
+    if (!this.isActive || this.frameId !== null) return;
+    this.frameId = requestAnimationFrame(() => {
+      this.frameId = null;
+      this.render();
+    });
+  }
+
+  render(rescan = false) {
     if (!this.isActive) {
       this.clear();
       return;
     }
 
     this.clear();
-    const elements = this.findTabbableElements();
+    if (rescan || Date.now() - this.lastScanAt > 1000) {
+      this.findTabbableElements();
+      this.lastScanAt = Date.now();
+    }
+    const elements = this.tabbableElements.filter(element => element.isConnected !== false);
     if (elements.length === 0) return;
 
     // 1. Draw connection flow lines between step N and step N+1
@@ -172,6 +186,7 @@ class TabOrderVisualizer {
   }
 
   clear() {
+    if (!this.svg) return;
     while (this.svg.firstChild) {
       this.svg.removeChild(this.svg.firstChild);
     }
@@ -181,8 +196,10 @@ class TabOrderVisualizer {
     this.isActive = forceState !== undefined ? forceState : !this.isActive;
     this.container.style.display = this.isActive ? 'block' : 'none';
     if (this.isActive) {
-      this.render();
+      this.render(true);
     } else {
+      if (this.frameId !== null) cancelAnimationFrame(this.frameId);
+      this.frameId = null;
       this.clear();
     }
     return this.isActive;

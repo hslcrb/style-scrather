@@ -141,3 +141,39 @@ test('animation reset restores original rates and does not play animations alrea
   assert.equal(paused.playbackRate, 0.5);
   assert.equal(paused.playState, 'paused');
 });
+
+test('overlay updates coalesce into one frame and inactive rendering stops', () => {
+  const env = environment('overlay-canvas.js');
+  const overlay = new env.window.OverlayCanvas(env.node());
+  let paints = 0;
+  overlay.renderCustomGrid = () => { paints++; };
+  overlay.toggleGrid(true);
+  for (let i = 0; i < 100; i++) overlay.render();
+  assert.equal(paints, 0);
+  assert.equal(env.frames.size, 1);
+  env.flushFrame();
+  assert.equal(paints, 1);
+  overlay.render();
+  overlay.setActive(false);
+  env.flushFrame();
+  overlay.render();
+  assert.equal(paints, 1);
+  assert.equal(env.frames.size, 0);
+});
+
+test('tab-order mode does not call a missing method or rescan on hover paint', () => {
+  const env = environment('overlay-canvas.js');
+  const overlay = new env.window.OverlayCanvas(env.node());
+  overlay.setTabOrderVisualizer({ isActive: true });
+  assert.doesNotThrow(() => { overlay.render(); env.flushFrame(); });
+});
+
+test('pixel measurement does not read root computed style for each distance badge', () => {
+  const env = environment('unit-converter.js');
+  let reads = 0;
+  env.window.getComputedStyle = () => { reads++; return { fontSize: '16px' }; };
+  const converter = new env.window.UnitConverter();
+  reads = 0;
+  for (let i = 0; i < 100; i++) converter.formatBadge(i);
+  assert.equal(reads, 0);
+});

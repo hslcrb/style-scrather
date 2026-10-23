@@ -19,6 +19,8 @@ class OverlayCanvas {
       opacity: 0.08
     };
     this.tabOrderVisualizer = null;
+    this.isActive = true;
+    this.frameId = null;
     this.initSvgOverlay();
   }
 
@@ -58,6 +60,7 @@ class OverlayCanvas {
   }
 
   clear() {
+    if (!this.svg) return;
     while (this.svg.firstChild) {
       this.svg.removeChild(this.svg.firstChild);
     }
@@ -93,6 +96,30 @@ class OverlayCanvas {
   }
 
   render() {
+    if (!this.isActive || !this.svg || this.frameId !== null) return;
+    if (typeof requestAnimationFrame !== 'function') {
+      this.renderNow();
+      return;
+    }
+    this.frameId = requestAnimationFrame(() => {
+      this.frameId = null;
+      this.renderNow();
+    });
+  }
+
+  setActive(active) {
+    this.isActive = !!active;
+    if (!this.isActive) {
+      if (this.frameId !== null) cancelAnimationFrame(this.frameId);
+      this.frameId = null;
+      this.clear();
+    } else {
+      this.render();
+    }
+  }
+
+  renderNow() {
+    if (!this.isActive || !this.svg) return;
     this.clear();
 
     // 1. Render 8px Baseline Grid if active
@@ -135,10 +162,7 @@ class OverlayCanvas {
       this.renderDistanceGuides(selRect, hoverRect);
     }
 
-    // 6. Render Tab Order Flow if visualizer is active (v4.0.0)
-    if (this.tabOrderVisualizer && this.tabOrderVisualizer.isActive) {
-      this.tabOrderVisualizer.renderToSvg(this.svg);
-    }
+    // TabOrderVisualizer owns its SVG and refreshes on viewport changes.
   }
 
   renderSelectionBox(rect, el) {
