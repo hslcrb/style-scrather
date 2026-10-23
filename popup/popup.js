@@ -108,7 +108,7 @@
           notice('이 화면은 Chrome 확장 프로그램의 팝업입니다. 설치한 뒤 브라우저 도구 모음에서 열어주세요.');
           return;
         }
-        $('versionLabel').textContent = `v${browser.runtime.getManifest().version}`;
+        $('versionLabel').textContent = `v${browser.runtime.getManifest().version}.`;
         const tabs = await browser.tabs.query({ active: true, currentWindow: true });
         activeTab = tabs?.[0];
         if (activeTab?.id === undefined) throw new Error('No tab');
