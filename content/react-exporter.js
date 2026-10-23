@@ -90,8 +90,10 @@ export default function GeneratedComponent() {
 
   /**
    * Download image, SVG, or background asset to user's disk
+   * Resolves after requesting the download; rejects fetch/HTTP/body failures.
+   * @returns {Promise<{type: string, filename: string, src?: string}|null>}
    */
-  static downloadAsset(element) {
+  static async downloadAsset(element) {
     if (!element) return null;
     const tag = element.tagName.toLowerCase();
 
@@ -110,7 +112,7 @@ export default function GeneratedComponent() {
     if (tag === 'img' && element.src) {
       const src = element.src;
       const filename = src.split('/').pop().split('?')[0] || `image-${Date.now()}.png`;
-      this.fetchAndDownload(src, filename);
+      await this.fetchAndDownload(src, filename);
       return { type: 'image', filename, src };
     }
 
@@ -120,7 +122,7 @@ export default function GeneratedComponent() {
     if (match && match[1]) {
       const src = match[1];
       const filename = src.split('/').pop().split('?')[0] || `background-${Date.now()}.png`;
-      this.fetchAndDownload(src, filename);
+      await this.fetchAndDownload(src, filename);
       return { type: 'background', filename, src };
     }
 
@@ -140,15 +142,11 @@ export default function GeneratedComponent() {
   }
 
   static async fetchAndDownload(url, filename) {
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const objUrl = URL.createObjectURL(blob);
-      this.triggerDownload(objUrl, filename);
-    } catch (e) {
-      // Fallback direct link
-      this.triggerDownload(url, filename);
-    }
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`에셋 요청 실패 (HTTP ${res.status})`);
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    this.triggerDownload(objUrl, filename);
   }
 }
 

@@ -55,3 +55,72 @@ test('HTML void elements have no children or closing tag in JSX', () => {
     assert.deepEqual(stringsIn(output), ['keep me']);
   }
 });
+
+function captureDownloads(t) {
+  const files = [];
+  t.mock.method(ReactExporter, 'triggerDownload', (url, filename) => { files.push({ url, filename }); });
+  t.after(async () => {
+    // Drain the pre-fix fire-and-forget path as well, so a failing regression
+    // cannot leak pending work or blob URLs into another test.
+    await new Promise(resolve => setImmediate(resolve));
+    for (const file of files) if (file.url.startsWith('blob:')) URL.revokeObjectURL(file.url);
+  });
+  return files;
+}
+
+test('an HTTP error is rejected without downloading its error page', async t => {
+  const files = captureDownloads(t);
+  t.mock.method(globalThis, 'fetch', async () => new Response('Not found', { status: 404 }));
+  await assert.rejects(ReactExporter.fetchAndDownload('https://assets.test/missing.png', 'missing.png'), /404/);
+  assert.deepEqual(files, []);
+});
+
+test('image and background downloads propagate HTTP failure to their caller', async t => {
+  const files = captureDownloads(t);
+  t.mock.method(globalThis, 'fetch', async () => new Response('Not found', { status: 404 }));
+  const image = Object.assign(element('img'), { src: 'https://assets.test/missing.png', closest: () => null });
+  const background = Object.assign(element('div'), { closest: () => null, style: { backgroundImage: 'url("https://assets.test/missing.png")' } });
+  for (const target of [image, background]) {
+    await assert.rejects(Promise.resolve(ReactExporter.downloadAsset(target)), /404/);
+  }
+  assert.deepEqual(files, []);
+});
+
+test('a successful image download awaits the bytes before reporting metadata', async t => {
+  const files = captureDownloads(t);
+  const nativeFetch = globalThis.fetch;
+  t.mock.method(globalThis, 'fetch', async () => new Response('image bytes', { headers: { 'Content-Type': 'image/png' } }));
+  const image = Object.assign(element('img'), { src: 'https://assets.test/photo.png?cache=1', closest: () => null });
+  const result = await ReactExporter.downloadAsset(image);
+  assert.deepEqual(result, { type: 'image', filename: 'photo.png', src: 'https://assets.test/photo.png?cache=1' });
+  assert.equal(files.length, 1, 'completion must mean that the download was requested');
+  assert.equal(files[0].filename, 'photo.png');
+  const response = await nativeFetch(files[0].url);
+  assert.equal(response.headers.get('Content-Type'), 'image/png');
+  assert.equal(await response.text(), 'image bytes');
+});
+
+test('network and response-body failures do not fall back to an unchecked URL', async t => {
+  const files = captureDownloads(t);
+  const request = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Network unavailable'); });
+  await assert.rejects(ReactExporter.fetchAndDownload('https://assets.test/image.png', 'image.png'), /Network unavailable/);
+  request.mock.mockImplementation(async () => {
+    const response = new Response('unreadable');
+    response.blob = async () => { throw new Error('Body interrupted'); };
+    return response;
+  });
+  await assert.rejects(ReactExporter.fetchAndDownload('https://assets.test/image.png', 'image.png'), /Body interrupted/);
+  assert.deepEqual(files, []);
+});
+
+test('SVG and absent assets keep their result contract when awaited', async t => {
+  const files = captureDownloads(t);
+  const svg = Object.assign(element('svg'), { outerHTML: '<svg viewBox="0 0 10 10"></svg>' });
+  const result = await ReactExporter.downloadAsset(svg);
+  assert.equal(result.type, 'svg');
+  assert.match(result.filename, /^asset-vector-\d+\.svg$/);
+  assert.equal(await (await fetch(files[0].url)).text(), '<svg viewBox="0 0 10 10"></svg>');
+  const noAsset = Object.assign(element('div'), { closest: () => null, style: { backgroundImage: 'none' } });
+  assert.equal(await ReactExporter.downloadAsset(noAsset), null);
+  assert.equal(await ReactExporter.downloadAsset(null), null);
+});
