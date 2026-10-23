@@ -4,6 +4,27 @@ class MotionInspector {
   constructor() {
     this.playbackRate = 1.0;
     this.isPaused = false;
+    this.originalAnimations = new Map();
+    this.pausedByUs = new Set();
+  }
+
+  rememberAnimation(animation) {
+    if (!this.originalAnimations.has(animation)) {
+      this.originalAnimations.set(animation, { playbackRate: animation.playbackRate });
+    }
+  }
+
+  reset() {
+    for (const [animation, original] of this.originalAnimations) {
+      try {
+        animation.playbackRate = original.playbackRate;
+        if (this.pausedByUs.has(animation) && animation.playState === 'paused') animation.play();
+      } catch {}
+    }
+    this.originalAnimations.clear();
+    this.pausedByUs.clear();
+    this.playbackRate = 1;
+    this.isPaused = false;
   }
 
   /**
@@ -88,7 +109,10 @@ class MotionInspector {
     try {
       const anims = document.getAnimations();
       anims.forEach(anim => {
-        try { anim.playbackRate = this.playbackRate; } catch {}
+        try {
+          this.rememberAnimation(anim);
+          anim.playbackRate = this.playbackRate;
+        } catch {}
       });
     } catch (e) {}
     return this.playbackRate;
@@ -103,8 +127,14 @@ class MotionInspector {
       const anims = document.getAnimations();
       anims.forEach(anim => {
         try {
-          if (this.isPaused) anim.pause();
-          else anim.play();
+          if (this.isPaused && anim.playState === 'running') {
+            this.rememberAnimation(anim);
+            this.pausedByUs.add(anim);
+            anim.pause();
+          } else if (!this.isPaused && this.pausedByUs.has(anim)) {
+            if (anim.playState === 'paused') anim.play();
+            this.pausedByUs.delete(anim);
+          }
         } catch {}
       });
     } catch (e) {}

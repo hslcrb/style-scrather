@@ -11,22 +11,57 @@ class InstantZoom {
     this.zoomTarget = typeof document !== 'undefined' ? document.body : null;
     this.indicator = null;
     this.onZoomChange = options.onZoomChange || (() => {});
+    this.isActive = false;
+    this.manageShortcuts = options.manageShortcuts !== false;
+    this.listeners = [];
+    this.originalStyles = null;
 
     if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-      this.initMouseTracker();
       this.initIndicator();
-      this.initKeyListeners();
     }
+    this.setActive(options.active !== false);
+  }
+
+  listen(type, handler, options) {
+    window.addEventListener(type, handler, options);
+    this.listeners.push({ type, handler, options });
+  }
+
+  setActive(active) {
+    if (this.isActive === !!active) return;
+    this.isActive = !!active;
+    if (this.isActive) {
+      this.initMouseTracker();
+      if (this.manageShortcuts) this.initKeyListeners();
+      if (typeof window !== 'undefined' && window.addEventListener) {
+        this.listen('blur', () => this.resetZoom());
+      }
+    } else {
+      this.listeners.splice(0).forEach(({ type, handler, options }) => window.removeEventListener(type, handler, options));
+      this.restoreStyles();
+      this.currentScale = 1;
+      this.isZoomed = false;
+      clearTimeout(this._badgeTimer);
+      if (this.indicator) this.indicator.style.opacity = '0';
+    }
+  }
+
+  restoreStyles() {
+    if (!this.originalStyles || !this.zoomTarget) return;
+    const style = this.zoomTarget.style;
+    for (const [property, saved] of Object.entries(this.originalStyles)) {
+      const cssName = property.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+      if (style.setProperty) style.setProperty(cssName, saved.value, saved.priority);
+      else style[property] = saved.value;
+    }
+    this.originalStyles = null;
   }
 
   initMouseTracker() {
     if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
-    window.addEventListener('mousemove', (e) => {
+    this.listen('mousemove', (e) => {
       this.mouseX = e.clientX;
       this.mouseY = e.clientY;
-      if (this.currentScale === 1.0 && this.zoomTarget) {
-        this.zoomTarget.style.transformOrigin = `${this.mouseX}px ${this.mouseY}px`;
-      }
     }, { passive: true });
   }
 
@@ -84,8 +119,8 @@ class InstantZoom {
 
   initKeyListeners() {
     if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
-    window.addEventListener('keydown', (e) => {
-      const activeEl = document.activeElement;
+    this.listen('keydown', (e) => {
+      const activeEl = e.composedPath?.()[0] || document.activeElement;
       if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
         return;
       }
@@ -112,7 +147,7 @@ class InstantZoom {
     });
 
     if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
-    window.addEventListener('keyup', (e) => {
+    this.listen('keyup', (e) => {
       if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey && !e.altKey) {
         this.endZoom();
       }
@@ -120,25 +155,28 @@ class InstantZoom {
   }
 
   applyScale(newScale, duration = 280) {
+    if (!this.isActive) return;
     const body = (typeof document !== 'undefined' ? document.body : null) || this.zoomTarget;
     if (!body) return;
 
     this.currentScale = Math.max(this.minScale, Math.min(this.maxScale, Math.round(newScale * 100) / 100));
     this.isZoomed = this.currentScale !== 1.0;
 
-    body.style.transformOrigin = `${this.mouseX}px ${this.mouseY}px`;
-    body.style.transition = `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
-
     if (this.currentScale === 1.0) {
-      body.style.transform = 'scale(1)';
-      setTimeout(() => {
-        if (this.currentScale === 1.0 && body) {
-          body.style.transition = '';
-          body.style.transform = '';
-        }
-      }, duration + 20);
+      this.restoreStyles();
     } else {
-      body.style.transform = `scale(${this.currentScale})`;
+      if (!this.originalStyles) {
+        this.zoomTarget = body;
+        this.originalStyles = {};
+        for (const property of ['transform', 'transformOrigin', 'transition']) {
+          const cssName = property.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+          this.originalStyles[property] = { value: body.style[property] || '', priority: body.style.getPropertyPriority?.(cssName) || '' };
+        }
+      }
+      const original = this.originalStyles.transform.value;
+      body.style.transformOrigin = `${this.mouseX}px ${this.mouseY}px`;
+      body.style.transition = `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+      body.style.transform = `${original && original !== 'none' ? `${original} ` : ''}scale(${this.currentScale})`;
     }
 
     this.showBadge(`줌 배율: ${Math.round(this.currentScale * 100)}% (Alt + / - / 0)`);

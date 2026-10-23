@@ -191,6 +191,7 @@
       deviceMockup?.toggle(false);
       pageController?.toggleFreeze(false);
       pageController?.toggleUnblock(false);
+      motionInspector?.reset?.();
       modeManager?.clearSelection();
       overlayCanvas.setSelectedElement(null);
       overlayCanvas.setHoverElement(null);
