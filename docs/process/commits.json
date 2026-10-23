@@ -1,11 +1,11 @@
 {
-  "capturedAtUTC": "2026-10-23T04:39:04.954870+00:00",
+  "capturedAtUTC": "2026-10-23T04:57:06.382215+00:00",
   "baseline": "72f08c6927416c45cc0f81bb641b881f5aa2c09c",
-  "cutoff": "7e069940fcea8e623dea7f54d3c6d837cb44bebd",
+  "cutoff": "d63fe9e1276c3aeaa562461f47b4ef1cd1e45358",
   "isShallow": true,
   "counts": {
-    "commits": 61,
-    "mergeCommits": 7
+    "commits": 68,
+    "mergeCommits": 8
   },
   "branchesAtSnapshot": [
     {
@@ -24,8 +24,8 @@
     },
     {
       "name": "chatgpt/refresh/integration",
-      "localSha": "7e069940fcea8e623dea7f54d3c6d837cb44bebd",
-      "publishedSha": "7e069940fcea8e623dea7f54d3c6d837cb44bebd",
+      "localSha": "0781aec39814aac02700efe5e43ef4dc971a13ae",
+      "publishedSha": "0781aec39814aac02700efe5e43ef4dc971a13ae",
       "matchesPublished": true,
       "ancestorOfSnapshot": true
     },
@@ -54,6 +54,13 @@
       "name": "chatgpt/refresh/tooling",
       "localSha": "f3fad74aa0e63cc47aa0bb99d9f3c51cbb44f5e8",
       "publishedSha": "f3fad74aa0e63cc47aa0bb99d9f3c51cbb44f5e8",
+      "matchesPublished": true,
+      "ancestorOfSnapshot": true
+    },
+    {
+      "name": "chatgpt/release/closeout",
+      "localSha": "d63fe9e1276c3aeaa562461f47b4ef1cd1e45358",
+      "publishedSha": "d63fe9e1276c3aeaa562461f47b4ef1cd1e45358",
       "matchesPublished": true,
       "ancestorOfSnapshot": true
     }
@@ -2588,6 +2595,972 @@
           "status": "A",
           "added": 218,
           "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "144e9970289ec769eee8af682d51952a2d058462",
+      "parents": [
+        "7e069940fcea8e623dea7f54d3c6d837cb44bebd"
+      ],
+      "authoredAt": "2026-10-23T13:39:22+09:00",
+      "committedAt": "2026-10-23T13:39:22+09:00",
+      "subject": "docs: 커밋별 변경 파일과 부모 관계 및 게시 상태 원장 추가",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/process/COMMITS.md",
+          "status": "A",
+          "added": 941,
+          "deleted": 0
+        },
+        {
+          "path": "docs/process/commits.json",
+          "status": "A",
+          "added": 2595,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "0b7f4788d035f01de4c491fb4b63bc751e8f9d7d",
+      "parents": [
+        "144e9970289ec769eee8af682d51952a2d058462"
+      ],
+      "authoredAt": "2026-10-23T13:40:59+09:00",
+      "committedAt": "2026-10-23T13:40:59+09:00",
+      "subject": "docs: 로컬 빌드 근거와 설치 안내를 포함한 4.1.0 릴리즈 노트 작성",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/releases/release-notes-v4.1.0.md",
+          "status": "A",
+          "added": 65,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "0781aec39814aac02700efe5e43ef4dc971a13ae",
+      "parents": [
+        "0b7f4788d035f01de4c491fb4b63bc751e8f9d7d"
+      ],
+      "authoredAt": "2026-10-23T13:43:16+09:00",
+      "committedAt": "2026-10-23T13:43:16+09:00",
+      "subject": "docs: 릴리즈 직전 실제 브라우저와 반복 빌드 검증 증거 고정",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/VERIFICATION.md",
+          "status": "M",
+          "added": 17,
+          "deleted": 2
+        },
+        {
+          "path": "docs/process/2026-10-23-liquid-studio.md",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "path": "docs/verification/release-browser-packaged.json",
+          "status": "A",
+          "added": 27,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/release-browser-source.json",
+          "status": "A",
+          "added": 28,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/release-local.json",
+          "status": "A",
+          "added": 344,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "19c088f61d33fca8e62c7f8d329f4b33aaa58aba",
+      "parents": [
+        "72f08c6927416c45cc0f81bb641b881f5aa2c09c",
+        "0781aec39814aac02700efe5e43ef4dc971a13ae"
+      ],
+      "authoredAt": "2026-10-23T13:44:22+09:00",
+      "committedAt": "2026-10-23T13:44:22+09:00",
+      "subject": "merge: 리퀴드 스튜디오 개선과 로컬 릴리즈 검증을 메인에 통합",
+      "filesAgainstFirstParent": [
+        {
+          "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+          "status": "A",
+          "added": 36,
+          "deleted": 0
+        },
+        {
+          "path": ".github/ISSUE_TEMPLATE/config.yml",
+          "status": "A",
+          "added": 5,
+          "deleted": 0
+        },
+        {
+          "path": ".github/ISSUE_TEMPLATE/feature_request.yml",
+          "status": "A",
+          "added": 20,
+          "deleted": 0
+        },
+        {
+          "path": ".github/pull_request_template.md",
+          "status": "A",
+          "added": 18,
+          "deleted": 0
+        },
+        {
+          "path": ".github/workflows/README.md",
+          "status": "A",
+          "added": 20,
+          "deleted": 0
+        },
+        {
+          "path": ".github/workflows/verify.yml.disabled",
+          "status": "A",
+          "added": 38,
+          "deleted": 0
+        },
+        {
+          "path": ".gitignore",
+          "status": "M",
+          "added": 9,
+          "deleted": 0
+        },
+        {
+          "path": "CHANGELOG.md",
+          "status": "A",
+          "added": 55,
+          "deleted": 0
+        },
+        {
+          "path": "CODE_OF_CONDUCT.md",
+          "status": "A",
+          "added": 11,
+          "deleted": 0
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "status": "A",
+          "added": 57,
+          "deleted": 0
+        },
+        {
+          "path": "README.md",
+          "status": "M",
+          "added": 120,
+          "deleted": 167
+        },
+        {
+          "path": "SECURITY.md",
+          "status": "A",
+          "added": 17,
+          "deleted": 0
+        },
+        {
+          "path": "background/service-worker.js",
+          "status": "M",
+          "added": 117,
+          "deleted": 49
+        },
+        {
+          "path": "content/asset-editor.js",
+          "status": "M",
+          "added": 22,
+          "deleted": 1
+        },
+        {
+          "path": "content/color-suite.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/components/floating-dock.js",
+          "status": "M",
+          "added": 729,
+          "deleted": 1257
+        },
+        {
+          "path": "content/content.js",
+          "status": "M",
+          "added": 171,
+          "deleted": 94
+        },
+        {
+          "path": "content/context-hud.js",
+          "status": "M",
+          "added": 33,
+          "deleted": 12
+        },
+        {
+          "path": "content/css-beautifier.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/device-mockup.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/event-interceptor.js",
+          "status": "M",
+          "added": 46,
+          "deleted": 47
+        },
+        {
+          "path": "content/font-studio.js",
+          "status": "M",
+          "added": 82,
+          "deleted": 117
+        },
+        {
+          "path": "content/graphics-inspector.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/instant-zoom.js",
+          "status": "M",
+          "added": 62,
+          "deleted": 21
+        },
+        {
+          "path": "content/interaction-detector.js",
+          "status": "M",
+          "added": 11,
+          "deleted": 5
+        },
+        {
+          "path": "content/mode-manager.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/motion-inspector.js",
+          "status": "M",
+          "added": 37,
+          "deleted": 3
+        },
+        {
+          "path": "content/overlay-canvas.js",
+          "status": "M",
+          "added": 32,
+          "deleted": 4
+        },
+        {
+          "path": "content/page-controller.js",
+          "status": "M",
+          "added": 27,
+          "deleted": 9
+        },
+        {
+          "path": "content/palette-extractor.js",
+          "status": "M",
+          "added": 51,
+          "deleted": 39
+        },
+        {
+          "path": "content/precision-cursor.js",
+          "status": "M",
+          "added": 12,
+          "deleted": 4
+        },
+        {
+          "path": "content/react-exporter.js",
+          "status": "M",
+          "added": 30,
+          "deleted": 23
+        },
+        {
+          "path": "content/shortcut-manager.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/style-tweaker.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/styles/shadow-styles.css",
+          "status": "M",
+          "added": 243,
+          "deleted": 1842
+        },
+        {
+          "path": "content/tab-order-visualizer.js",
+          "status": "M",
+          "added": 44,
+          "deleted": 5
+        },
+        {
+          "path": "content/tailwind-converter.js",
+          "status": "M",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "content/unit-converter.js",
+          "status": "M",
+          "added": 6,
+          "deleted": 1
+        },
+        {
+          "path": "content/update-guardian.js",
+          "status": "M",
+          "added": 38,
+          "deleted": 39
+        },
+        {
+          "path": "demo/index.html",
+          "status": "M",
+          "added": 28,
+          "deleted": 728
+        },
+        {
+          "path": "demo/playground.css",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "demo/playground.js",
+          "status": "A",
+          "added": 4,
+          "deleted": 0
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "status": "A",
+          "added": 77,
+          "deleted": 0
+        },
+        {
+          "path": "docs/BRAND.md",
+          "status": "A",
+          "added": 53,
+          "deleted": 0
+        },
+        {
+          "path": "docs/DEVELOPMENT.md",
+          "status": "A",
+          "added": 68,
+          "deleted": 0
+        },
+        {
+          "path": "docs/PHILOSOPHY.md",
+          "status": "A",
+          "added": 32,
+          "deleted": 0
+        },
+        {
+          "path": "docs/PRIVACY.md",
+          "status": "A",
+          "added": 37,
+          "deleted": 0
+        },
+        {
+          "path": "docs/RELEASING.md",
+          "status": "A",
+          "added": 63,
+          "deleted": 0
+        },
+        {
+          "path": "docs/VERIFICATION.md",
+          "status": "A",
+          "added": 131,
+          "deleted": 0
+        },
+        {
+          "path": "docs/assets/studio-desktop.png",
+          "status": "A",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "docs/assets/website-hero.png",
+          "status": "A",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "docs/plans/2026-10-23-refresh.md",
+          "status": "A",
+          "added": 62,
+          "deleted": 0
+        },
+        {
+          "path": "docs/process/2026-10-23-liquid-studio.md",
+          "status": "A",
+          "added": 218,
+          "deleted": 0
+        },
+        {
+          "path": "docs/process/COMMITS.md",
+          "status": "A",
+          "added": 941,
+          "deleted": 0
+        },
+        {
+          "path": "docs/process/commits.json",
+          "status": "A",
+          "added": 2595,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v2.1.0.md",
+          "status": "A",
+          "added": 45,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v2.md",
+          "status": "A",
+          "added": 50,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v3.0.0.md",
+          "status": "A",
+          "added": 61,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v3.0.1.md",
+          "status": "A",
+          "added": 52,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v3.0.2.md",
+          "status": "A",
+          "added": 45,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.0.md",
+          "status": "A",
+          "added": 37,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.1.md",
+          "status": "A",
+          "added": 77,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.2.md",
+          "status": "A",
+          "added": 85,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.0.3.md",
+          "status": "A",
+          "added": 68,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes-v4.1.0.md",
+          "status": "A",
+          "added": 65,
+          "deleted": 0
+        },
+        {
+          "path": "docs/releases/release-notes.md",
+          "status": "A",
+          "added": 50,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/benchmark-after.json",
+          "status": "A",
+          "added": 20,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/benchmark-before.json",
+          "status": "A",
+          "added": 19,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/browser-packaged.json",
+          "status": "A",
+          "added": 27,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/browser-source.json",
+          "status": "A",
+          "added": 28,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/ci-status.json",
+          "status": "A",
+          "added": 11,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/package.json",
+          "status": "A",
+          "added": 11,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/release-browser-packaged.json",
+          "status": "A",
+          "added": 27,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/release-browser-source.json",
+          "status": "A",
+          "added": 28,
+          "deleted": 0
+        },
+        {
+          "path": "docs/verification/release-local.json",
+          "status": "A",
+          "added": 344,
+          "deleted": 0
+        },
+        {
+          "path": "generate-icons.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 146
+        },
+        {
+          "path": "icons/app-icon.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "icons/icon128.png",
+          "status": "M",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "icons/icon16.png",
+          "status": "M",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "icons/icon48.png",
+          "status": "M",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "icons/mark.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "icons/social-card.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "icons/wordmark.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "manifest.json",
+          "status": "M",
+          "added": 2,
+          "deleted": 2
+        },
+        {
+          "path": "package-lock.json",
+          "status": "A",
+          "added": 66,
+          "deleted": 0
+        },
+        {
+          "path": "package.json",
+          "status": "A",
+          "added": 30,
+          "deleted": 0
+        },
+        {
+          "path": "popup/popup.css",
+          "status": "M",
+          "added": 87,
+          "deleted": 297
+        },
+        {
+          "path": "popup/popup.html",
+          "status": "M",
+          "added": 53,
+          "deleted": 106
+        },
+        {
+          "path": "popup/popup.js",
+          "status": "M",
+          "added": 128,
+          "deleted": 177
+        },
+        {
+          "path": "release-notes-v2.1.0.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 45
+        },
+        {
+          "path": "release-notes-v2.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 50
+        },
+        {
+          "path": "release-notes-v3.0.0.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 61
+        },
+        {
+          "path": "release-notes-v3.0.1.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 52
+        },
+        {
+          "path": "release-notes-v3.0.2.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 45
+        },
+        {
+          "path": "release-notes-v4.0.0.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 37
+        },
+        {
+          "path": "release-notes-v4.0.1.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 77
+        },
+        {
+          "path": "release-notes-v4.0.2.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 85
+        },
+        {
+          "path": "release-notes-v4.0.3.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 68
+        },
+        {
+          "path": "release-notes.md",
+          "status": "D",
+          "added": 0,
+          "deleted": 50
+        },
+        {
+          "path": "scripts/build.js",
+          "status": "A",
+          "added": 108,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/check.js",
+          "status": "A",
+          "added": 33,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/generate-icons.js",
+          "status": "A",
+          "added": 102,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/manifest-assets.js",
+          "status": "A",
+          "added": 25,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/serve.js",
+          "status": "A",
+          "added": 80,
+          "deleted": 0
+        },
+        {
+          "path": "scripts/test.js",
+          "status": "A",
+          "added": 13,
+          "deleted": 0
+        },
+        {
+          "path": "serve.js",
+          "status": "M",
+          "added": 2,
+          "deleted": 42
+        },
+        {
+          "path": "test/benchmark.js",
+          "status": "A",
+          "added": 70,
+          "deleted": 0
+        },
+        {
+          "path": "test/browser.js",
+          "status": "A",
+          "added": 298,
+          "deleted": 0
+        },
+        {
+          "path": "test/export.test.js",
+          "status": "A",
+          "added": 126,
+          "deleted": 0
+        },
+        {
+          "path": "test/interface-browser.js",
+          "status": "A",
+          "added": 172,
+          "deleted": 0
+        },
+        {
+          "path": "test/interface.test.js",
+          "status": "A",
+          "added": 212,
+          "deleted": 0
+        },
+        {
+          "path": "test/package-assets.test.js",
+          "status": "A",
+          "added": 50,
+          "deleted": 0
+        },
+        {
+          "path": "test/popup.test.js",
+          "status": "A",
+          "added": 143,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-background.test.js",
+          "status": "A",
+          "added": 129,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-engines.test.js",
+          "status": "A",
+          "added": 214,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-fonts.test.js",
+          "status": "A",
+          "added": 75,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-injection.test.js",
+          "status": "A",
+          "added": 54,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-lifecycle.test.js",
+          "status": "A",
+          "added": 206,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-scans.test.js",
+          "status": "A",
+          "added": 84,
+          "deleted": 0
+        },
+        {
+          "path": "test/runtime-updates.test.js",
+          "status": "A",
+          "added": 27,
+          "deleted": 0
+        },
+        {
+          "path": "test/server.test.js",
+          "status": "A",
+          "added": 55,
+          "deleted": 0
+        },
+        {
+          "path": "test/studio-lifecycle.test.js",
+          "status": "A",
+          "added": 102,
+          "deleted": 0
+        },
+        {
+          "path": "test/verify.js",
+          "status": "M",
+          "added": 29,
+          "deleted": 119
+        },
+        {
+          "path": "website/README.md",
+          "status": "A",
+          "added": 29,
+          "deleted": 0
+        },
+        {
+          "path": "website/app.js",
+          "status": "A",
+          "added": 145,
+          "deleted": 0
+        },
+        {
+          "path": "website/icons/mark.svg",
+          "status": "A",
+          "added": 1,
+          "deleted": 0
+        },
+        {
+          "path": "website/index.html",
+          "status": "A",
+          "added": 94,
+          "deleted": 0
+        },
+        {
+          "path": "website/styles.css",
+          "status": "A",
+          "added": 2568,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "9158c19f6b3e68c14f269e90a8a1c39e3e93dd12",
+      "parents": [
+        "19c088f61d33fca8e62c7f8d329f4b33aaa58aba"
+      ],
+      "authoredAt": "2026-10-23T13:52:46+09:00",
+      "committedAt": "2026-10-23T13:52:46+09:00",
+      "subject": "docs: 정식 릴리즈 게시와 공개 다운로드 무결성 확인 기록",
+      "filesAgainstFirstParent": [
+        {
+          "path": "docs/assets/release-v4.1.0-20261023.jpg",
+          "status": "A",
+          "added": null,
+          "deleted": null
+        },
+        {
+          "path": "docs/process/2026-10-23-liquid-studio.md",
+          "status": "M",
+          "added": 27,
+          "deleted": 9
+        },
+        {
+          "path": "docs/verification/release-published.json",
+          "status": "A",
+          "added": 57,
+          "deleted": 0
+        }
+      ]
+    },
+    {
+      "sha": "c510df248e39d7075d259aba09e89bda093227e7",
+      "parents": [
+        "9158c19f6b3e68c14f269e90a8a1c39e3e93dd12"
+      ],
+      "authoredAt": "2026-10-23T13:54:25+09:00",
+      "committedAt": "2026-10-23T13:54:25+09:00",
+      "subject": "docs: 정식 릴리즈 설치와 메인 기준 기여 및 완료 안내 갱신",
+      "filesAgainstFirstParent": [
+        {
+          "path": "CHANGELOG.md",
+          "status": "M",
+          "added": 6,
+          "deleted": 5
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "status": "M",
+          "added": 3,
+          "deleted": 3
+        },
+        {
+          "path": "README.md",
+          "status": "M",
+          "added": 19,
+          "deleted": 13
+        },
+        {
+          "path": "docs/BRAND.md",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "path": "docs/DEVELOPMENT.md",
+          "status": "M",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "path": "docs/VERIFICATION.md",
+          "status": "M",
+          "added": 5,
+          "deleted": 1
+        },
+        {
+          "path": "docs/plans/2026-10-23-refresh.md",
+          "status": "M",
+          "added": 10,
+          "deleted": 2
+        }
+      ]
+    },
+    {
+      "sha": "d63fe9e1276c3aeaa562461f47b4ef1cd1e45358",
+      "parents": [
+        "c510df248e39d7075d259aba09e89bda093227e7"
+      ],
+      "authoredAt": "2026-10-23T13:55:16+09:00",
+      "committedAt": "2026-10-23T13:55:16+09:00",
+      "subject": "docs(site): 소개 페이지를 검증된 정식 설치 파일과 메인 문서에 연결",
+      "filesAgainstFirstParent": [
+        {
+          "path": "website/README.md",
+          "status": "M",
+          "added": 3,
+          "deleted": 3
+        },
+        {
+          "path": "website/index.html",
+          "status": "M",
+          "added": 9,
+          "deleted": 9
         }
       ]
     }

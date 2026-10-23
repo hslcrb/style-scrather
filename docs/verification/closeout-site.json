@@ -1,0 +1,35 @@
+{
+  "sourceSHA": "d63fe9e1276c3aeaa562461f47b4ef1cd1e45358",
+  "verifiedAtUTC": "2026-10-23T04:57:05.768Z",
+  "browser": "156.0.8078.47",
+  "checks": [
+    "Published ZIP installation link",
+    "Main source and documentation links",
+    "Visible released version",
+    "No horizontal overflow at 320 and 1440px",
+    "Local images loaded",
+    "No page errors"
+  ],
+  "widths": [
+    {
+      "width": 320,
+      "overflow": false,
+      "brokenImages": [],
+      "oldBranchLinks": 0,
+      "install": "git clone --depth 1 --branch main https://github.com/hslcrb/style-scrather.git\ncd style-scrather",
+      "version": "v4.1.0.",
+      "installAsset": "https://github.com/hslcrb/style-scrather/releases/download/v4.1.0/style-scratcher-4.1.0.zip"
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "brokenImages": [],
+      "oldBranchLinks": 0,
+      "install": "git clone --depth 1 --branch main https://github.com/hslcrb/style-scrather.git\ncd style-scrather",
+      "version": "v4.1.0.",
+      "installAsset": "https://github.com/hslcrb/style-scrather/releases/download/v4.1.0/style-scratcher-4.1.0.zip"
+    }
+  ],
+  "pageErrors": [],
+  "success": true
+}

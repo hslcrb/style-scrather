@@ -231,6 +231,12 @@ GitHub API가 반환한 ZIP digest도 `d1b8773cd276587adce6fa5b338d23c3a9b10ced4
 
 ## 14. 배포 이후 마감 기록
 
-main 병합 커밋에서 `chatgpt/release/closeout`을 만들어 실제 공개 상태와 설치 링크를 반영한다. 이 브랜치도 작은 커밋마다 게시하고, main으로 통합할 때 두 부모 병합을 사용한다. 사이트와 문서가 릴리즈 태그 이후에 갱신되는 이유는 공개 파일이 존재하는 것을 확인한 뒤 설치 링크를 연결하기 위해서다. 확장 런타임·아이콘·manifest·설치 ZIP은 변경하지 않는다.
+main 병합 커밋에서 `chatgpt/release/closeout`을 만들어 실제 공개 상태와 설치 링크를 반영했다. `9158c19`는 게시 증거·공개 다운로드 대조·화면 기록, `c510df2`는 README와 기여·브랜드·변경 이력·검증·계획 문서, `d63fe9e`는 소개 페이지의 정식 ZIP 및 main 링크 갱신이다. 각 커밋은 작성 직후 게시했다. 이 브랜치의 최종 통합은 [PR #2](https://github.com/hslcrb/style-scrather/pull/2)에 기록하며 두 부모 병합을 사용한다.
+
+사이트와 문서가 릴리즈 태그 이후에 갱신되는 이유는 공개 파일이 존재하는 것을 확인한 뒤 설치 링크를 연결하기 위해서다. 확장 런타임·아이콘·manifest·설치 ZIP은 변경하지 않았다. 마감 체크에서 릴리즈 태그와 runtime·tooling·tests·dependency 입력의 diff가 없는지 확인했다.
+
+2026-10-23 **04:57 UTC**, `d63fe9e`에서 구문·manifest 검사와 빌드를 다시 실행했다. ZIP의 39개 파일·114,504 bytes·digest는 공개 자산과 동일했다. 실제 Chrome 156에서 바뀐 소개 페이지의 320px·1440px 화면을 확인했다. 공개 설치 ZIP 링크, main clone 명령, 정식 버전 표시, 이미지 로딩, 가로 overflow 없음, page error 0을 검증했다. [소개 페이지 마감 검사](../verification/closeout-site.json)에 결과를 남겼다.
+
+[브랜치·빌드 마감 감사](../verification/closeout-audit.json)는 이 시점의 8개 `chatgpt/` 작업 브랜치와 main에 대해 로컬 SHA와 공개 ref가 일치하며 마감 브랜치의 ancestor인 것을 확인한다. shallow=true, 기존 main 이전 이력 1개가 유지되었다. 커밋 원장은 이 시점의 기준 이후 68개 커밋과 8개 병합까지 갱신했다. 이 증거를 담는 다음 커밋과 PR #2의 마지막 병합은 해당 스냅샷 이후 이력이다.
 
 원장과 최종 상태 증거에는 기준 SHA와 작성 시점을 명시한다. 기록 파일 자신을 게시하는 커밋은 자기 SHA를 미리 포함할 수 없으므로 그 이후의 기록 커밋과 마지막 병합은 Git 이력과 PR에서 확인한다. 종료 전에 모든 작업 브랜치의 ancestor 관계, 게시된 ref 일치, shallow 상태와 작업 트리의 clean 상태를 확인한다.

@@ -1,6 +1,6 @@
 # 커밋별 작업 원장
 
-기준: `72f08c6927416c45cc0f81bb641b881f5aa2c09c` → `7e069940fcea8e623dea7f54d3c6d837cb44bebd`. 커밋 **61개**, 두 부모 이상 병합 **7개**. 생성 시각(UTC): `2026-10-23T04:39:04.954870+00:00`.
+기준: `72f08c6927416c45cc0f81bb641b881f5aa2c09c` → `d63fe9e1276c3aeaa562461f47b4ef1cd1e45358`. 커밋 **68개**, 두 부모 이상 병합 **8개**. 생성 시각(UTC): `2026-10-23T04:57:06.382215+00:00`.
 
 Git 객체에서 직접 생성했다. 작성·커밋 시각은 원래 오프셋을 보존하며, 아래 순서는 부모가 먼저 나오는 위상 순서다. 병합 커밋의 파일 목록·증감은 첫 번째 부모와 비교했다. 따라서 여러 행의 줄 수를 합쳐 최종 변경량으로 해석하면 안 된다. 변경 상태는 A=추가, M=수정, D=삭제다. 모든 커밋 제목은 영어 접두사와 한국어 설명 형식으로 검사했다.
 
@@ -12,11 +12,12 @@ Git 객체에서 직접 생성했다. 작성·커밋 시각은 원래 오프셋�
 | --- | --- | --- | --- |
 | `chatgpt/refresh/export/runtime-fixes` | `9ad45ce` | 예 | 예 |
 | `chatgpt/refresh/identity` | `42bc5cc` | 예 | 예 |
-| `chatgpt/refresh/integration` | `7e06994` | 예 | 예 |
+| `chatgpt/refresh/integration` | `0781aec` | 예 | 예 |
 | `chatgpt/refresh/interface` | `1476bfe` | 예 | 예 |
 | `chatgpt/refresh/runtime` | `dd4ed45` | 예 | 예 |
 | `chatgpt/refresh/studio/lifecycle` | `52c3896` | 예 | 예 |
 | `chatgpt/refresh/tooling` | `f3fad74` | 예 | 예 |
+| `chatgpt/release/closeout` | `d63fe9e` | 예 | 예 |
 
 ## 변경 상세
 
@@ -938,4 +939,222 @@ Git 객체에서 직접 생성했다. 작성·커밋 시각은 원래 오프셋�
 | 상태 | 경로 | 추가 | 삭제 |
 | --- | --- | ---: | ---: |
 | A | `docs/process/2026-10-23-liquid-studio.md` | 218 | 0 |
+
+### 62. docs: 커밋별 변경 파일과 부모 관계 및 게시 상태 원장 추가
+
+- 커밋: [`144e997`](https://github.com/hslcrb/style-scrather/commit/144e9970289ec769eee8af682d51952a2d058462)
+- 부모: `7e06994`
+- 작성: `2026-10-23T13:39:22+09:00` · 커밋: `2026-10-23T13:39:22+09:00`
+- 변경 파일: 2개
+
+| 상태 | 경로 | 추가 | 삭제 |
+| --- | --- | ---: | ---: |
+| A | `docs/process/COMMITS.md` | 941 | 0 |
+| A | `docs/process/commits.json` | 2595 | 0 |
+
+### 63. docs: 로컬 빌드 근거와 설치 안내를 포함한 4.1.0 릴리즈 노트 작성
+
+- 커밋: [`0b7f478`](https://github.com/hslcrb/style-scrather/commit/0b7f4788d035f01de4c491fb4b63bc751e8f9d7d)
+- 부모: `144e997`
+- 작성: `2026-10-23T13:40:59+09:00` · 커밋: `2026-10-23T13:40:59+09:00`
+- 변경 파일: 1개
+
+| 상태 | 경로 | 추가 | 삭제 |
+| --- | --- | ---: | ---: |
+| A | `docs/releases/release-notes-v4.1.0.md` | 65 | 0 |
+
+### 64. docs: 릴리즈 직전 실제 브라우저와 반복 빌드 검증 증거 고정
+
+- 커밋: [`0781aec`](https://github.com/hslcrb/style-scrather/commit/0781aec39814aac02700efe5e43ef4dc971a13ae)
+- 부모: `0b7f478`
+- 작성: `2026-10-23T13:43:16+09:00` · 커밋: `2026-10-23T13:43:16+09:00`
+- 변경 파일: 5개
+
+| 상태 | 경로 | 추가 | 삭제 |
+| --- | --- | ---: | ---: |
+| M | `docs/VERIFICATION.md` | 17 | 2 |
+| M | `docs/process/2026-10-23-liquid-studio.md` | 1 | 1 |
+| A | `docs/verification/release-browser-packaged.json` | 27 | 0 |
+| A | `docs/verification/release-browser-source.json` | 28 | 0 |
+| A | `docs/verification/release-local.json` | 344 | 0 |
+
+### 65. merge: 리퀴드 스튜디오 개선과 로컬 릴리즈 검증을 메인에 통합
+
+- 커밋: [`19c088f`](https://github.com/hslcrb/style-scrather/commit/19c088f61d33fca8e62c7f8d329f4b33aaa58aba)
+- 부모: `72f08c6`, `0781aec`
+- 작성: `2026-10-23T13:44:22+09:00` · 커밋: `2026-10-23T13:44:22+09:00`
+- 변경 파일: 128개
+
+| 상태 | 경로 | 추가 | 삭제 |
+| --- | --- | ---: | ---: |
+| A | `.github/ISSUE_TEMPLATE/bug_report.yml` | 36 | 0 |
+| A | `.github/ISSUE_TEMPLATE/config.yml` | 5 | 0 |
+| A | `.github/ISSUE_TEMPLATE/feature_request.yml` | 20 | 0 |
+| A | `.github/pull_request_template.md` | 18 | 0 |
+| A | `.github/workflows/README.md` | 20 | 0 |
+| A | `.github/workflows/verify.yml.disabled` | 38 | 0 |
+| M | `.gitignore` | 9 | 0 |
+| A | `CHANGELOG.md` | 55 | 0 |
+| A | `CODE_OF_CONDUCT.md` | 11 | 0 |
+| A | `CONTRIBUTING.md` | 57 | 0 |
+| M | `README.md` | 120 | 167 |
+| A | `SECURITY.md` | 17 | 0 |
+| M | `background/service-worker.js` | 117 | 49 |
+| M | `content/asset-editor.js` | 22 | 1 |
+| M | `content/color-suite.js` | 4 | 0 |
+| M | `content/components/floating-dock.js` | 729 | 1257 |
+| M | `content/content.js` | 171 | 94 |
+| M | `content/context-hud.js` | 33 | 12 |
+| M | `content/css-beautifier.js` | 4 | 0 |
+| M | `content/device-mockup.js` | 4 | 0 |
+| M | `content/event-interceptor.js` | 46 | 47 |
+| M | `content/font-studio.js` | 82 | 117 |
+| M | `content/graphics-inspector.js` | 4 | 0 |
+| M | `content/instant-zoom.js` | 62 | 21 |
+| M | `content/interaction-detector.js` | 11 | 5 |
+| M | `content/mode-manager.js` | 4 | 0 |
+| M | `content/motion-inspector.js` | 37 | 3 |
+| M | `content/overlay-canvas.js` | 32 | 4 |
+| M | `content/page-controller.js` | 27 | 9 |
+| M | `content/palette-extractor.js` | 51 | 39 |
+| M | `content/precision-cursor.js` | 12 | 4 |
+| M | `content/react-exporter.js` | 30 | 23 |
+| M | `content/shortcut-manager.js` | 4 | 0 |
+| M | `content/style-tweaker.js` | 4 | 0 |
+| M | `content/styles/shadow-styles.css` | 243 | 1842 |
+| M | `content/tab-order-visualizer.js` | 44 | 5 |
+| M | `content/tailwind-converter.js` | 4 | 0 |
+| M | `content/unit-converter.js` | 6 | 1 |
+| M | `content/update-guardian.js` | 38 | 39 |
+| M | `demo/index.html` | 28 | 728 |
+| A | `demo/playground.css` | 1 | 0 |
+| A | `demo/playground.js` | 4 | 0 |
+| A | `docs/ARCHITECTURE.md` | 77 | 0 |
+| A | `docs/BRAND.md` | 53 | 0 |
+| A | `docs/DEVELOPMENT.md` | 68 | 0 |
+| A | `docs/PHILOSOPHY.md` | 32 | 0 |
+| A | `docs/PRIVACY.md` | 37 | 0 |
+| A | `docs/RELEASING.md` | 63 | 0 |
+| A | `docs/VERIFICATION.md` | 131 | 0 |
+| A | `docs/assets/studio-desktop.png` | binary | binary |
+| A | `docs/assets/website-hero.png` | binary | binary |
+| A | `docs/plans/2026-10-23-refresh.md` | 62 | 0 |
+| A | `docs/process/2026-10-23-liquid-studio.md` | 218 | 0 |
+| A | `docs/process/COMMITS.md` | 941 | 0 |
+| A | `docs/process/commits.json` | 2595 | 0 |
+| A | `docs/releases/release-notes-v2.1.0.md` | 45 | 0 |
+| A | `docs/releases/release-notes-v2.md` | 50 | 0 |
+| A | `docs/releases/release-notes-v3.0.0.md` | 61 | 0 |
+| A | `docs/releases/release-notes-v3.0.1.md` | 52 | 0 |
+| A | `docs/releases/release-notes-v3.0.2.md` | 45 | 0 |
+| A | `docs/releases/release-notes-v4.0.0.md` | 37 | 0 |
+| A | `docs/releases/release-notes-v4.0.1.md` | 77 | 0 |
+| A | `docs/releases/release-notes-v4.0.2.md` | 85 | 0 |
+| A | `docs/releases/release-notes-v4.0.3.md` | 68 | 0 |
+| A | `docs/releases/release-notes-v4.1.0.md` | 65 | 0 |
+| A | `docs/releases/release-notes.md` | 50 | 0 |
+| A | `docs/verification/benchmark-after.json` | 20 | 0 |
+| A | `docs/verification/benchmark-before.json` | 19 | 0 |
+| A | `docs/verification/browser-packaged.json` | 27 | 0 |
+| A | `docs/verification/browser-source.json` | 28 | 0 |
+| A | `docs/verification/ci-status.json` | 11 | 0 |
+| A | `docs/verification/package.json` | 11 | 0 |
+| A | `docs/verification/release-browser-packaged.json` | 27 | 0 |
+| A | `docs/verification/release-browser-source.json` | 28 | 0 |
+| A | `docs/verification/release-local.json` | 344 | 0 |
+| M | `generate-icons.js` | 2 | 146 |
+| A | `icons/app-icon.svg` | 1 | 0 |
+| M | `icons/icon128.png` | binary | binary |
+| M | `icons/icon16.png` | binary | binary |
+| M | `icons/icon48.png` | binary | binary |
+| A | `icons/mark.svg` | 1 | 0 |
+| A | `icons/social-card.svg` | 1 | 0 |
+| A | `icons/wordmark.svg` | 1 | 0 |
+| M | `manifest.json` | 2 | 2 |
+| A | `package-lock.json` | 66 | 0 |
+| A | `package.json` | 30 | 0 |
+| M | `popup/popup.css` | 87 | 297 |
+| M | `popup/popup.html` | 53 | 106 |
+| M | `popup/popup.js` | 128 | 177 |
+| D | `release-notes-v2.1.0.md` | 0 | 45 |
+| D | `release-notes-v2.md` | 0 | 50 |
+| D | `release-notes-v3.0.0.md` | 0 | 61 |
+| D | `release-notes-v3.0.1.md` | 0 | 52 |
+| D | `release-notes-v3.0.2.md` | 0 | 45 |
+| D | `release-notes-v4.0.0.md` | 0 | 37 |
+| D | `release-notes-v4.0.1.md` | 0 | 77 |
+| D | `release-notes-v4.0.2.md` | 0 | 85 |
+| D | `release-notes-v4.0.3.md` | 0 | 68 |
+| D | `release-notes.md` | 0 | 50 |
+| A | `scripts/build.js` | 108 | 0 |
+| A | `scripts/check.js` | 33 | 0 |
+| A | `scripts/generate-icons.js` | 102 | 0 |
+| A | `scripts/manifest-assets.js` | 25 | 0 |
+| A | `scripts/serve.js` | 80 | 0 |
+| A | `scripts/test.js` | 13 | 0 |
+| M | `serve.js` | 2 | 42 |
+| A | `test/benchmark.js` | 70 | 0 |
+| A | `test/browser.js` | 298 | 0 |
+| A | `test/export.test.js` | 126 | 0 |
+| A | `test/interface-browser.js` | 172 | 0 |
+| A | `test/interface.test.js` | 212 | 0 |
+| A | `test/package-assets.test.js` | 50 | 0 |
+| A | `test/popup.test.js` | 143 | 0 |
+| A | `test/runtime-background.test.js` | 129 | 0 |
+| A | `test/runtime-engines.test.js` | 214 | 0 |
+| A | `test/runtime-fonts.test.js` | 75 | 0 |
+| A | `test/runtime-injection.test.js` | 54 | 0 |
+| A | `test/runtime-lifecycle.test.js` | 206 | 0 |
+| A | `test/runtime-scans.test.js` | 84 | 0 |
+| A | `test/runtime-updates.test.js` | 27 | 0 |
+| A | `test/server.test.js` | 55 | 0 |
+| A | `test/studio-lifecycle.test.js` | 102 | 0 |
+| M | `test/verify.js` | 29 | 119 |
+| A | `website/README.md` | 29 | 0 |
+| A | `website/app.js` | 145 | 0 |
+| A | `website/icons/mark.svg` | 1 | 0 |
+| A | `website/index.html` | 94 | 0 |
+| A | `website/styles.css` | 2568 | 0 |
+
+### 66. docs: 정식 릴리즈 게시와 공개 다운로드 무결성 확인 기록
+
+- 커밋: [`9158c19`](https://github.com/hslcrb/style-scrather/commit/9158c19f6b3e68c14f269e90a8a1c39e3e93dd12)
+- 부모: `19c088f`
+- 작성: `2026-10-23T13:52:46+09:00` · 커밋: `2026-10-23T13:52:46+09:00`
+- 변경 파일: 3개
+
+| 상태 | 경로 | 추가 | 삭제 |
+| --- | --- | ---: | ---: |
+| A | `docs/assets/release-v4.1.0-20261023.jpg` | binary | binary |
+| M | `docs/process/2026-10-23-liquid-studio.md` | 27 | 9 |
+| A | `docs/verification/release-published.json` | 57 | 0 |
+
+### 67. docs: 정식 릴리즈 설치와 메인 기준 기여 및 완료 안내 갱신
+
+- 커밋: [`c510df2`](https://github.com/hslcrb/style-scrather/commit/c510df248e39d7075d259aba09e89bda093227e7)
+- 부모: `9158c19`
+- 작성: `2026-10-23T13:54:25+09:00` · 커밋: `2026-10-23T13:54:25+09:00`
+- 변경 파일: 7개
+
+| 상태 | 경로 | 추가 | 삭제 |
+| --- | --- | ---: | ---: |
+| M | `CHANGELOG.md` | 6 | 5 |
+| M | `CONTRIBUTING.md` | 3 | 3 |
+| M | `README.md` | 19 | 13 |
+| M | `docs/BRAND.md` | 1 | 1 |
+| M | `docs/DEVELOPMENT.md` | 1 | 1 |
+| M | `docs/VERIFICATION.md` | 5 | 1 |
+| M | `docs/plans/2026-10-23-refresh.md` | 10 | 2 |
+
+### 68. docs(site): 소개 페이지를 검증된 정식 설치 파일과 메인 문서에 연결
+
+- 커밋: [`d63fe9e`](https://github.com/hslcrb/style-scrather/commit/d63fe9e1276c3aeaa562461f47b4ef1cd1e45358)
+- 부모: `c510df2`
+- 작성: `2026-10-23T13:55:16+09:00` · 커밋: `2026-10-23T13:55:16+09:00`
+- 변경 파일: 2개
+
+| 상태 | 경로 | 추가 | 삭제 |
+| --- | --- | ---: | ---: |
+| M | `website/README.md` | 3 | 3 |
+| M | `website/index.html` | 9 | 9 |
 
